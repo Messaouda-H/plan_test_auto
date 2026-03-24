@@ -1,0 +1,97 @@
+name: Kanban Automation
+
+on:
+  issues:
+    types: [opened, assigned, closed, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  move_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move issue in project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+
+            // Recuperer l'ID du projet GitHub
+            const { data: projects } = await github.rest.projects.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            const project = projects.find(p => p.name === 'Halyzia — Suivi qualite');
+            if (!project) {
+              console.log('Projet non trouve');
+              return;
+            }
+
+            // Recuperer les colonnes
+            const { data: columns } = await github.rest.projects.listColumns({
+              project_id: project.id
+            });
+
+            const colMap = {};
+            for (const col of columns) {
+              colMap[col.name] = col.id;
+            }
+
+            // Trouver la carte existante
+            let cardId = null;
+            for (const col of columns) {
+              const { data: cards } = await github.rest.projects.listCards({
+                column_id: col.id
+              });
+              const card = cards.find(c =>
+                c.content_url && c.content_url.endsWith(`/issues/${issue.number}`)
+              );
+              if (card) { cardId = card.id; break; }
+            }
+
+            // Determiner la colonne cible selon l'action
+            let targetColName = null;
+
+            if (action === 'opened') {
+              targetColName = 'Bug signale';
+            } else if (action === 'assigned') {
+              targetColName = 'Assigne';
+            } else if (action === 'closed') {
+              targetColName = 'Ferme';
+            } else if (action === 'reopened') {
+              targetColName = 'Bug signale';
+            }
+
+            // Detecter "En cours" via un commentaire contenant /en-cours
+            if (context.eventName === 'issue_comment') {
+              const body = context.payload.comment.body;
+              if (body.includes('/en-cours')) targetColName = 'En cours';
+              if (body.includes('/a-re-tester')) targetColName = 'A re-tester';
+            }
+
+            if (!targetColName || !colMap[targetColName]) {
+              console.log('Pas de deplacement necessaire');
+              return;
+            }
+
+            if (cardId) {
+              // Deplacer la carte existante
+              await github.rest.projects.moveCard({
+                card_id: cardId,
+                position: 'top',
+                column_id: colMap[targetColName]
+              });
+            } else {
+              // Creer la carte si elle n'existe pas encore
+              await github.rest.projects.createCard({
+                column_id: colMap[targetColName],
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            }
+
+            console.log(`Issue #${issue.number} deplacee vers "${targetColName}"`);
