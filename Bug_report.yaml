@@ -1,0 +1,99 @@
+# .github/ISSUE_TEMPLATE/bug_report.yml
+name: Bug Report — Halyzia
+description: Signaler un bug detecte pendant les tests
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version Halyzia
+      options:
+        - V1.7.1
+        - V1.7.1.RC2
+        - V1.7.1.RC1
+        - Autre
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow concerne
+      options:
+        - Workflow 1 — NEW + detection complete
+        - Workflow 2 — Bipolaire + detection
+        - Workflow 3 — MED + Janca
+        - Workflow 4 — AVG + export
+        - Workflow 5 — Macro-referencement
+        - Workflow 6 — Fermeture/reouverture
+        - Workflow 7 — Detection overlap
+        - Workflow 8 — Bipolaire vs monopolaire
+        - Workflow 9 — Ecraser dossier existant
+        - Workflow 10 — Redetection
+        - Autre
+
+  - type: dropdown
+    id: format
+    attributes:
+      label: Format fichier EEG utilise
+      options: [.ncs, .edf, .TRC, .ns5, .medd, Autre]
+
+  - type: input
+    id: fichier
+    attributes:
+      label: Nom du fichier teste
+      placeholder: ex. P110_DP002-sieste_micmac-ncs
+
+  - type: input
+    id: pc
+    attributes:
+      label: PC utilise
+      placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
+
+  - type: input
+    id: testeur
+    attributes:
+      label: Testeur
+      placeholder: ex. Ulysse / Halissath
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      placeholder: Decrivez ce qui s'est passe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultat attendu
+      placeholder: Ce qui aurait du se passer...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultat obtenu
+      placeholder: Ce qui s'est passe a la place...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Etapes pour reproduire
+      placeholder: |
+        1. Ouvrir Halyzia V1.7.1
+        2. NEW > selectionner le dossier X
+        3. Appliquer filtre permanent...
+        4. Bug apparu
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Lignes d'erreur (si applicable)
+      render: shell
