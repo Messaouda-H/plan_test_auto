@@ -40,6 +40,31 @@ jobs:
 
             const fmt = d => d.toLocaleDateString('fr-FR');
 
+            // 🔹 Temps de résolution
+            const resolutionTimes = fermes
+              .filter(i => i.closed_at)
+              .map(i => new Date(i.closed_at) - new Date(i.created_at));
+
+            let avgResolution = 0;
+            if (resolutionTimes.length > 0) {
+              avgResolution = resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length;
+            }
+
+            const avgHours = Math.round(avgResolution / 3600000);
+
+            // 🔹 Bugs par version
+            const bugsParVersion = {};
+            issues.forEach(i => {
+              const match = i.body?.match(/V\d+\.\d+\.\d+/);
+              const version = match ? match[0] : "Inconnue";
+              bugsParVersion[version] = (bugsParVersion[version] || 0) + 1;
+            });
+
+            const lignesVersions = Object.entries(bugsParVersion)
+              .map(([v, n]) => `- ${v} : ${n}`)
+              .join('\n') || 'Aucune donnée';
+
+            // 🔹 Listes bugs
             const lignes_ouverts = ouverts.length
               ? ouverts.map(i =>
                   `- [#${i.number} — ${i.title}](${i.html_url})`
@@ -52,8 +77,15 @@ jobs:
                 ).join('\n')
               : '_Aucun bug resolu cette semaine_';
 
+            const lignes_critiques = critiques.filter(i => i.state === 'open').length
+              ? critiques.filter(i => i.state === 'open')
+                .map(i => `- [#${i.number} — ${i.title}](${i.html_url})`)
+                .join('\n')
+              : '_Aucun bug critique ouvert_';
+
+            // 🔹 Rapport final
             const rapport = [
-              `## Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
+              `## 📊 Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
               '',
               `| Metrique | Valeur |`,
               `|---|---|`,
@@ -61,12 +93,19 @@ jobs:
               `| Bugs resolus  | ${fermes.length} |`,
               `| Bugs ouverts  | ${ouverts.length} |`,
               `| Bugs critiques ouverts | ${critiques.filter(i => i.state==='open').length} |`,
+              `| Temps moyen de resolution | ${avgHours || 0} h |`,
               '',
-              `### Bugs encore ouverts`,
+              `### 🔥 Bugs critiques ouverts`,
+              lignes_critiques,
+              '',
+              `### 🐞 Bugs encore ouverts`,
               lignes_ouverts,
               '',
-              `### Resolus cette semaine`,
+              `### ✅ Resolus cette semaine`,
               lignes_fermes,
+              '',
+              `### 📦 Bugs par version`,
+              lignesVersions
             ].join('\n');
 
             await github.rest.issues.create({
