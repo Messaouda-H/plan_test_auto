@@ -1,1 +1,52 @@
 
+# .github/workflows/weekly_report.yml
+name: Rapport hebdomadaire qualite
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Tous les lundis a 8h
+  workflow_dispatch:       # Ou a la demande
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generer rapport bugs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'bug',
+              state: 'all',
+              since: new Date(Date.now() - 7*24*60*60*1000).toISOString()
+            });
+
+            const ouverts = issues.filter(i => i.state === 'open');
+            const fermes  = issues.filter(i => i.state === 'closed');
+
+            const rapport = `## Rapport qualite hebdomadaire
+            
+            **Periode** : ${new Date(Date.now()-7*24*60*60*1000).toLocaleDateString('fr')} → ${new Date().toLocaleDateString('fr')}
+            
+            | Metrique | Valeur |
+            |---|---|
+            | Bugs reportes cette semaine | ${issues.length} |
+            | Bugs resolus | ${fermes.length} |
+            | Bugs encore ouverts | ${ouverts.length} |
+            
+            ### Bugs ouverts
+            ${ouverts.map(i => `- [#${i.number}](${i.html_url}) — ${i.title}`).join('\n') || 'Aucun'}
+            
+            ### Resolus cette semaine
+            ${fermes.map(i => `- [#${i.number}](${i.html_url}) — ${i.title}`).join('\n') || 'Aucun'}
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Rapport qualite — semaine du ${new Date().toLocaleDateString('fr')}`,
+              body: rapport,
+              labels: ['rapport-auto']
+            });
