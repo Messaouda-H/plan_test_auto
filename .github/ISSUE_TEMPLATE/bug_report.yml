@@ -1,18 +1,29 @@
-# .github/ISSUE_TEMPLATE/bug_report.yml
-name: Bug Report — Halyzia
-description: Signaler un bug detecte pendant les tests
-labels: ["bug", "needs-triage"]
-assignees: []
+name: Bug Report
+description: Signaler un bug detecte pendant les tests Halyzia
+title: "[BUG] "
+labels: ["bug"]
+assignees:
+  - NOM_DU_DEV_PAR_DEFAUT
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Signalement de bug — Halyzia
+        Remplir tous les champs. Le bug sera automatiquement
+        assigne et suivi dans le tableau de bord.
+
   - type: dropdown
     id: version
     attributes:
-      label: Version Halyzia
+      label: Version Halyzia concernee
       options:
         - V1.7.1
         - V1.7.1.RC2
         - V1.7.1.RC1
+        - V1.7.0.6
+        - V1.7.0.5
+        - V1.7.0.4
         - Autre
     validations:
       required: true
@@ -20,65 +31,78 @@ body:
   - type: dropdown
     id: workflow
     attributes:
-      label: Workflow concerne
+      label: Workflow en cours quand le bug est apparu
+      description: >
+        Voir les definitions completes dans
+        .github/workflow-definitions/
       options:
-        - Workflow 1 — NEW + detection complete
-        - Workflow 2 — Bipolaire + detection
-        - Workflow 3 — MED + Janca
-        - Workflow 4 — AVG + export
-        - Workflow 5 — Macro-referencement
-        - Workflow 6 — Fermeture/reouverture
-        - Workflow 7 — Detection overlap
-        - Workflow 8 — Bipolaire vs monopolaire
-        - Workflow 9 — Ecraser dossier existant
-        - Workflow 10 — Redetection
-        - Autre
+        - "WF-01 — NEW + Detection complete"
+        - "WF-02 — Bipolaire + Detection Ripples/FR"
+        - "WF-03 — MED + Janca"
+        - "WF-04 — AVG + Export"
+        - "WF-05 — Macro-referencement"
+        - "WF-06 — Fermeture et reouverture"
+        - "WF-07 — Detection overlap"
+        - "WF-08 — Bipolaire vs monopolaire"
+        - "WF-09 — Ecraser dossier existant"
+        - "WF-10 — Redetection"
+        - "WF-11 — Renommer et deplacer fichier source"
+        - "WF-12 — Double clic ouverture TRC et EDF"
+        - "WF-13 — Reopening tous les dossiers"
+        - "WF-14 — Dossier ancienne version"
+        - "Hors workflow"
+    validations:
+      required: true
 
   - type: dropdown
     id: format
     attributes:
-      label: Format fichier EEG utilise
-      options: [.ncs, .edf, .TRC, .ns5, .medd, Autre]
+      label: Format du fichier EEG utilise
+      options: [".ncs", ".edf", ".TRC", ".ns5", ".medd", ".nsc", "Autre"]
+    validations:
+      required: true
 
   - type: input
     id: fichier
     attributes:
       label: Nom du fichier teste
-      placeholder: ex. P110_DP002-sieste_micmac-ncs
+      placeholder: "ex. P110_DP002-sieste_micmac-ncs"
+    validations:
+      required: true
 
   - type: input
     id: pc
     attributes:
       label: PC utilise
-      placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
+      placeholder: "ex. MSI / LAPTOP-LQFVND1H / Mac"
+    validations:
+      required: true
 
   - type: input
     id: testeur
     attributes:
       label: Testeur
-      placeholder: ex. Ulysse / Halissath
+      placeholder: "ex. Ulysse / Halissath / Messaouda"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severite
+    attributes:
+      label: Severite
+      options:
+        - "Critique — crash / perte de donnees"
+        - "Majeur — fonctionnalite bloquee"
+        - "Mineur — comportement incorrect mais contournable"
+        - "Cosmétique — affichage seulement"
+    validations:
+      required: true
 
   - type: textarea
     id: description
     attributes:
       label: Description du bug
-      placeholder: Decrivez ce qui s'est passe...
-    validations:
-      required: true
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Resultat attendu
-      placeholder: Ce qui aurait du se passer...
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Resultat obtenu
-      placeholder: Ce qui s'est passe a la place...
+      placeholder: "Decrivez precisement ce qui s'est passe..."
     validations:
       required: true
 
@@ -88,12 +112,34 @@ body:
       label: Etapes pour reproduire
       placeholder: |
         1. Ouvrir Halyzia V1.7.1
-        2. NEW > selectionner le dossier X
+        2. NEW > selectionner dossier X
         3. Appliquer filtre permanent...
-        4. Bug apparu
+        4. Observer le bug
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultat attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultat obtenu
+    validations:
+      required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Lignes d'erreur (si applicable)
+      label: Lignes d'erreur (copier-coller depuis le terminal)
       render: shell
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Systeme d'exploitation
+      options: ["Windows 11", "Windows 10", "macOS", "Autre"]
