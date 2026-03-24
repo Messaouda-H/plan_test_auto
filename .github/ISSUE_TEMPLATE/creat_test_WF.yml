@@ -1,0 +1,27 @@
+name: Creer un nouveau workflow
+description: Ajouter un workflow de test
+title: "[WORKFLOW] "
+labels: ["workflow"]
+
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Nom du workflow
+      placeholder: "WF-15 — Nouveau test"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      placeholder: |
+        - [ ] Etape 1
+        - [ ] Etape 2
+        - [ ] Etape 3
