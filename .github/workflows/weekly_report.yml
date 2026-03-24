@@ -54,5 +54,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "Rapport qualite automatique",
-              body: rapport
+              body: rapport,
+              headers: {
+              authorization: `token ${process.env.GH_PAT}`
+              }
             });
