@@ -36,6 +36,7 @@ body:
         Voir les definitions completes dans
         .github/workflow-definitions/
       options:
+        # START WORKFLOW OPTIONS
         - "WF-01 — NEW + Detection complete"
         - "WF-02 — Bipolaire + Detection Ripples/FR"
         - "WF-03 — MED + Janca"
@@ -51,6 +52,7 @@ body:
         - "WF-13 — Reopening tous les dossiers"
         - "WF-14 — Dossier ancienne version"
         - "Hors workflow"
+        # END WORKFLOW OPTIONS
     validations:
       required: true
 
