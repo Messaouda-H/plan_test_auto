@@ -1,61 +1,80 @@
 name: Rapport hebdomadaire qualite
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 8 * * 1"
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+permissions:
+  issues: write
+  contents: read
 
 jobs:
-  report:
+  rapport:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Generer rapport bugs
+      - name: Generer rapport
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issuesResponse = await github.rest.issues.listForRepo({
+            const maintenant = new Date();
+            const ilYaUneSemaine = new Date(
+              maintenant.getTime() - 7 * 24 * 60 * 60 * 1000
+            );
+
+            const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: "bug",
-              state: "all"
+              labels: 'bug',
+              state: 'all',
+              since: ilYaUneSemaine.toISOString(),
+              per_page: 100
             });
 
-            const issues = issuesResponse.data;
+            const ouverts  = issues.filter(i => i.state === 'open');
+            const fermes   = issues.filter(i => i.state === 'closed');
+            const critiques = issues.filter(i =>
+              i.body && i.body.includes('Critique')
+            );
 
-            const ouverts = issues.filter(i => i.state === "open");
-            const fermes = issues.filter(i => i.state === "closed");
+            const fmt = d => d.toLocaleDateString('fr-FR');
 
-            let rapport = "## Rapport qualite hebdomadaire\n\n";
-            rapport += "Periode: 7 derniers jours\n\n";
-            rapport += "Bugs reportes: " + issues.length + "\n";
-            rapport += "Bugs resolus: " + fermes.length + "\n";
-            rapport += "Bugs ouverts: " + ouverts.length + "\n\n";
+            const lignes_ouverts = ouverts.length
+              ? ouverts.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
+              : '_Aucun bug ouvert_';
 
-            rapport += "### Bugs ouverts\n";
-            if (ouverts.length === 0) {
-              rapport += "Aucun\n";
-            } else {
-              ouverts.forEach(i => {
-                rapport += "- #" + i.number + " — " + i.title + "\n";
-              });
-            }
+            const lignes_fermes = fermes.length
+              ? fermes.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
+              : '_Aucun bug resolu cette semaine_';
 
-            rapport += "\n### Bugs resolus\n";
-            if (fermes.length === 0) {
-              rapport += "Aucun\n";
-            } else {
-              fermes.forEach(i => {
-                rapport += "- #" + i.number + " — " + i.title + "\n";
-              });
-            }
+            const rapport = [
+              `## Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
+              '',
+              `| Metrique | Valeur |`,
+              `|---|---|`,
+              `| Bugs reportes | ${issues.length} |`,
+              `| Bugs resolus  | ${fermes.length} |`,
+              `| Bugs ouverts  | ${ouverts.length} |`,
+              `| Bugs critiques ouverts | ${critiques.filter(i => i.state==='open').length} |`,
+              '',
+              `### Bugs encore ouverts`,
+              lignes_ouverts,
+              '',
+              `### Resolus cette semaine`,
+              lignes_fermes,
+            ].join('\n');
 
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "Rapport qualite automatique",
-              body: rapport
+              title: `Rapport qualite — ${fmt(maintenant)}`,
+              body: rapport,
+              labels: ['rapport-auto']
             });
+
+            console.log('Rapport cree avec succes');
