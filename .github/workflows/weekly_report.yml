@@ -34,10 +34,10 @@ Bugs resolus: ${fermes.length}
 Bugs ouverts: ${ouverts.length}
             
 ### Bugs ouverts
-${ouverts.map(i => `- #${i.number} — ${i.title}`).join('\n') || 'Aucun'}
+${ouverts.map(i => `- #${i.number} — ${i.title}`).join('\\n') || 'Aucun'}
             
 ### Bugs resolus
-${fermes.map(i => `- #${i.number} — ${i.title}`).join('\n') || 'Aucun'}
+${fermes.map(i => `- #${i.number} — ${i.title}`).join('\\n') || 'Aucun'}
 `;
 
             await github.rest.issues.create({
