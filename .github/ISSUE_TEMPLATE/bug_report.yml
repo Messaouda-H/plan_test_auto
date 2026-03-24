@@ -33,10 +33,14 @@ body:
       description: |
         Voir les definitions completes dans .github/workflow-definitions/
       options:
-        - "\"Workflow 1 — NEW + Detection complete\r\""
-        - "\"Workflow 2 — Bipolaire + Detection Ripples/FR\r\""
-        - "\"WF-test\r\""
-        - "\"test_test\r\""
+        - '"Workflow 1 — NEW + Detection complete"'
+        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"WF-TOTO"'
+        - '"WF-finale"'
+        - '"WF-finale2"'
+        - '"WF-test"'
+        - '"WF-testtttiiii"'
+        - '"test_test"'
     validations:
       required: true
   - type: dropdown
