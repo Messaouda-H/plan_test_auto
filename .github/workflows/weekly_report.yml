@@ -4,8 +4,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * 1"
+
 env:
-  GH_PAT: ${{ secrets.GH_PAT }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   report:
     runs-on: ubuntu-latest
@@ -55,8 +57,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "Rapport qualite automatique",
-              body: rapport,
-              headers: {
-              authorization: `token ${process.env.GH_PAT}`
-              }
+              body: rapport
             });
