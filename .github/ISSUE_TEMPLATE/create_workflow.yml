@@ -9,27 +9,38 @@ body:
     attributes:
       label: Nom du workflow
       placeholder: ex. Workflow 3 — Test export
+    validations:
+      required: true
 
   - type: textarea
     id: objective
     attributes:
       label: Objectif
+    validations:
+      required: true
 
   - type: textarea
     id: checklist
     attributes:
-      label: Checklist (une ligne = une étape)
+      label: Checklist
+      description: Une ligne = une étape
       placeholder: |
         - [ ] Etape 1
         - [ ] Etape 2
+    validations:
+      required: true
 
   - type: input
     id: format
     attributes:
       label: Format fichier
       placeholder: ex. .ncs
+    validations:
+      required: true
 
   - type: input
     id: montage
     attributes:
       label: Montage
+    validations:
+      required: true

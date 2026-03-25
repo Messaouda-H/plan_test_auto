@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   create-workflow:
@@ -16,39 +17,67 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 🔥 PARSING ROBUSTE (FINI LES FICHIERS VIDES)
       - name: Extract fields
         id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            function extract(label) {
+              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const data = {
+              name: extract("Nom du workflow"),
+              objective: extract("Objectif"),
+              checklist: extract("Checklist"),
+              format: extract("Format fichier"),
+              montage: extract("Montage")
+            };
+
+            core.setOutput("name", data.name);
+            core.setOutput("objective", data.objective);
+            core.setOutput("checklist", data.checklist);
+            core.setOutput("format", data.format);
+            core.setOutput("montage", data.montage);
+
+      # 🔥 NOM DE FICHIER SAFE
+      - name: Generate safe filename
+        id: filename
         run: |
-          BODY="${{ github.event.issue.body }}"
+          NAME="${{ steps.extract.outputs.name }}"
+          SAFE_NAME=$(echo "$NAME" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+          echo "file=$SAFE_NAME.md" >> $GITHUB_OUTPUT
 
-          NAME=$(echo "$BODY" | awk '/Nom du workflow/{getline; print}')
-          OBJECTIVE=$(echo "$BODY" | awk '/Objectif/{getline; print}')
-          CHECKLIST=$(echo "$BODY" | awk '/Checklist/{getline; print}')
-          FORMAT=$(echo "$BODY" | awk '/Format fichier/{getline; print}')
-          MONTAGE=$(echo "$BODY" | awk '/Montage/{getline; print}')
-
-          echo "name=$NAME" >> $GITHUB_OUTPUT
-          echo "objective=$OBJECTIVE" >> $GITHUB_OUTPUT
-          echo "checklist=$CHECKLIST" >> $GITHUB_OUTPUT
-          echo "format=$FORMAT" >> $GITHUB_OUTPUT
-          echo "montage=$MONTAGE" >> $GITHUB_OUTPUT
-
+      # 🔥 CREATION DU FICHIER
       - name: Create markdown file
         run: |
-          FILE=".github/workflow-definitions/${{ steps.extract.outputs.name }}.md"
+          FILE=".github/workflow-definitions/${{ steps.filename.outputs.file }}"
 
           echo "# ${{ steps.extract.outputs.name }}" > "$FILE"
           echo "" >> "$FILE"
+
           echo "## Objectif" >> "$FILE"
           echo "${{ steps.extract.outputs.objective }}" >> "$FILE"
           echo "" >> "$FILE"
+
           echo "## Fichier requis" >> "$FILE"
           echo "- Format : ${{ steps.extract.outputs.format }}" >> "$FILE"
           echo "- Montage : ${{ steps.extract.outputs.montage }}" >> "$FILE"
           echo "" >> "$FILE"
-          echo "## Checklist" >> "$FILE"
-          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
 
+          echo "## Checklist des etapes" >> "$FILE"
+          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Resultat attendu global" >> "$FILE"
+          echo "Tous les elements fonctionnent sans erreur." >> "$FILE"
+
+      # 🔥 COMMIT
       - name: Commit file
         run: |
           git config user.name "github-actions"
@@ -56,3 +85,27 @@ jobs:
           git add .github/workflow-definitions/
           git commit -m "Add new workflow"
           git push
+
+      # 🔥 COMMENTAIRE
+      - name: Comment confirmation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "✅ Workflow créé automatiquement dans le repo."
+            });
+
+      # 🔥 FERMETURE AUTOMATIQUE
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            });
