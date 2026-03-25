@@ -1,53 +1,62 @@
-name: Create New Workflow Definition
+name: Create Workflow File
 
 on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+
 jobs:
   create:
-    if: contains(github.event.issue.title, 'NEW WF —')
+    # ✅ Correction du if — plus de crochets problematiques
+    if: contains(github.event.issue.title, 'WORKFLOW')
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate WF-XXX.md
-        run: |
-          NUMBER=$(echo "${{ github.event.issue.title }}" | grep -o 'WF-[0-9]*')
-          TITLE="${{ github.event.issue.title }}"
-          TITLE="${TITLE#NEW WF — }"
-
-          cat > ".github/workflow-definitions/${NUMBER}.md" << EOF
-          # ${NUMBER} — ${TITLE}
-
-          ## Objectif
-          ${{ github.event.issue.body | grep -A 999 '## Objectif' | sed '1d' | head -n 20 }}
-
-          ## Checklist
-          ${{ github.event.issue.body | grep -A 999 '## Checklist' | sed '1d' | head -n 50 }}
-
-          ## Notes
-          ${{ github.event.issue.body | grep -A 999 '## Notes' | sed '1d' | head -n 20 }}
-          EOF
-
-      - name: Commit new workflow
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ".github/workflow-definitions/"
-          git commit -m "feat: add new workflow ${{ github.event.issue.title }}" || echo "No change"
-          git push
-
-      - name: Close creation issue
+      - name: Extraire les infos et creer le fichier .md
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              state: 'closed',
-              state_reason: 'completed'
-            })
+            const fs = require('fs');
+            const path = require('path');
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            const nameMatch = body.match(/###\s*Nom du workflow\s*\n+(.+)/);
+            const checklistMatch = body.match(/###\s*Checklist\s*\n+([\s\S]+?)(\n###|$)/);
+
+            const name = nameMatch ? nameMatch[1].trim() : `WF-new-${Date.now()}`;
+            const checklist = checklistMatch ? checklistMatch[1].trim() : '- [ ] Etape 1';
+
+            const safeName = name.replace(/[^a-z0-9\-_]/gi, '_');
+            const dir = '.github/workflow-definitions';
+
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+            const filename = path.join(dir, `${safeName}.md`);
+            const content = `# ${name}\n\n## Checklist\n${checklist}\n`;
+
+            fs.writeFileSync(filename, content);
+            console.log(`Fichier cree : ${filename}`);
+
+      - name: Installer js-yaml
+        run: npm install js-yaml
+
+      - name: Mettre a jour le dropdown
+        run: node .github/scripts/update_dropdown.js
+
+      - name: Commit et push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/workflow-definitions/ .github/ISSUE_TEMPLATE/bug_report.yml
+          # ✅ Verifier s'il y a vraiment des changements avant de committer
+          git diff --staged --quiet && echo "Rien a committer" && exit 0
+          git commit -m "feat: nouveau workflow depuis issue #${{ github.event.issue.number }}"
+          git push

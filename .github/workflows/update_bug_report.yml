@@ -10,14 +10,11 @@ permissions:
 
 jobs:
   update:
-    if: "!contains(github.event.head_commit.message, 'chore: mise a jour automatique')"
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GPAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,13 +25,12 @@ jobs:
         run: npm install js-yaml
 
       - name: Run script
-        run: node .github/Scripts/update_bug_report.js
+        run: node .github/scripts/update_bug_report.js
 
-      - name: Commit and push
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .github/ISSUE_TEMPLATE/bug_report.yml
-          git diff --staged --quiet && echo "Rien a committer" && exit 0
-          git commit -m "chore: mise a jour automatique dropdown workflows"
+          git commit -m "Mise à jour automatique des workflows" || echo "Rien à commit"
           git push https://${{ secrets.GPAT }}@github.com/${{ github.repository }}.git HEAD:main
