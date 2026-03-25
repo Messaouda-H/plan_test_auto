@@ -5,7 +5,7 @@ body:
   - type: input
     id: numero
     attributes:
-      label: Numéro du Workflow (ex: WF-15)
+      label: Numéro du Workflow. ex: WF-15
       placeholder: WF-15
       value: WF-
     validations:
@@ -14,7 +14,7 @@ body:
     id: titre
     attributes:
       label: Titre du Workflow
-      description: Court et clair (ex: Export PDF + Signature)
+      description: Court et clair. ex: Export PDF + Signature
       placeholder: Export PDF + Signature
     validations:
       required: true
@@ -29,7 +29,7 @@ body:
     id: checklist
     attributes:
       label: Checklist des étapes
-      description: Une étape par ligne (sera transformée en - [ ])
+      description: Une étape par ligne. sera transformée en - [ ]
       value: |
         - [ ] Étape 1
         - [ ] Étape 2
@@ -39,4 +39,4 @@ body:
   - type: textarea
     id: notes
     attributes:
-      label: Notes supplémentaires (optionnel)
+      label: Notes supplémentaires. optionnel
