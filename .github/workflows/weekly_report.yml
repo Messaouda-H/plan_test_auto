@@ -2,11 +2,11 @@ name: Rapport hebdomadaire qualite
 
 on:
   schedule:
-    - cron: '0 8 * * 1'   # chaque lundi à 08:00
+    - cron: '0 8 * * 1'
   workflow_dispatch:
 
 permissions:
-  contents: write  # nécessaire pour créer et push des fichiers
+  contents: write
 
 jobs:
   rapport:
@@ -43,7 +43,6 @@ jobs:
 
             const fmt = d => d.toLocaleDateString('fr-FR');
 
-            // Temps de résolution moyen
             const resolutionTimes = fermes
               .filter(i => i.closed_at)
               .map(i => new Date(i.closed_at) - new Date(i.created_at));
@@ -52,9 +51,9 @@ jobs:
             if (resolutionTimes.length > 0) {
               avgResolution = resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length;
             }
+
             const avgHours = Math.round(avgResolution / 3600000);
 
-            // Bugs par version
             const bugsParVersion = {};
             issues.forEach(i => {
               const match = i.body?.match(/V\d+\.\d+\.\d+/);
@@ -66,7 +65,6 @@ jobs:
               .map(([v, n]) => `- ${v} : ${n}`)
               .join('\n') || 'Aucune donnée';
 
-            // Listes bugs
             const lignes_ouverts = ouverts.length
               ? ouverts.map(i =>
                   `- [#${i.number} — ${i.title}](${i.html_url})`
@@ -85,7 +83,6 @@ jobs:
                 .join('\n')
               : '_Aucun bug critique ouvert_';
 
-            // Rapport final Markdown
             const rapport = [
               `## 📊 Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
               '',
