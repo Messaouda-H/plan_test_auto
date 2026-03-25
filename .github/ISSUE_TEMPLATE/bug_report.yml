@@ -33,6 +33,7 @@ body:
       description: |
         Voir les definitions completes dans .github/workflow-definitions/
       options:
+        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
         - '"Workflow 1 — NEW + Detection complete"'
         - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
         - '"test"'
