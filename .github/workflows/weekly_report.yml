@@ -2,21 +2,19 @@ name: Rapport hebdomadaire qualite
 
 on:
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 8 * * 1'   # chaque lundi à 08:00
   workflow_dispatch:
 
 permissions:
-  contents: write  # Pour pouvoir créer/modifier des fichiers dans le repo
+  contents: write  # nécessaire pour créer et push des fichiers
 
 jobs:
   rapport:
     runs-on: ubuntu-latest
 
     steps:
-      # 🔹 Checkout du repo pour pouvoir écrire le rapport
       - uses: actions/checkout@v4
 
-      # 🔹 Génération du rapport
       - name: Generer rapport
         id: generate
         uses: actions/github-script@v7
@@ -45,7 +43,7 @@ jobs:
 
             const fmt = d => d.toLocaleDateString('fr-FR');
 
-            // 🔹 Temps de résolution moyen
+            // Temps de résolution moyen
             const resolutionTimes = fermes
               .filter(i => i.closed_at)
               .map(i => new Date(i.closed_at) - new Date(i.created_at));
@@ -56,7 +54,7 @@ jobs:
             }
             const avgHours = Math.round(avgResolution / 3600000);
 
-            // 🔹 Bugs par version
+            // Bugs par version
             const bugsParVersion = {};
             issues.forEach(i => {
               const match = i.body?.match(/V\d+\.\d+\.\d+/);
@@ -68,13 +66,17 @@ jobs:
               .map(([v, n]) => `- ${v} : ${n}`)
               .join('\n') || 'Aucune donnée';
 
-            // 🔹 Listes bugs
+            // Listes bugs
             const lignes_ouverts = ouverts.length
-              ? ouverts.map(i => `- [#${i.number} — ${i.title}](${i.html_url})`).join('\n')
+              ? ouverts.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
               : '_Aucun bug ouvert_';
 
             const lignes_fermes = fermes.length
-              ? fermes.map(i => `- [#${i.number} — ${i.title}](${i.html_url})`).join('\n')
+              ? fermes.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
               : '_Aucun bug resolu cette semaine_';
 
             const lignes_critiques = critiques.filter(i => i.state === 'open').length
@@ -83,7 +85,7 @@ jobs:
                 .join('\n')
               : '_Aucun bug critique ouvert_';
 
-            // 🔹 Rapport final (Markdown)
+            // Rapport final Markdown
             const rapport = [
               `## 📊 Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
               '',
@@ -110,15 +112,15 @@ jobs:
 
             return rapport;
 
-      # 🔹 Sauvegarde dans un vrai fichier Markdown lisible
       - name: Sauvegarder le rapport
+        shell: bash
         run: |
           mkdir -p reports
           DATE=$(date +%Y-%m-%d)
           echo "${{ steps.generate.outputs.result }}" > reports/report-$DATE.md
 
-      # 🔹 Commit et push dans le repo
       - name: Commit rapport
+        shell: bash
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
