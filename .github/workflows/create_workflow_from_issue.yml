@@ -4,6 +4,10 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   create:
     if: contains(github.event.issue.labels.*.name, 'workflow')
@@ -12,18 +16,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug
-        run: echo "Workflow déclenché"
-
       - name: Create markdown file
-        run: |
-          mkdir -p .github/workflow-definitions
-          echo "# Nouveau Workflow" > .github/workflow-definitions/workflow_$(date +%s).md
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+
+            const nom = issue.body.match(/Nom du workflow\s*\n(.+)/)?.[1] || "WF-new";
+            const objectif = issue.body.match(/Objectif du test\s*\n([\s\S]*?)\n\n/)?.[1] || "";
+            const checklistRaw = issue.body.match(/Étapes du test\s*\n([\s\S]*)/)?.[1] || "";
+
+            const checklist = checklistRaw
+              .split('\n')
+              .map(l => l.trim())
+              .filter(l => l)
+              .map(l => `- [ ] ${l}`)
+              .join('\n');
+
+            const filename = `.github/workflow-definitions/${nom.replace(/[^a-z0-9]/gi,'_')}.md`;
+
+            const content = `# ${nom}
+
+## Objectif
+${objectif}
+
+## Checklist
+${checklist}
+`;
+
+            const fs = require('fs');
+            fs.mkdirSync('.github/workflow-definitions', { recursive: true });
+            fs.writeFileSync(filename, content);
 
       - name: Commit
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "Ajout workflow depuis issue" || echo "Rien à commit"
-          git push https://${{ secrets.GPAT }}@github.com/${{ github.repository }}.git HEAD:main
+          git commit -m "Ajout workflow depuis formulaire" || echo "Rien à commit"
+          git push
+
+      - name: Delete issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            });
