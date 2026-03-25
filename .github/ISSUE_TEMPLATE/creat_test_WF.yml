@@ -1,29 +1,42 @@
-name: Créer un workflow de test
-description: Formulaire simple pour ajouter un nouveau workflow
-title: "[WF] "
-labels: ["workflow"]
-
+name: Create New Workflow Definition
+description: Crée un nouveau scénario de test (remplace l’édition manuelle de .md)
+title: 'NEW WF — '
 body:
   - type: input
-    id: nom
+    id: numero
     attributes:
-      label: Nom du workflow
-      placeholder: ex. WF-15 — Test export EEG
+      label: Numéro du Workflow (ex: WF-15)
+      placeholder: WF-15
+      value: WF-
     validations:
       required: true
-
+  - type: input
+    id: titre
+    attributes:
+      label: Titre du Workflow
+      description: Court et clair (ex: Export PDF + Signature)
+      placeholder: Export PDF + Signature
+    validations:
+      required: true
   - type: textarea
     id: objectif
     attributes:
       label: Objectif du test
-      placeholder: Décrire le but du workflow
-
+      value: Tester le workflow complet...
+    validations:
+      required: true
   - type: textarea
     id: checklist
     attributes:
-      label: Étapes du test
-      description: Une étape par ligne
-      placeholder: |
-        NEW > charger fichier
-        Appliquer filtre
-        Vérifier affichage
+      label: Checklist des étapes
+      description: Une étape par ligne (sera transformée en - [ ])
+      value: |
+        - [ ] Étape 1
+        - [ ] Étape 2
+        - [ ] Étape 3
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes supplémentaires (optionnel)
