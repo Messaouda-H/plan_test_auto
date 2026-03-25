@@ -1,15 +1,17 @@
-# Q
+# q
 
 ## Objectif
-D
+qq
 
 ## Fichier requis
-- R
-- Montage : G
+- q
+- Montage : qq
 
 ## Checklist des étapes
-- [ ] D
-- [ ] F
+- [ ] q
+- [ ] q
+- [ ] q
+- [ ] q
 
 ## Resultat attendu global
 Tous les éléments fonctionnent sans erreur ni message d'alerte inattendu.
