@@ -2,11 +2,11 @@ name: Rapport hebdomadaire qualite
 
 on:
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 8 * * 1'   # tous les lundis à 08:00
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # pour commit/push
 
 jobs:
   rapport:
@@ -22,9 +22,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const maintenant = new Date();
-            const ilYaUneSemaine = new Date(
-              maintenant.getTime() - 7 * 24 * 60 * 60 * 1000
-            );
+            const ilYaUneSemaine = new Date(maintenant.getTime() - 7*24*60*60*1000);
 
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -37,50 +35,40 @@ jobs:
 
             const ouverts  = issues.filter(i => i.state === 'open');
             const fermes   = issues.filter(i => i.state === 'closed');
-            const critiques = issues.filter(i =>
-              i.body && i.body.includes('Critique')
-            );
+            const critiques = issues.filter(i => i.body && i.body.includes('Critique'));
 
             const fmt = d => d.toLocaleDateString('fr-FR');
 
-            const resolutionTimes = fermes
-              .filter(i => i.closed_at)
-              .map(i => new Date(i.closed_at) - new Date(i.created_at));
-
-            let avgResolution = 0;
-            if (resolutionTimes.length > 0) {
-              avgResolution = resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length;
-            }
-
+            // Temps de résolution
+            const resolutionTimes = fermes.filter(i => i.closed_at)
+                                          .map(i => new Date(i.closed_at) - new Date(i.created_at));
+            let avgResolution = resolutionTimes.length > 0
+                                ? resolutionTimes.reduce((a,b)=>a+b,0)/resolutionTimes.length
+                                : 0;
             const avgHours = Math.round(avgResolution / 3600000);
 
+            // Bugs par version
             const bugsParVersion = {};
             issues.forEach(i => {
               const match = i.body?.match(/V\d+\.\d+\.\d+/);
               const version = match ? match[0] : "Inconnue";
               bugsParVersion[version] = (bugsParVersion[version] || 0) + 1;
             });
-
             const lignesVersions = Object.entries(bugsParVersion)
-              .map(([v, n]) => `- ${v} : ${n}`)
-              .join('\n') || 'Aucune donnée';
+                                          .map(([v,n]) => `- ${v} : ${n}`)
+                                          .join('\n') || 'Aucune donnée';
 
+            // Listes bugs
             const lignes_ouverts = ouverts.length
-              ? ouverts.map(i =>
-                  `- [#${i.number} — ${i.title}](${i.html_url})`
-                ).join('\n')
+              ? ouverts.map(i => `- [#${i.number} — ${i.title}](${i.html_url})`).join('\n')
               : '_Aucun bug ouvert_';
 
             const lignes_fermes = fermes.length
-              ? fermes.map(i =>
-                  `- [#${i.number} — ${i.title}](${i.html_url})`
-                ).join('\n')
+              ? fermes.map(i => `- [#${i.number} — ${i.title}](${i.html_url})`).join('\n')
               : '_Aucun bug resolu cette semaine_';
 
-            const lignes_critiques = critiques.filter(i => i.state === 'open').length
-              ? critiques.filter(i => i.state === 'open')
-                .map(i => `- [#${i.number} — ${i.title}](${i.html_url})`)
-                .join('\n')
+            const lignes_critiques = critiques.filter(i=>i.state==='open').length
+              ? critiques.filter(i=>i.state==='open').map(i => `- [#${i.number} — ${i.title}](${i.html_url})`).join('\n')
               : '_Aucun bug critique ouvert_';
 
             const rapport = [
@@ -91,7 +79,7 @@ jobs:
               `| Bugs reportes | ${issues.length} |`,
               `| Bugs resolus  | ${fermes.length} |`,
               `| Bugs ouverts  | ${ouverts.length} |`,
-              `| Bugs critiques ouverts | ${critiques.filter(i => i.state==='open').length} |`,
+              `| Bugs critiques ouverts | ${critiques.filter(i=>i.state==='open').length} |`,
               `| Temps moyen de resolution | ${avgHours || 0} h |`,
               '',
               `### 🔥 Bugs critiques ouverts`,
@@ -110,12 +98,18 @@ jobs:
             return rapport;
 
       - name: Sauvegarder le rapport
-        run: |
-          mkdir -p reports
-          DATE=$(date +%Y-%m-%d)
-          echo "${{ steps.generate.outputs.result }}" > reports/report-$DATE.md
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const rapport = ${{ toJSON(steps.generate.outputs.result) }};
+            if (!fs.existsSync('reports')) fs.mkdirSync('reports');
+            const filename = `reports/report-${new Date().toISOString().slice(0,10)}.md`;
+            fs.writeFileSync(filename, rapport);
+            console.log(`Rapport sauvegardé dans ${filename}`);
 
-      - name: Commit rapport
+      - name: Commit et push rapport
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
