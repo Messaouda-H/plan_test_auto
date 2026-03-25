@@ -25,7 +25,7 @@ jobs:
         run: npm install js-yaml
 
       - name: Run script
-        run: node .github/scripts/update_bug_report.js
+        run: node .github/Scripts/update_bug_report.js
 
       - name: Commit and push changes
         run: |
