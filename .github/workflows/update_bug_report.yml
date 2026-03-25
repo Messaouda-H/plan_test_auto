@@ -10,16 +10,13 @@ permissions:
 
 jobs:
   update:
-    # ✅ Ignorer les pushs faits par le bot lui-meme — evite la boucle infinie
-    if: github.actor != 'github-actions'
-
+    if: "!contains(github.event.head_commit.message, 'chore: mise a jour automatique')"
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          # ✅ Meme token que celui utilise pour pusher
           token: ${{ secrets.GPAT }}
 
       - name: Setup Node.js
