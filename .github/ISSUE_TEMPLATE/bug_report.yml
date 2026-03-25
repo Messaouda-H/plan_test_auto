@@ -33,17 +33,9 @@ body:
       description: |
         Voir les definitions completes dans .github/workflow-definitions/
       options:
-        - '"q"'
         - '"Workflow 1 — NEW + Detection complete"'
         - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
-        - '"WF-TOTO"'
-        - '"WF-finale"'
-        - '"WF-finale2"'
-        - '"WF-test"'
-        - '"WF-testtttiiii"'
-        - '"f"'
         - '"test"'
-        - '"test_test"'
     validations:
       required: true
   - type: dropdown
