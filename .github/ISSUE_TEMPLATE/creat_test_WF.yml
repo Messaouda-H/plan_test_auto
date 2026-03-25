@@ -1,124 +1,29 @@
-name: Rapport hebdomadaire qualite
+name: Créer un workflow de test
+description: Formulaire simple pour ajouter un nouveau workflow
+title: "[WF] "
+labels: ["workflow"]
 
-on:
-  schedule:
-    - cron: '0 8 * * 1'
-  workflow_dispatch:
+body:
+  - type: input
+    id: nom
+    attributes:
+      label: Nom du workflow
+      placeholder: ex. WF-15 — Test export EEG
+    validations:
+      required: true
 
-permissions:
-  contents: write
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif du test
+      placeholder: Décrire le but du workflow
 
-jobs:
-  rapport:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Generer rapport
-        id: generate
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const maintenant = new Date();
-            const ilYaUneSemaine = new Date(
-              maintenant.getTime() - 7 * 24 * 60 * 60 * 1000
-            );
-
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: 'bug',
-              state: 'all',
-              since: ilYaUneSemaine.toISOString(),
-              per_page: 100
-            });
-
-            const ouverts  = issues.filter(i => i.state === 'open');
-            const fermes   = issues.filter(i => i.state === 'closed');
-            const critiques = issues.filter(i =>
-              i.body && i.body.includes('Critique')
-            );
-
-            const fmt = d => d.toLocaleDateString('fr-FR');
-
-            const resolutionTimes = fermes
-              .filter(i => i.closed_at)
-              .map(i => new Date(i.closed_at) - new Date(i.created_at));
-
-            let avgResolution = 0;
-            if (resolutionTimes.length > 0) {
-              avgResolution = resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length;
-            }
-
-            const avgHours = Math.round(avgResolution / 3600000);
-
-            const bugsParVersion = {};
-            issues.forEach(i => {
-              const match = i.body?.match(/V\d+\.\d+\.\d+/);
-              const version = match ? match[0] : "Inconnue";
-              bugsParVersion[version] = (bugsParVersion[version] || 0) + 1;
-            });
-
-            const lignesVersions = Object.entries(bugsParVersion)
-              .map(([v, n]) => `- ${v} : ${n}`)
-              .join('\n') || 'Aucune donnée';
-
-            const lignes_ouverts = ouverts.length
-              ? ouverts.map(i =>
-                  `- [#${i.number} — ${i.title}](${i.html_url})`
-                ).join('\n')
-              : '_Aucun bug ouvert_';
-
-            const lignes_fermes = fermes.length
-              ? fermes.map(i =>
-                  `- [#${i.number} — ${i.title}](${i.html_url})`
-                ).join('\n')
-              : '_Aucun bug resolu cette semaine_';
-
-            const lignes_critiques = critiques.filter(i => i.state === 'open').length
-              ? critiques.filter(i => i.state === 'open')
-                .map(i => `- [#${i.number} — ${i.title}](${i.html_url})`)
-                .join('\n')
-              : '_Aucun bug critique ouvert_';
-
-            const rapport = [
-              `## 📊 Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
-              '',
-              `| Metrique | Valeur |`,
-              `|---|---|`,
-              `| Bugs reportes | ${issues.length} |`,
-              `| Bugs resolus  | ${fermes.length} |`,
-              `| Bugs ouverts  | ${ouverts.length} |`,
-              `| Bugs critiques ouverts | ${critiques.filter(i => i.state==='open').length} |`,
-              `| Temps moyen de resolution | ${avgHours || 0} h |`,
-              '',
-              `### 🔥 Bugs critiques ouverts`,
-              lignes_critiques,
-              '',
-              `### 🐞 Bugs encore ouverts`,
-              lignes_ouverts,
-              '',
-              `### ✅ Resolus cette semaine`,
-              lignes_fermes,
-              '',
-              `### 📦 Bugs par version`,
-              lignesVersions
-            ].join('\n');
-
-            return rapport;
-
-      - name: Sauvegarder le rapport
-        run: |
-          mkdir -p reports
-          DATE=$(date +%Y-%m-%d)
-          echo "${{ steps.generate.outputs.result }}" > reports/report-$DATE.md
-
-      - name: Commit rapport
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add reports/
-          git commit -m "Ajout rapport hebdo" || echo "Rien à commit"
-          git push
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Étapes du test
+      description: Une étape par ligne
+      placeholder: |
+        NEW > charger fichier
+        Appliquer filtre
+        Vérifier affichage
