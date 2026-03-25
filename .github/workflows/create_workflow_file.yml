@@ -1,0 +1,58 @@
+name: Create Workflow File
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+
+jobs:
+  create-workflow:
+    if: contains(github.event.issue.title, '[WORKFLOW]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Extract fields
+        id: extract
+        run: |
+          BODY="${{ github.event.issue.body }}"
+
+          NAME=$(echo "$BODY" | awk '/Nom du workflow/{getline; print}')
+          OBJECTIVE=$(echo "$BODY" | awk '/Objectif/{getline; print}')
+          CHECKLIST=$(echo "$BODY" | awk '/Checklist/{getline; print}')
+          FORMAT=$(echo "$BODY" | awk '/Format fichier/{getline; print}')
+          MONTAGE=$(echo "$BODY" | awk '/Montage/{getline; print}')
+
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "objective=$OBJECTIVE" >> $GITHUB_OUTPUT
+          echo "checklist=$CHECKLIST" >> $GITHUB_OUTPUT
+          echo "format=$FORMAT" >> $GITHUB_OUTPUT
+          echo "montage=$MONTAGE" >> $GITHUB_OUTPUT
+
+      - name: Create markdown file
+        run: |
+          FILE=".github/workflow-definitions/${{ steps.extract.outputs.name }}.md"
+
+          echo "# ${{ steps.extract.outputs.name }}" > "$FILE"
+          echo "" >> "$FILE"
+          echo "## Objectif" >> "$FILE"
+          echo "${{ steps.extract.outputs.objective }}" >> "$FILE"
+          echo "" >> "$FILE"
+          echo "## Fichier requis" >> "$FILE"
+          echo "- Format : ${{ steps.extract.outputs.format }}" >> "$FILE"
+          echo "- Montage : ${{ steps.extract.outputs.montage }}" >> "$FILE"
+          echo "" >> "$FILE"
+          echo "## Checklist" >> "$FILE"
+          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
+
+      - name: Commit file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .github/workflow-definitions/
+          git commit -m "Add new workflow"
+          git push

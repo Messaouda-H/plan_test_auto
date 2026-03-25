@@ -1,0 +1,627 @@
+# PROJECT DUMP — C:\Users\Utilisateur\Desktop\plan_test_auto
+================================================================================
+
+================================================================================
+FILE: proj.py  (75 lignes)
+================================================================================
+import os
+
+# ============================================================
+# CONFIGURATION — adapte ces valeurs à ton projet
+# ============================================================
+ROOT_DIR = "."           # Dossier racine de ton projet
+OUTPUT_FILE = "project_dump.txt"
+
+# Extensions à inclure
+INCLUDE_EXTENSIONS = {
+    ".py", ".txt", ".md", ".json", ".yaml", ".yml",
+    ".toml", ".cfg", ".ini", ".bat", ".ps1", ".sh"
+}
+
+# Dossiers à ignorer complètement
+IGNORE_DIRS = {
+    "__pycache__", ".git", ".idea", ".vscode",
+    "venv", "venv_halyzia", ".mypy_cache", "dist",
+    "build", "*.egg-info", "node_modules"
+}
+
+# Fichiers à ignorer
+IGNORE_FILES = {
+    "project_dump.txt", ".gitignore", ".DS_Store"
+}
+# ============================================================
+
+def should_ignore_dir(dirname):
+    return dirname in IGNORE_DIRS or dirname.endswith(".egg-info")
+
+def dump_project(root_dir, output_file):
+    file_count = 0
+    total_lines = 0
+
+    with open(output_file, "w", encoding="utf-8") as out:
+        out.write(f"# PROJECT DUMP — {os.path.abspath(root_dir)}\n")
+        out.write("=" * 80 + "\n\n")
+
+        for dirpath, dirnames, filenames in os.walk(root_dir):
+            # Filtre les dossiers ignorés (modifie en place pour os.walk)
+            dirnames[:] = [d for d in dirnames if not should_ignore_dir(d)]
+
+            for filename in sorted(filenames):
+                if filename in IGNORE_FILES:
+                    continue
+                ext = os.path.splitext(filename)[1].lower()
+                if ext not in INCLUDE_EXTENSIONS:
+                    continue
+
+                filepath = os.path.join(dirpath, filename)
+                relative_path = os.path.relpath(filepath, root_dir)
+
+                try:
+                    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+                        content = f.read()
+                    lines = content.count("\n")
+                    total_lines += lines
+                    file_count += 1
+
+                    out.write(f"{'=' * 80}\n")
+                    out.write(f"FILE: {relative_path}  ({lines} lignes)\n")
+                    out.write(f"{'=' * 80}\n")
+                    out.write(content)
+                    out.write("\n\n")
+
+                except Exception as e:
+                    out.write(f"[ERREUR lecture: {e}]\n\n")
+
+        out.write("=" * 80 + "\n")
+        out.write(f"TOTAL: {file_count} fichiers | {total_lines} lignes\n")
+
+    print(f"✅ Dump généré : {output_file}")
+    print(f"   {file_count} fichiers | {total_lines} lignes")
+    print(f"   Taille : {os.path.getsize(output_file) / 1024 / 1024:.2f} MB")
+
+dump_project(ROOT_DIR, OUTPUT_FILE)
+
+================================================================================
+FILE: workflow-template.md  (13 lignes)
+================================================================================
+# {{workflow_name}}
+
+## Objectif
+{{objective}}
+
+## Fichier requis
+- {{required_file}}
+- Montage : {{montage}}
+
+## Checklist des étapes
+{{checklist}}
+
+## Resultat attendu global
+Tous les éléments fonctionnent sans erreur ni message d'alerte inattendu.
+
+================================================================================
+FILE: .github\package-lock.json  (30 lignes)
+================================================================================
+{
+  "name": ".github",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "dependencies": {
+        "js-yaml": "^4.1.1"
+      }
+    },
+    "node_modules/argparse": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
+      "integrity": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==",
+      "license": "Python-2.0"
+    },
+    "node_modules/js-yaml": {
+      "version": "4.1.1",
+      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz",
+      "integrity": "sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==",
+      "license": "MIT",
+      "dependencies": {
+        "argparse": "^2.0.1"
+      },
+      "bin": {
+        "js-yaml": "bin/js-yaml.js"
+      }
+    }
+  }
+}
+
+
+================================================================================
+FILE: .github\package.json  (5 lignes)
+================================================================================
+{
+  "dependencies": {
+    "js-yaml": "^4.1.1"
+  }
+}
+
+
+================================================================================
+FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (130 lignes)
+================================================================================
+name: Bug Report
+description: Signaler un bug detecte pendant les tests Halyzia
+title: '[BUG] '
+labels:
+  - bug
+assignees:
+  - NOM_DU_DEV_PAR_DEFAUT
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Signalement de bug — Halyzia
+        Remplir tous les champs. Le bug sera automatiquement
+        assigne et suivi dans le tableau de bord.
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version Halyzia concernee
+      options:
+        - V1.7.1
+        - V1.7.1.RC2
+        - V1.7.1.RC1
+        - V1.7.0.6
+        - V1.7.0.5
+        - V1.7.0.4
+        - Autre
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow en cours quand le bug est apparu
+      description: |
+        Voir les definitions completes dans .github/workflow-definitions/
+      options:
+        - '"Workflow 1 — NEW + Detection complete"'
+        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"test"'
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Format du fichier EEG utilise
+      options:
+        - .ncs
+        - .edf
+        - .TRC
+        - .ns5
+        - .medd
+        - .nsc
+        - Autre
+    validations:
+      required: true
+  - type: input
+    id: fichier
+    attributes:
+      label: Nom du fichier teste
+      placeholder: ex. P110_DP002-sieste_micmac-ncs
+    validations:
+      required: true
+  - type: input
+    id: pc
+    attributes:
+      label: PC utilise
+      placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
+    validations:
+      required: true
+  - type: input
+    id: testeur
+    attributes:
+      label: Testeur
+      placeholder: ex. Ulysse / Halissath / Messaouda
+    validations:
+      required: true
+  - type: dropdown
+    id: severite
+    attributes:
+      label: Severite
+      options:
+        - Critique — crash / perte de donnees
+        - Majeur — fonctionnalite bloquee
+        - Mineur — comportement incorrect mais contournable
+        - Cosmétique — affichage seulement
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      placeholder: Decrivez precisement ce qui s'est passe...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Etapes pour reproduire
+      placeholder: |
+        1. Ouvrir Halyzia V1.7.1
+        2. NEW > selectionner dossier X
+        3. Appliquer filtre permanent...
+        4. Observer le bug
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultat attendu
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultat obtenu
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Lignes d'erreur (copier-coller depuis le terminal)
+      render: shell
+  - type: dropdown
+    id: os
+    attributes:
+      label: Systeme d'exploitation
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Autre
+
+
+================================================================================
+FILE: .github\workflow-definitions\WF-01.md  (37 lignes)
+================================================================================
+# Workflow 1 — NEW + Detection complete
+
+## Objectif
+Tester le workflow complet de creation d'un nouveau dossier,
+preparation du signal, annotations, et detection.
+
+## Fichier requis
+- Format : .ncs (recommande) — ex. A_B_B_sub_db
+- Montage : macros + micros
+
+## Checklist des etapes
+- [ ] NEW > charger le dossier patient
+- [ ] Ajustement des parametres d'affichage
+- [ ] Zoom et scroll dans le signal
+- [ ] PSD + marquer quelques canaux as bad
+- [ ] Hide canaux marques as bad
+- [ ] Hide un canal macro
+- [ ] Modifier l'amplitude (2 micros + 3 macro)
+- [ ] Lancer le scalogramme (macro et micro)
+- [ ] Appliquer filtre visuel sur canaux modifies (600Hz max)
+- [ ] Appliquer filtre permanent sur macros uniquement (IIR-0.1-1023Hz-None)
+- [ ] Monter electrode micro en set tetrade
+- [ ] Passer en mode annotation
+- [ ] Annoter le signal : events manuels biomarqueurs, other events (texte libre), 2 notes
+- [ ] Supprimer une note et une annotation other event
+- [ ] Appliquer filtre visuel sur micro (50Hz max)
+- [ ] Lancer detections (all / not hidden / selection macroA,B,B_sub + 2 micro)
+- [ ] Lancer les 3 eventviewers — afficher only events manuels
+- [ ] Labeliser les events manuels
+- [ ] Filtrer sur les events manuels
+- [ ] Export metriques
+- [ ] Lancer les 5 cartes topo (events manuels seuls + deux types + filtres)
+- [ ] Appliquer le hourly rate
+
+## Resultat attendu global
+Tous les elements (filtres, annotations, detections, exports)
+fonctionnent sans erreur ni message d'alerte inattendu.
+
+
+================================================================================
+FILE: .github\workflow-definitions\WF-02.md  (26 lignes)
+================================================================================
+# Workflow 2 — Bipolaire + Detection Ripples/FR
+
+## Fichier requis
+- Format : .ncs — ex. A_B_B_sub_db
+
+## Checklist
+- [ ] NEW > charger le dossier
+- [ ] Ajustement parametres affichage
+- [ ] Zoom et scroll
+- [ ] PSD + marquer canaux as bad
+- [ ] Appliquer filtre permanent tous canaux (200-600Hz-Notch)
+- [ ] Monter electrode micro montage AVG avec rattachement macro
+- [ ] Hide canaux as bad
+- [ ] Hide un canal micro
+- [ ] Modifier amplitude (2 micros + 3 macro)
+- [ ] Lancer scalogramme (macro et micro)
+- [ ] Annoter : 2 artefacts (1 macro + 1 micro), events manuels biomarqueurs, 2 notes
+- [ ] Supprimer une note et un event biomarqueur
+- [ ] Appliquer filtre visuel macro (600Hz max)
+- [ ] Passer en bipolaire
+- [ ] Lancer PSD
+- [ ] Lancer detections Ripples et FR (detecteur Avrio MedTech)
+- [ ] Lancer detection Spikes (detecteur Janca)
+- [ ] Lancer les 3 eventviewers (2 types d'events, labeliser, filtrer)
+- [ ] Export metriques
+- [ ] Lancer les 5 cartes topo + appliquer filtres
+
+
+================================================================================
+FILE: .github\workflow-definitions\test.md  (1 lignes)
+================================================================================
+
+
+
+================================================================================
+FILE: .github\workflows\kanban_automation.yml  (97 lignes)
+================================================================================
+name: Kanban Automation
+
+on:
+  issues:
+    types: [opened, assigned, closed, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  move_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move issue in project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+
+            // Recuperer l'ID du projet GitHub
+            const { data: projects } = await github.rest.projects.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            const project = projects.find(p => p.name === 'Halyzia — Suivi qualite');
+            if (!project) {
+              console.log('Projet non trouve');
+              return;
+            }
+
+            // Recuperer les colonnes
+            const { data: columns } = await github.rest.projects.listColumns({
+              project_id: project.id
+            });
+
+            const colMap = {};
+            for (const col of columns) {
+              colMap[col.name] = col.id;
+            }
+
+            // Trouver la carte existante
+            let cardId = null;
+            for (const col of columns) {
+              const { data: cards } = await github.rest.projects.listCards({
+                column_id: col.id
+              });
+              const card = cards.find(c =>
+                c.content_url && c.content_url.endsWith(`/issues/${issue.number}`)
+              );
+              if (card) { cardId = card.id; break; }
+            }
+
+            // Determiner la colonne cible selon l'action
+            let targetColName = null;
+
+            if (action === 'opened') {
+              targetColName = 'Bug signale';
+            } else if (action === 'assigned') {
+              targetColName = 'Assigne';
+            } else if (action === 'closed') {
+              targetColName = 'Ferme';
+            } else if (action === 'reopened') {
+              targetColName = 'Bug signale';
+            }
+
+            // Detecter "En cours" via un commentaire contenant /en-cours
+            if (context.eventName === 'issue_comment') {
+              const body = context.payload.comment.body;
+              if (body.includes('/en-cours')) targetColName = 'En cours';
+              if (body.includes('/a-re-tester')) targetColName = 'A re-tester';
+            }
+
+            if (!targetColName || !colMap[targetColName]) {
+              console.log('Pas de deplacement necessaire');
+              return;
+            }
+
+            if (cardId) {
+              // Deplacer la carte existante
+              await github.rest.projects.moveCard({
+                card_id: cardId,
+                position: 'top',
+                column_id: colMap[targetColName]
+              });
+            } else {
+              // Creer la carte si elle n'existe pas encore
+              await github.rest.projects.createCard({
+                column_id: colMap[targetColName],
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            }
+
+            console.log(`Issue #${issue.number} deplacee vers "${targetColName}"`);
+
+
+================================================================================
+FILE: .github\workflows\update_bug_report.yml  (35 lignes)
+================================================================================
+name: Update Bug Report Dropdown
+
+on:
+  push:
+    paths:
+      - '.github/workflow-definitions/**'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install js-yaml
+
+      - name: Run script
+        run: node .github/Scripts/update_bug_report.js
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .github/ISSUE_TEMPLATE/bug_report.yml
+          git commit -m "Mise à jour automatique des workflows" || echo "Rien à commit"
+          git push https://${{ secrets.GPAT }}@github.com/${{ github.repository }}.git HEAD:main
+
+================================================================================
+FILE: .github\workflows\weekly_report.yml  (118 lignes)
+================================================================================
+name: Rapport hebdomadaire qualite
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  rapport:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generer rapport
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const maintenant = new Date();
+            const ilYaUneSemaine = new Date(
+              maintenant.getTime() - 7 * 24 * 60 * 60 * 1000
+            );
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'bug',
+              state: 'all',
+              since: ilYaUneSemaine.toISOString(),
+              per_page: 100
+            });
+
+            const ouverts  = issues.filter(i => i.state === 'open');
+            const fermes   = issues.filter(i => i.state === 'closed');
+            const critiques = issues.filter(i =>
+              i.body && i.body.includes('Critique')
+            );
+
+            const fmt = d => d.toLocaleDateString('fr-FR');
+
+            // 🔹 Temps de résolution
+            const resolutionTimes = fermes
+              .filter(i => i.closed_at)
+              .map(i => new Date(i.closed_at) - new Date(i.created_at));
+
+            let avgResolution = 0;
+            if (resolutionTimes.length > 0) {
+              avgResolution = resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length;
+            }
+
+            const avgHours = Math.round(avgResolution / 3600000);
+
+            // 🔹 Bugs par version
+            const bugsParVersion = {};
+            issues.forEach(i => {
+              const match = i.body?.match(/V\d+\.\d+\.\d+/);
+              const version = match ? match[0] : "Inconnue";
+              bugsParVersion[version] = (bugsParVersion[version] || 0) + 1;
+            });
+
+            const lignesVersions = Object.entries(bugsParVersion)
+              .map(([v, n]) => `- ${v} : ${n}`)
+              .join('\n') || 'Aucune donnée';
+
+            // 🔹 Listes bugs
+            const lignes_ouverts = ouverts.length
+              ? ouverts.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
+              : '_Aucun bug ouvert_';
+
+            const lignes_fermes = fermes.length
+              ? fermes.map(i =>
+                  `- [#${i.number} — ${i.title}](${i.html_url})`
+                ).join('\n')
+              : '_Aucun bug resolu cette semaine_';
+
+            const lignes_critiques = critiques.filter(i => i.state === 'open').length
+              ? critiques.filter(i => i.state === 'open')
+                .map(i => `- [#${i.number} — ${i.title}](${i.html_url})`)
+                .join('\n')
+              : '_Aucun bug critique ouvert_';
+
+            // 🔹 Rapport final
+            const rapport = [
+              `## 📊 Rapport qualite — semaine du ${fmt(ilYaUneSemaine)} au ${fmt(maintenant)}`,
+              '',
+              `| Metrique | Valeur |`,
+              `|---|---|`,
+              `| Bugs reportes | ${issues.length} |`,
+              `| Bugs resolus  | ${fermes.length} |`,
+              `| Bugs ouverts  | ${ouverts.length} |`,
+              `| Bugs critiques ouverts | ${critiques.filter(i => i.state==='open').length} |`,
+              `| Temps moyen de resolution | ${avgHours || 0} h |`,
+              '',
+              `### 🔥 Bugs critiques ouverts`,
+              lignes_critiques,
+              '',
+              `### 🐞 Bugs encore ouverts`,
+              lignes_ouverts,
+              '',
+              `### ✅ Resolus cette semaine`,
+              lignes_fermes,
+              '',
+              `### 📦 Bugs par version`,
+              lignesVersions
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Rapport qualite — ${fmt(maintenant)}`,
+              body: rapport,
+              labels: ['rapport-auto']
+            });
+
+            console.log('Rapport cree avec succes');
+
+================================================================================
+TOTAL: 11 fichiers | 567 lignes

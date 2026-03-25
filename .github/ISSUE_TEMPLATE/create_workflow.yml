@@ -1,0 +1,35 @@
+name: Create Workflow
+description: Ajouter un nouveau workflow de test
+title: "[WORKFLOW] "
+labels: [workflow]
+
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Nom du workflow
+      placeholder: ex. Workflow 3 — Test export
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objectif
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist (une ligne = une étape)
+      placeholder: |
+        - [ ] Etape 1
+        - [ ] Etape 2
+
+  - type: input
+    id: format
+    attributes:
+      label: Format fichier
+      placeholder: ex. .ncs
+
+  - type: input
+    id: montage
+    attributes:
+      label: Montage
