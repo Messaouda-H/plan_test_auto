@@ -1,42 +1,98 @@
-name: Create New Workflow Definition
-description: Crée un nouveau scénario de test (remplace l’édition manuelle de .md)
-title: 'NEW WF — '
+name: Bug Report
+description: Signale un bug rencontré pendant les tests Halyzia
+title: '[BUG] '
 body:
+  - type: markdown
+    attributes:
+      value: "Merci de remplir ce formulaire clairement.\nL’issue sera automatiquement traitée par le Kanban et le rapport hebdo."
+
   - type: input
-    id: numero
+    id: version
     attributes:
-      label: Numéro du Workflow (ex: WF-15)
-      placeholder: WF-15
-      value: WF-
+      label: Version de Halyzia
+      description: Exemple : 1.2.3
+      placeholder: 1.2.3
     validations:
       required: true
+
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow utilisé
+      description: Liste mise à jour automatiquement
+      options:
+        - Sélectionnez un workflow...
+        - WF-01 — NEW + Detection
+        - WF-02 — Export PDF
+        - WF-03 — Import CSV
+    validations:
+      required: true
+
   - type: input
-    id: titre
+    id: fichier
     attributes:
-      label: Titre du Workflow
-      description: Court et clair (ex: Export PDF + Signature)
-      placeholder: Export PDF + Signature
+      label: Fichier / Module concerné
+      placeholder: export.py ou main_workflow
     validations:
       required: true
-  - type: textarea
-    id: objectif
+
+  - type: input
+    id: pc
     attributes:
-      label: Objectif du test
-      value: Tester le workflow complet...
+      label: Configuration PC / Environnement
+      description: OS, navigateur, version, etc.
+      placeholder: Windows 11 • Chrome 124
     validations:
       required: true
-  - type: textarea
-    id: checklist
+
+  - type: input
+    id: testeur
     attributes:
-      label: Checklist des étapes
-      description: Une étape par ligne (sera transformée en - [ ])
-      value: |
-        - [ ] Étape 1
-        - [ ] Étape 2
-        - [ ] Étape 3
+      label: Nom du testeur
     validations:
       required: true
-  - type: textarea
-    id: notes
+
+  - type: dropdown
+    id: severite
     attributes:
-      label: Notes supplémentaires (optionnel)
+      label: Sévérité
+      options:
+        - Critique (bloquant)
+        - Haute
+        - Moyenne
+        - Basse
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+    validations:
+      required: true
+
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Étapes pour reproduire
+      value: "1. \n2. "
+    validations:
+      required: true
+
+  - type: textarea
+    id: resultat_attendu
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: resultat_reel
+    attributes:
+      label: Résultat réel
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "Merci ! L’issue sera placée automatiquement dans le Kanban."
