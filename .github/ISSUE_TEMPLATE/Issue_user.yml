@@ -129,7 +129,7 @@ body :
     attributes:
       label: Systeme d'exploitation
       options:
-        - Windows 11
         - Windows 10
+        - Windows 11
         - macOS
         - Autre
