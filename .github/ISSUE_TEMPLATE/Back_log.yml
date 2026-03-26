@@ -3,8 +3,6 @@ description : Ajouter un nouveau Back log
 title: '[Back log]'
 labels : 
   - Demande d'evolution 
-  - Nouvelle foncionalité 
-
 assignees :
   -NOM_DU_DEV_PAR_DEFAUT
 body :
