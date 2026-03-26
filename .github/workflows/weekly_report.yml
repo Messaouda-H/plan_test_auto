@@ -116,8 +116,4 @@ jobs:
               labels: ['rapport-auto']
             });
 
-<<<<<<< HEAD
             console.log('Rapport cree avec succes');
-=======
-            console.log('Rapport cree avec succes');
->>>>>>> dce487aaf5ebb11b1299d5e903d47215987c4a26

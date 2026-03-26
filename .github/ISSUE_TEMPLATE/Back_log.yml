@@ -1,0 +1,54 @@
+name : Back Logs 
+description : Ajouter un nouveau Back log
+title: '[Back log]'
+labels : 
+  - Demande d'evolution 
+  - Nouvelle foncionalité 
+
+assignees :
+  -NOM_DU_DEV_PAR_DEFAUT
+body :
+  - type: markdown
+    attributes:
+    value:  |
+      ## Signalement de bug — Halyzia
+        Remplir tous les champs. Le bug sera automatiquement
+        assigne et suivi dans le tableau de bord.
+  - type: input
+    id : Utilisateur 
+    attributes: 
+     label : Nom de l'utilsateur (intern / Beta)
+     placeholder : ex. Halissath / Adrien 
+    validations:
+      required: true
+  - type: input
+    id : Demande
+    attributes: 
+      label : Entrez l'intitulé de la Demande
+    validations: 
+      required : true 
+  - type : input 
+    id : Description 
+    attributes: 
+      label: Entrez les details de la Demande
+    validations:
+      required : true 
+  - type: input 
+    id: Decision 
+    attributes:
+      label : Quelle decision a ete prise pour cette demande 
+    validations :
+      required: true
+  - type : input 
+    id : Commentaire 
+  
+
+
+
+
+
+  
+
+
+
+
