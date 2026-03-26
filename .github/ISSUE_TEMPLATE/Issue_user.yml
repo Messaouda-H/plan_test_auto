@@ -1,17 +1,16 @@
-name: Bug Report
-description: Signaler un bug detecte pendant les tests Halyzia
-title: 'Issue Test'
-labels:
-  - bug
+name : Issue utilsateurs
+description : Signaler une Issue detecte par des utilisateus 
+title : 'Issue Utilisateur'
+labels: 
+  - Issue Utilisateur
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
-body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Signalement de bug — Halyzia
-        Remplir tous les champs. Le bug sera automatiquement
-        assigne et suivi dans le tableau de bord.
+body : 
+  - type : markdown 
+    attributes :
+      value : |
+        ## Signalemnt d'une issue prevenant d'un utilisateur  
+        Remplir tous les champs.
   - type: dropdown
     id: version
     attributes:
