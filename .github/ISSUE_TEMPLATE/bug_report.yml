@@ -76,7 +76,7 @@ body:
     id: testeur
     attributes:
       label: Testeur
-      placeholder: ex. Ulysse / Halissath / Messaouda
+      placeholder: ex.  Halissath 
     validations:
       required: true
   - type: dropdown
