@@ -23,9 +23,9 @@ jobs:
 
             let assignee = null;
 
-            if (body.includes("Anisat")) {
-              assignee = "USERNAME_ANISAT";
-            } else if (body.includes("Toi")) {
+            if (body.includes("Halissath")) {
+              assignee = "hakadiri";
+            } else if (body.includes("Messaouda")) {
               assignee = "Messaouda-H";
             }
 
