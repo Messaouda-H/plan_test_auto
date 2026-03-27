@@ -134,3 +134,13 @@ body:
         - Windows 10
         - macOS
         - Autre
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
