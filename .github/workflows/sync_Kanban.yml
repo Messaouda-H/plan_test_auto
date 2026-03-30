@@ -1,4 +1,4 @@
-name: Sync Kanban
+name: Sync Backlog → Test
 
 on:
   issues:
@@ -17,10 +17,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
 
-            const issue = context.payload.issue;
             const label = context.payload.label.name;
+            const issue = context.payload.issue;
 
-            // Si passe en dev
+            console.log("Label reçu:", label);
+
+            // Si status devient dev
             if (label === "status: dev") {
 
               await github.rest.issues.addLabels({
@@ -30,5 +32,5 @@ jobs:
                 labels: ["Test"]
               });
 
-              console.log("Ajouté au kanban FIFY");
+              console.log("Ajout du label Test");
             }
