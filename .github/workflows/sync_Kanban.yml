@@ -1,36 +1,34 @@
-name: Sync Kanban 
+name: Sync Kanban
 
-on: 
-  issues: 
+on:
+  issues:
     types: [labeled]
 
 permissions:
   issues: write
 
 jobs:
-  sync: 
+  sync:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/github-script@v7
-        with: 
-          github-token: ${{ secrets.GITHUB_TOKEN}}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
 
             const issue = context.payload.issue;
-            cont label = context.payload.name;
+            const label = context.payload.label.name;
 
-            //si passe en Decrivez
+            // Si passe en dev
+            if (label === "status: dev") {
 
-            if(label === "status: dev"){
-          
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                labels: ["BackLog"]
+                labels: ["Test"]
               });
 
-              console.log("Ajouté au Kanban Test")
-          
+              console.log("Ajouté au kanban FIFY");
             }
