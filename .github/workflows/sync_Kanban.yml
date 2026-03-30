@@ -1,4 +1,4 @@
-name: Sync Backlog → Test
+name: Move Backlog → Test
 
 on:
   issues:
@@ -8,7 +8,7 @@ permissions:
   issues: write
 
 jobs:
-  sync:
+  move:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,15 +17,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
 
-            const label = context.payload.label.name;
             const issue = context.payload.issue;
+            const label = context.payload.label.name;
 
             console.log("LABEL:", label);
 
+            // Si on passe en dev
             if (label.toLowerCase().includes("dev")) {
 
               console.log("PASSAGE EN DEV");
 
+              // 1. Ajouter Test
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -33,5 +35,19 @@ jobs:
                 labels: ["Test"]
               });
 
-              console.log("LABEL TEST AJOUTÉ");
+              // 2. Supprimer BackLog
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: "BackLog"
+                });
+
+                console.log("BackLog supprimé");
+              } catch (e) {
+                console.log("BackLog déjà absent");
+              }
+
+              console.log("Issue déplacée vers Test");
             }
