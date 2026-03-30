@@ -3,7 +3,7 @@ description : Ajouter un nouveau Back log
 title: '[Back log]'
 labels : 
   - BackLog 
-  - "status: dev"
+  - "status: todo"
 assignees :
   -NOM_DU_DEV_PAR_DEFAUT
 body :
