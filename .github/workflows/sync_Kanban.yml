@@ -1,47 +1,67 @@
-name: Move BackLog → Test
+name: Sync kanban → labels
 
 on:
-  issues:
-    types: [labeled]   
+  projects_v2_item:
+    types: [edited]
 
 permissions:
   issues: write
 
 jobs:
-  move:
+  sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue;
-            const labels = issue.labels.map(l => l.name.toLowerCase());
+            const payload = context.payload;
 
-            console.log("Labels actuels :", labels);
-
-            const isBacklog = labels.includes("backlog");
-            const isDev     = labels.includes("status: dev");
-
-            if (!isBacklog || !isDev) {
-              console.log("Condition non remplie, rien à faire.");
+            // On vérifie que c'est bien un changement de colonne "Status"
+            const changes = payload.changes;
+            if (!changes?.field_value?.field_name || 
+                changes.field_value.field_name !== "Status") {
+              console.log("Pas un changement de Status, on ignore.");
               return;
             }
 
-            console.log("→ Transition BackLog → Test");
+            const newStatus = changes.field_value.after?.name?.toLowerCase();
+            console.log("Nouveau status :", newStatus);
 
-            await github.rest.issues.addLabels({
+            // Récupérer le numéro d'issue lié à cet item de projet
+            const contentUrl = payload.projects_v2_item.content_url;
+            const issueNumber = parseInt(contentUrl.split("/issues/")[1]);
+
+            if (!issueNumber) {
+              console.log("Pas une issue, on ignore.");
+              return;
+            }
+
+            // Récupérer les labels actuels
+            const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issue.number,
-              labels: ["Test"]
+              repo: context.repo.repo,
+              issue_number: issueNumber,
             });
 
-            await github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issue.number,
-              name: "BackLog"
-            });
+            const currentLabels = issue.labels.map(l => l.name);
+            console.log("Labels actuels :", currentLabels);
 
-            console.log("✓ Terminé");
+            // Si la carte passe en "Dev" → swap BackLog → Test
+            if (newStatus === "dev") {
+              if (currentLabels.includes("BackLog")) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: ["Test"]
+                });
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: "BackLog"
+                });
+                console.log("✓ BackLog → Test");
+              }
+            }
