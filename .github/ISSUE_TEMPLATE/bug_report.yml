@@ -2,7 +2,7 @@ name: Issue Test
 description: Signaler un bug detecte pendant les tests Halyzia
 title: 'Issue Test'
 labels:
-  - Issue Test
+  - Test
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
 body:

@@ -2,7 +2,7 @@ name : Issue utilsateurs
 description : Signaler une Issue detecte par des utilisateus 
 title : 'Issue Utilisateur'
 labels: 
-  - Issue Utilisateur
+  - Utilisateur
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
 body : 
