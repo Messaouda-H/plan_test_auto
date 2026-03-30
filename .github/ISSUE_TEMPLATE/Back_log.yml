@@ -5,7 +5,7 @@ labels :
   - BackLog 
   - "status: todo"
 assignees :
-  -NOM_DU_DEV_PAR_DEFAUT
+  - NOM_DU_DEV_PAR_DEFAUT
 body :
   - type: markdown
     attributes:
