@@ -27,7 +27,7 @@ body :
   - type : input 
     id : Description 
     attributes: 
-      label: Entrez les details de la Demande
+      label: Description
     validations:
       required : true 
   - type: input 
@@ -36,10 +36,16 @@ body :
       label : Quelle decision a ete prise pour cette demande 
     validations :
       required: true
+  - type: input 
+    id: Milestone 
+    attributes:
+      label : Milestone
+    validations :
+      required: true
   - type : input 
     id : Commentaire 
     attributes:
-      label: Entez un commentaire 
+      label: Commentaire
   
 
 
