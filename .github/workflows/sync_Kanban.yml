@@ -2,7 +2,7 @@ name: Move Backlog → Test
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, edited, labeled]
 
 permissions:
   issues: write
@@ -18,16 +18,20 @@ jobs:
           script: |
 
             const issue = context.payload.issue;
-            const label = context.payload.label.name;
 
-            console.log("LABEL:", label);
+            const labels = issue.labels.map(l => l.name.toLowerCase());
 
-            // Si on passe en dev
-            if (label.toLowerCase().includes("dev")) {
+            console.log("LABELS:", labels);
 
-              console.log("PASSAGE EN DEV");
+            // condition : issue BackLog + status dev
+            const isBacklog = labels.includes("backlog");
+            const isDev = labels.includes("status: dev");
 
-              // 1. Ajouter Test
+            if (isBacklog && isDev) {
+
+              console.log("TRANSFORMATION BACKLOG → TEST");
+
+              // Ajouter Test
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -35,19 +39,13 @@ jobs:
                 labels: ["Test"]
               });
 
-              // 2. Supprimer BackLog
-              try {
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  name: "BackLog"
-                });
+              // Supprimer BackLog
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: "BackLog"
+              });
 
-                console.log("BackLog supprimé");
-              } catch (e) {
-                console.log("BackLog déjà absent");
-              }
-
-              console.log("Issue déplacée vers Test");
+              console.log("OK terminé");
             }
