@@ -3,6 +3,7 @@ description : Signaler une Issue detecte par des utilisateus
 title : 'Issue Utilisateur'
 labels: 
   - Utilisateur
+  - status : todo
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
 body : 
