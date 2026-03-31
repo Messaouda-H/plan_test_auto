@@ -15,13 +15,13 @@ const gql     = graphql.defaults({
 // Adapte les numéros, statusTrigger, removeLabel, addLabel à ton setup
 const RULES = [
   {
-    projectNumber: PROJECT_NUMBERS[0],
+    projectNumber: PROJECT_NUMBERS[1],
     statusTrigger: "dev",
     removeLabel:   "BackLog",
     addLabel:      "Test",
   },
   {
-    projectNumber: PROJECT_NUMBERS[1],
+    projectNumber: PROJECT_NUMBERS[0],
     statusTrigger: "done",
     removeLabel:   "Test",
     addLabel:      "status: done",
