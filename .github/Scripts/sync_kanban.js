@@ -12,25 +12,21 @@ const gql     = graphql.defaults({
 });
 
 // Règles de transition par projet
-// clé = numéro du projet, valeur = liste de règles
-const RULES = {
-  // Projet BackLog → quand Status = "Dev", swap BackLog → Test
-  PROJECT_NUMBERS[0]: [
-    {
-      statusTrigger: "dev",
-      removeLabel:   "BackLog",
-      addLabel:      "Test",
-    }
-  ],
-  // Projet Test → quand Status = "Done", swap Test → Done
-  PROJECT_NUMBERS[1]: [
-    {
-      statusTrigger: "done",
-      removeLabel:   "Test",
-      addLabel:      "status: done",
-    }
-  ],
-};
+// Adapte les numéros, statusTrigger, removeLabel, addLabel à ton setup
+const RULES = [
+  {
+    projectNumber: PROJECT_NUMBERS[0],
+    statusTrigger: "dev",
+    removeLabel:   "BackLog",
+    addLabel:      "Test",
+  },
+  {
+    projectNumber: PROJECT_NUMBERS[1],
+    statusTrigger: "done",
+    removeLabel:   "Test",
+    addLabel:      "status: done",
+  },
+];
 
 async function fetchProjectItems(projectNumber) {
   const data = await gql(`
@@ -65,9 +61,8 @@ async function fetchProjectItems(projectNumber) {
   return project.items.nodes;
 }
 
-async function syncProject(projectNumber) {
-  const items = await fetchProjectItems(projectNumber);
-  const rules = RULES[projectNumber] ?? [];
+async function syncProject(rule) {
+  const items = await fetchProjectItems(rule.projectNumber);
   let count = 0;
 
   for (const item of items) {
@@ -79,33 +74,31 @@ async function syncProject(projectNumber) {
     );
     const status = statusField?.name?.toLowerCase();
 
-    for (const rule of rules) {
-      if (status !== rule.statusTrigger) continue;
+    if (status !== rule.statusTrigger) continue;
 
-      const { data: issue } = await octokit.issues.get({
-        owner: OWNER, repo: REPO, issue_number: issueNumber
-      });
+    const { data: issue } = await octokit.issues.get({
+      owner: OWNER, repo: REPO, issue_number: issueNumber
+    });
 
-      const labels = issue.labels.map(l => l.name);
-      if (!labels.includes(rule.removeLabel)) continue;
+    const labels = issue.labels.map(l => l.name);
+    if (!labels.includes(rule.removeLabel)) continue;
 
-      console.log(`→ Issue #${issueNumber} : "${rule.removeLabel}" → "${rule.addLabel}"`);
+    console.log(`→ Issue #${issueNumber} : "${rule.removeLabel}" → "${rule.addLabel}"`);
 
-      await octokit.issues.addLabels({
-        owner: OWNER, repo: REPO,
-        issue_number: issueNumber,
-        labels: [rule.addLabel]
-      });
+    await octokit.issues.addLabels({
+      owner: OWNER, repo: REPO,
+      issue_number: issueNumber,
+      labels: [rule.addLabel]
+    });
 
-      await octokit.issues.removeLabel({
-        owner: OWNER, repo: REPO,
-        issue_number: issueNumber,
-        name: rule.removeLabel
-      });
+    await octokit.issues.removeLabel({
+      owner: OWNER, repo: REPO,
+      issue_number: issueNumber,
+      name: rule.removeLabel
+    });
 
-      console.log(`✓ Issue #${issueNumber} mise à jour`);
-      count++;
-    }
+    console.log(`✓ Issue #${issueNumber} mise à jour`);
+    count++;
   }
 
   return count;
@@ -115,8 +108,8 @@ async function main() {
   console.log(`Démarrage sync — projets : ${PROJECT_NUMBERS.join(", ")}`);
   let total = 0;
 
-  for (const number of PROJECT_NUMBERS) {
-    total += await syncProject(number);
+  for (const rule of RULES) {
+    total += await syncProject(rule);
   }
 
   console.log(`\nTerminé — ${total} issue(s) mise(s) à jour au total.`);
