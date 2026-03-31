@@ -1,67 +1,25 @@
-name: Sync kanban → labels
+name: Sync Kanban → Labels
 
 on:
-  projects_v2_item:
-    types: [edited]
-
-permissions:
-  issues: write
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const payload = context.payload;
+          node-version: '20'
 
-            // On vérifie que c'est bien un changement de colonne "Status"
-            const changes = payload.changes;
-            if (!changes?.field_value?.field_name || 
-                changes.field_value.field_name !== "Status") {
-              console.log("Pas un changement de Status, on ignore.");
-              return;
-            }
+      - run: npm install @octokit/rest @octokit/graphql
 
-            const newStatus = changes.field_value.after?.name?.toLowerCase();
-            console.log("Nouveau status :", newStatus);
-
-            // Récupérer le numéro d'issue lié à cet item de projet
-            const contentUrl = payload.projects_v2_item.content_url;
-            const issueNumber = parseInt(contentUrl.split("/issues/")[1]);
-
-            if (!issueNumber) {
-              console.log("Pas une issue, on ignore.");
-              return;
-            }
-
-            // Récupérer les labels actuels
-            const { data: issue } = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-            });
-
-            const currentLabels = issue.labels.map(l => l.name);
-            console.log("Labels actuels :", currentLabels);
-
-            // Si la carte passe en "Dev" → swap BackLog → Test
-            if (newStatus === "dev") {
-              if (currentLabels.includes("BackLog")) {
-                await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  labels: ["Test"]
-                });
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  name: "BackLog"
-                });
-                console.log("✓ BackLog → Test");
-              }
-            }
+      - run: node .github/scripts/sync_kanban.js
+        env:
+          PAT_TOKEN:       ${{ secrets.PAT_TOKEN }}
+          OWNER:           ${{ github.repository_owner }}
+          REPO:            ${{ github.event.repository.name }}
+          PROJECT_NUMBERS: ${{ vars.PROJECT_NUMBERS }}
