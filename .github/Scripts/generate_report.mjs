@@ -14,8 +14,9 @@ const octokit = new Octokit({
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-const TARGET_VERSION = process.env.VERSION || "2.0.0.4";
+const TARGET_VERSION = (process.env.VERSION || "V1.7.1").trim().toLowerCase();
 
+// ✅ Parser robuste (ne casse plus avec GitHub forms)
 function extractField(body, fieldName) {
   if (!body) return "N/A";
 
@@ -30,6 +31,7 @@ function extractField(body, fieldName) {
   return "N/A";
 }
 
+// 🎯 Statut lisible
 function formatStatus(labels) {
   const names = labels.map(l => l.name);
 
@@ -42,7 +44,7 @@ function formatStatus(labels) {
 }
 
 async function generateReport() {
-  console.log("Fetching issues...");
+  console.log("📥 Fetching issues...");
 
   const issues = await octokit.paginate(octokit.issues.listForRepo, {
     owner,
@@ -55,14 +57,34 @@ async function generateReport() {
     issue.labels.some(l => l.name === "bug")
   );
 
+  console.log(`🐞 Total bugs: ${bugIssues.length}`);
+
+  // 🔥 FILTRE CORRIGÉ + DEBUG
   const filtered = bugIssues.filter(issue => {
-    const version = extractField(issue.body || "", "Version");
+    const body = issue.body || "";
+
+    const version = extractField(body, "Version testée")
+      .trim()
+      .toLowerCase();
+
+    console.log("------------");
+    console.log("Issue:", issue.title);
+    console.log("Version trouvée:", version);
+
     return version === TARGET_VERSION;
   });
 
-  console.log(`Found ${filtered.length} issues`);
+  console.log(`✅ Issues retenues: ${filtered.length}`);
 
-  let md = `# Rapport QA — Version ${TARGET_VERSION}\n\n`;
+  // 🛑 sécurité → éviter rapport vide incompréhensible
+  if (filtered.length === 0) {
+    console.log("⚠️ Aucune issue trouvée → vérifie:");
+    console.log("- Nom du champ: 'Version testée'");
+    console.log("- Valeur exacte: ", TARGET_VERSION);
+  }
+
+  let md = `# 📊 Rapport QA — Version ${TARGET_VERSION}\n\n`;
+  md += `Nombre d'issues : ${filtered.length}\n\n---\n\n`;
 
   const docChildren = [];
 
@@ -83,13 +105,16 @@ async function generateReport() {
 
     const status = formatStatus(issue.labels);
 
-    md += `## Issue ${index + 1} — ${issue.title}\n\n`;
+    // 📄 Markdown
+    md += `## 🐞 Issue ${index + 1} — ${issue.title}\n\n`;
     md += `- Testeur : ${testeur}\n`;
     md += `- Statut : ${status}\n`;
     md += `- Gravité : ${gravite}\n`;
     md += `- Environnement : ${environnement}\n`;
-    md += `- Fichier : ${fichier}\n\n`;
+    md += `- Fichier : ${fichier}\n`;
+    md += `- Lien : ${issue.html_url}\n\n---\n\n`;
 
+    // 📘 Word
     docChildren.push(
       new Paragraph({
         text: `Issue ${index + 1} : ${issue.title}`,
@@ -100,10 +125,12 @@ async function generateReport() {
       new Paragraph(`Gravité : ${gravite}`),
       new Paragraph(`Environnement : ${environnement}`),
       new Paragraph(`Fichier : ${fichier}`),
+      new Paragraph(`Lien : ${issue.html_url}`),
       new Paragraph("")
     );
   });
 
+  // 📁 dossier reports
   const reportDir = new URL("../../reports", import.meta.url).pathname;
 
   if (!fs.existsSync(reportDir)) {
@@ -119,7 +146,7 @@ async function generateReport() {
   const buffer = await Packer.toBuffer(doc);
   fs.writeFileSync(`${reportDir}/report_${TARGET_VERSION}.docx`, buffer);
 
-  console.log("✅ Report generated");
+  console.log("🎉 Rapport généré !");
 }
 
 generateReport().catch(console.error);
