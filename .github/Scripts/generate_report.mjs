@@ -17,9 +17,17 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const TARGET_VERSION = process.env.VERSION || "2.0.0.4";
 
 function extractField(body, fieldName) {
-  const regex = new RegExp(`### ${fieldName}\\s*\\n(.+)`);
-  const match = body.match(regex);
-  return match ? match[1].trim() : "N/A";
+  if (!body) return "N/A";
+
+  const lines = body.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].toLowerCase().includes(fieldName.toLowerCase())) {
+      return (lines[i + 1] || "").trim();
+    }
+  }
+
+  return "N/A";
 }
 
 function formatStatus(labels) {
