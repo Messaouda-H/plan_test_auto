@@ -6,9 +6,8 @@ on:
       version:
         description: "Version à générer"
         required: true
-        default: "2.0.0.4"
+        default: "V1.7.1"
 
-# 🔥 FIX PRINCIPAL → autoriser le push
 permissions:
   contents: write
 
@@ -17,35 +16,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout du repo
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 🟢 Setup Node
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 📦 Installer dépendances
-      - name: Install deps
-        run: npm install @octokit/rest docx
+      - run: npm install @octokit/rest docx
 
-      # ⚙️ Générer le rapport
-      - name: Generate report
-        run: node .github/Scripts/generate_report.mjs
+      - run: node .github/Scripts/generate_report.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.event.inputs.version }}
 
-      # 💾 Commit + push sécurisé
-      - name: Commit & Push report
-        run: |
+      - run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
           git add reports/
-
-          git commit -m "Generate QA report for version ${{ github.event.inputs.version }}" || echo "No changes"
-
+          git diff --cached --quiet || git commit -m "Generate QA report"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git

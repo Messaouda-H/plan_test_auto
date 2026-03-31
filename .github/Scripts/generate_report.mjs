@@ -1,6 +1,5 @@
 import { Octokit } from "@octokit/rest";
 import fs from "fs";
-import path from "path";
 import {
   Document,
   Packer,
@@ -14,9 +13,12 @@ const octokit = new Octokit({
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-const TARGET_VERSION = (process.env.VERSION || "V1.7.1").trim().toLowerCase();
+const TARGET_VERSION = (process.env.VERSION || "V1.7.1")
+  .trim()
+  .toLowerCase();
 
-// ✅ Parser robuste (ne casse plus avec GitHub forms)
+
+// ✅ Parser robuste
 function extractField(body, fieldName) {
   if (!body) return "N/A";
 
@@ -31,6 +33,24 @@ function extractField(body, fieldName) {
   return "N/A";
 }
 
+
+// ✅ Version robuste (multi formats)
+function extractVersion(body) {
+  const possibleFields = [
+    "Version Halyzia concernee",
+    "Version testée",
+    "Version",
+  ];
+
+  for (const field of possibleFields) {
+    const value = extractField(body, field);
+    if (value !== "N/A" && value !== "") return value;
+  }
+
+  return "N/A";
+}
+
+
 // 🎯 Statut lisible
 function formatStatus(labels) {
   const names = labels.map(l => l.name);
@@ -42,6 +62,7 @@ function formatStatus(labels) {
 
   return "🟪 Inconnu";
 }
+
 
 async function generateReport() {
   console.log("📥 Fetching issues...");
@@ -59,11 +80,20 @@ async function generateReport() {
 
   console.log(`🐞 Total bugs: ${bugIssues.length}`);
 
-  // 🔥 FILTRE CORRIGÉ + DEBUG
+
+  // 🔍 DEBUG global
+  const allVersions = bugIssues.map(issue =>
+    extractVersion(issue.body || "")
+  );
+
+  console.log("📊 Versions détectées:", [...new Set(allVersions)]);
+
+
+  // 🔥 FILTRE PRINCIPAL
   const filtered = bugIssues.filter(issue => {
     const body = issue.body || "";
 
-    extractField(body, "Version Halyzia concernee")
+    const version = extractVersion(body)
       .trim()
       .toLowerCase();
 
@@ -76,13 +106,12 @@ async function generateReport() {
 
   console.log(`✅ Issues retenues: ${filtered.length}`);
 
-  // 🛑 sécurité → éviter rapport vide incompréhensible
   if (filtered.length === 0) {
-    console.log("⚠️ Aucune issue trouvée → vérifie:");
-    console.log("- Nom du champ: 'Version testée'");
-    console.log("- Valeur exacte: ", TARGET_VERSION);
+    console.log("⚠️ Aucune issue match → vérifie la version EXACTE");
   }
 
+
+  // 📄 Markdown
   let md = `# 📊 Rapport QA — Version ${TARGET_VERSION}\n\n`;
   md += `Nombre d'issues : ${filtered.length}\n\n---\n\n`;
 
@@ -94,6 +123,7 @@ async function generateReport() {
       heading: HeadingLevel.TITLE,
     })
   );
+
 
   filtered.forEach((issue, index) => {
     const body = issue.body || "";
@@ -129,6 +159,7 @@ async function generateReport() {
       new Paragraph("")
     );
   });
+
 
   // 📁 dossier reports
   const reportDir = new URL("../../reports", import.meta.url).pathname;
