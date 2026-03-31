@@ -17,7 +17,7 @@ jobs:
 
       - run: npm install @octokit/rest @octokit/graphql
 
-      - run: node .github/scripts/sync_kanban.js
+      - run: node .github/Scripts/sync_kanban.js
         env:
           PAT_TOKEN:       ${{ secrets.PAT_TOKEN }}
           OWNER:           ${{ github.repository_owner }}
