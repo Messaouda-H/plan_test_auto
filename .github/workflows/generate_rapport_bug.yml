@@ -2,22 +2,38 @@ name: Generate QA Report
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à générer"
+        required: true
+        default: "2.0.0.4"
 
 jobs:
   report:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - run: npm install @octokit/rest docx
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-      - run: node .github/Scripts/generate_report.js
+      - name: Install deps
+        run: npm install @octokit/rest docx
+
+      - name: Generate report
+        run: node .github/Scripts/generate_report.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.inputs.version }}
 
       - name: Commit report
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add reports/
-          git commit -m "Generate QA report" || echo "No changes"
+          git commit -m "Generate QA report for version ${{ github.event.inputs.version }}" || echo "No changes"
           git push
