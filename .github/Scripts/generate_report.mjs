@@ -63,7 +63,7 @@ async function generateReport() {
   const filtered = bugIssues.filter(issue => {
     const body = issue.body || "";
 
-    const version = extractField(body, "Version testée")
+    extractField(body, "Version Halyzia concernee")
       .trim()
       .toLowerCase();
 
