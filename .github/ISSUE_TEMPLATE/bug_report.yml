@@ -13,6 +13,11 @@ body:
         ## Signalement de bug — Halyzia
         Remplir tous les champs. Le bug sera automatiquement
         assigne et suivi dans le tableau de bord.
+  - type: input
+    id: session_link
+    attributes:
+      label: Lien vers la session de test
+      placeholder: #123
   - type: dropdown
     id: version
     attributes:
@@ -60,10 +65,11 @@ body:
     validations:
       required: true
   - type: input
-    id: fichier
+    id: test_data
     attributes:
-      label: Nom du fichier teste
-      placeholder: ex. P110_DP002-sieste_micmac-ncs
+      label: Lien vers dossier/fichier de test
+      description: Lien vers dossier (Drive, serveur, etc.)
+      placeholder: https://...
     validations:
       required: true
   - type: input

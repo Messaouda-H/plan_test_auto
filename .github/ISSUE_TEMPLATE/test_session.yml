@@ -1,0 +1,64 @@
+name: Session de test
+description: Suivi complet d'une session de test
+title: "[TEST SESSION] "
+labels: ["test-session", "status: in-progress"]
+
+body:
+
+  - type: input
+    id: testeur
+    attributes:
+      label: Testeur
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version testée
+      placeholder: ex. 2.0.0.4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow testé
+      options:
+        - WF-01
+        - WF-02
+        - Autre
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist exécutée
+      description: Cocher les étapes réalisées
+      placeholder: |
+        - [x] NEW > charger dossier
+        - [x] PSD
+        - [ ] Export metrics
+
+  - type: textarea
+    id: extra_tests
+    attributes:
+      label: Vérifications supplémentaires
+      placeholder: |
+        - [ ] Test export PDF
+        - [ ] Test performance
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes libres
+      placeholder: Observations, idées, comportements étranges
+
+  - type: textarea
+    id: issues_created
+    attributes:
+      label: Issues créées pendant la session
+      placeholder: |
+        #12
+        #15

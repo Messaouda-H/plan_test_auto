@@ -145,22 +145,87 @@ FILE: .github\package.json  (5 lignes)
 
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (130 lignes)
+FILE: .github\ISSUE_TEMPLATE\Back_log.yml  (60 lignes)
 ================================================================================
-name: Bug Report
-description: Signaler un bug detecte pendant les tests Halyzia
-title: '[BUG] '
-labels:
-  - bug
-assignees:
+name : Back Logs 
+description : Ajouter un nouveau Back log
+title: '[Back log]'
+labels : 
+  - BackLog 
+  - "status: todo"
+assignees :
   - NOM_DU_DEV_PAR_DEFAUT
-body:
+body :
   - type: markdown
     attributes:
-      value: |
-        ## Signalement de bug — Halyzia
-        Remplir tous les champs. Le bug sera automatiquement
-        assigne et suivi dans le tableau de bord.
+      value:  |
+        ## Signalement de Backlog — Halyzia
+          Remplir tous les champs. 
+  - type: input
+    id : Utilisateur 
+    attributes: 
+      label : Nom de l'utilsateur (intern / Beta)
+      placeholder : ex. Halissath / Adrien 
+    validations:
+      required: true
+  - type: input
+    id : Demande
+    attributes: 
+       label : Entrez l'intitulé de la Demande
+    validations: 
+      required : true 
+  - type : input 
+    id : Description 
+    attributes: 
+      label: Description
+    validations:
+      required : true 
+  - type: input 
+    id: Decision 
+    attributes:
+      label : Quelle decision a ete prise pour cette demande 
+    validations :
+      required: true
+  - type: input 
+    id: Milestone 
+    attributes:
+      label : Milestone
+    validations :
+      required: true
+  - type : input 
+    id : Commentaire 
+    attributes:
+      label: Commentaire
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+================================================================================
+FILE: .github\ISSUE_TEMPLATE\Issue_user.yml  (135 lignes)
+================================================================================
+name : Issue utilsateurs
+description : Signaler une Issue detecte par des utilisateus 
+title : 'Issue Utilisateur'
+labels: 
+  - Utilisateur
+  - status : todo
+assignees:
+  - NOM_DU_DEV_PAR_DEFAUT
+body : 
+  - type : markdown 
+    attributes :
+      value : |
+        ## Signalemnt d'une issue prevenant d'un utilisateur  
+        Remplir tous les champs.
   - type: dropdown
     id: version
     attributes:
@@ -182,8 +247,14 @@ body:
       description: |
         Voir les definitions completes dans .github/workflow-definitions/
       options:
+        - '""'
+        - '"26-03"'
+        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
         - '"Workflow 1 — NEW + Detection complete"'
         - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"abcd"'
+        - '"ddd"'
+        - '"me"'
         - '"test"'
     validations:
       required: true
@@ -219,7 +290,148 @@ body:
     id: testeur
     attributes:
       label: Testeur
-      placeholder: ex. Ulysse / Halissath / Messaouda
+      placeholder: ex. Halissath 
+    validations:
+      required: true
+  - type: dropdown
+    id: severite
+    attributes:
+      label: Severite
+      options:
+        - Critique — crash / perte de donnees
+        - Majeur — fonctionnalite bloquee
+        - Mineur — comportement incorrect mais contournable
+        - Cosmétique — affichage seulement
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      placeholder: Decrivez precisement ce qui s'est passe...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Etapes pour reproduire
+      placeholder: |
+        1. Ouvrir Halyzia V1.7.1
+        2. NEW > selectionner dossier X
+        3. Appliquer filtre permanent...
+        4. Observer le bug
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultat attendu
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultat obtenu
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Lignes d'erreur (copier-coller depuis le terminal)
+      render: shell
+  - type: dropdown
+    id: os
+    attributes:
+      label: Systeme d'exploitation
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS
+        - Autre
+
+================================================================================
+FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (146 lignes)
+================================================================================
+name: Issue Test
+description: Signaler un bug detecte pendant les tests Halyzia
+title: 'Issue Test'
+labels:
+  - Test
+  - "status: todo"
+assignees:
+  - NOM_DU_DEV_PAR_DEFAUT
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Signalement de bug — Halyzia
+        Remplir tous les champs. Le bug sera automatiquement
+        assigne et suivi dans le tableau de bord.
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version Halyzia concernee
+      options:
+        - V1.7.1
+        - V1.7.1.RC2
+        - V1.7.1.RC1
+        - V1.7.0.6
+        - V1.7.0.5
+        - V1.7.0.4
+        - Autre
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow en cours quand le bug est apparu
+      description: |
+        Voir les definitions completes dans .github/workflow-definitions/
+      options:
+        - '""'
+        - '"26-03"'
+        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
+        - '"Workflow 1 — NEW + Detection complete"'
+        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"abcd"'
+        - '"ddd"'
+        - '"me"'
+        - '"test"'
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Format du fichier EEG utilise
+      options:
+        - .ncs
+        - .edf
+        - .TRC
+        - .ns5
+        - .medd
+        - .nsc
+        - Autre
+    validations:
+      required: true
+  - type: input
+    id: fichier
+    attributes:
+      label: Nom du fichier teste
+      placeholder: ex. P110_DP002-sieste_micmac-ncs
+    validations:
+      required: true
+  - type: input
+    id: pc
+    attributes:
+      label: PC utilise
+      placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
+    validations:
+      required: true
+  - type: input
+    id: testeur
+    attributes:
+      label: Testeur
+      placeholder: ex.  Halissath 
     validations:
       required: true
   - type: dropdown
@@ -277,6 +489,147 @@ body:
         - Windows 10
         - macOS
         - Autre
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
+
+================================================================================
+FILE: .github\ISSUE_TEMPLATE\create_workflow.yml  (45 lignes)
+================================================================================
+name: Create Workflow
+description: Ajouter un nouveau workflow de test
+title: "[WORKFLOW] "
+labels: [workflow]
+
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Nom du workflow
+      placeholder: ex. Workflow 3 — Test export
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objectif
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Une ligne = une étape
+      placeholder: |
+        - [ ] Etape 1
+        - [ ] Etape 2
+    validations:
+      required: true
+
+  - type: input
+    id: format
+    attributes:
+      label: Format fichier
+      placeholder: ex. .ncs
+    validations:
+      required: true
+
+  - type: input
+    id: montage
+    attributes:
+      label: Montage
+    validations:
+      required: true
+
+================================================================================
+FILE: .github\workflow-definitions\26-03.md  (16 lignes)
+================================================================================
+# 26-03
+
+## Objectif
+objectif
+
+## Fichier requis
+- Format : .ncs
+- Montage : micro + macro
+
+## Checklist des etapes
+et
+et
+et
+
+## Resultat attendu global
+Tous les elements fonctionnent sans erreur.
+
+
+================================================================================
+FILE: .github\workflow-definitions\Template_Test_WorkFlow.md  (56 lignes)
+================================================================================
+# .github/ISSUE_TEMPLATE/workflow_test.yml
+name: Session de test — Workflow
+description: Enregistrer une session de tests complete
+labels: ["test-session"]
+
+body:
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow execute
+      options:
+        - Workflow 1, Workflow 2, Workflow 3
+        # ... tous les workflows
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version testee
+    validations:
+      required: true
+
+  - type: input
+    id: fichier
+    attributes:
+      label: Fichier utilise (nom + format + taille)
+
+  - type: input
+    id: pc
+    attributes:
+      label: PC (nom + RAM + CPU)
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist du workflow
+      description: Copier-coller la checklist du workflow et cocher chaque etape
+      placeholder: |
+        - [ ] NEW > charger le dossier
+        - [ ] Ajuster parametres affichage
+        - [ ] Zoom et scroll dans le signal
+        - [ ] PSD + marquer canaux as bad
+        - [ ] ...
+
+  - type: textarea
+    id: resultats
+    attributes:
+      label: Resultats et observations
+      placeholder: Temps de chargement, comportement observe, anomalies...
+
+  - type: dropdown
+    id: statut
+    attributes:
+      label: Statut global
+      options: ["Passe — aucun bug", "Passe avec observations", "Bug detecte — issue separee creee"]
 
 
 ================================================================================
@@ -353,128 +706,298 @@ FILE: .github\workflow-definitions\WF-02.md  (26 lignes)
 
 
 ================================================================================
+FILE: .github\workflow-definitions\WF-26_03.md  (16 lignes)
+================================================================================
+# WF-26/03
+
+## Objectif
+mon objectif
+
+## Fichier requis
+- .ncs et .edf
+- Montage : macros + micros
+
+## Checklist des étapes
+- [ ] d
+- [ ] d
+- [ ] d
+- [ ] d
+
+## Resultat attendu global
+Tous les éléments fonctionnent sans erreur ni message d'alerte inattendu.
+
+================================================================================
+FILE: .github\workflow-definitions\abcd.md  (14 lignes)
+================================================================================
+# abcd
+
+## Objectif
+efg
+
+## Fichier requis
+- Format : lmn
+- Montage : opq
+
+## Checklist des etapes
+hijk
+
+## Resultat attendu global
+Tous les elements fonctionnent sans erreur.
+
+
+================================================================================
+FILE: .github\workflow-definitions\ddd.md  (14 lignes)
+================================================================================
+# ddd
+
+## Objectif
+ddd
+
+## Fichier requis
+- Format : dd
+- Montage : dd
+
+## Checklist des etapes
+dddd
+
+## Resultat attendu global
+Tous les elements fonctionnent sans erreur.
+
+
+================================================================================
+FILE: .github\workflow-definitions\me.md  (17 lignes)
+================================================================================
+# me
+
+## Objectif
+me
+
+## Fichier requis
+- Format : me
+- Montage : me
+
+## Checklist des etapes
+me
+me
+me
+me
+
+## Resultat attendu global
+Tous les elements fonctionnent sans erreur.
+
+
+================================================================================
 FILE: .github\workflow-definitions\test.md  (1 lignes)
 ================================================================================
 
 
 
 ================================================================================
-FILE: .github\workflows\kanban_automation.yml  (97 lignes)
+FILE: .github\workflows\auto_assign.yml  (40 lignes)
 ================================================================================
-name: Kanban Automation
+name: Auto Assign Issue
 
 on:
   issues:
-    types: [opened, assigned, closed, reopened]
-  issue_comment:
-    types: [created]
+    types: [opened]
+
+permissions:
+  issues: write
 
 jobs:
-  move_issue:
+  assign:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Move issue in project
+      - name: Assign issue based on dropdown
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+
             const issue = context.payload.issue;
-            const action = context.payload.action;
+            const body = issue.body;
 
-            // Recuperer l'ID du projet GitHub
-            const { data: projects } = await github.rest.projects.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            });
+            let assignee = null;
 
-            const project = projects.find(p => p.name === 'Halyzia — Suivi qualite');
-            if (!project) {
-              console.log('Projet non trouve');
-              return;
+            if (body.includes("Halissath")) {
+              assignee = "hakadiri";
+            } else if (body.includes("Messaouda")) {
+              assignee = "Messaouda-H";
             }
 
-            // Recuperer les colonnes
-            const { data: columns } = await github.rest.projects.listColumns({
-              project_id: project.id
-            });
-
-            const colMap = {};
-            for (const col of columns) {
-              colMap[col.name] = col.id;
-            }
-
-            // Trouver la carte existante
-            let cardId = null;
-            for (const col of columns) {
-              const { data: cards } = await github.rest.projects.listCards({
-                column_id: col.id
+            if (assignee) {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: [assignee]
               });
-              const card = cards.find(c =>
-                c.content_url && c.content_url.endsWith(`/issues/${issue.number}`)
-              );
-              if (card) { cardId = card.id; break; }
+
+              console.log("Assigné à:", assignee);
             }
-
-            // Determiner la colonne cible selon l'action
-            let targetColName = null;
-
-            if (action === 'opened') {
-              targetColName = 'Bug signale';
-            } else if (action === 'assigned') {
-              targetColName = 'Assigne';
-            } else if (action === 'closed') {
-              targetColName = 'Ferme';
-            } else if (action === 'reopened') {
-              targetColName = 'Bug signale';
-            }
-
-            // Detecter "En cours" via un commentaire contenant /en-cours
-            if (context.eventName === 'issue_comment') {
-              const body = context.payload.comment.body;
-              if (body.includes('/en-cours')) targetColName = 'En cours';
-              if (body.includes('/a-re-tester')) targetColName = 'A re-tester';
-            }
-
-            if (!targetColName || !colMap[targetColName]) {
-              console.log('Pas de deplacement necessaire');
-              return;
-            }
-
-            if (cardId) {
-              // Deplacer la carte existante
-              await github.rest.projects.moveCard({
-                card_id: cardId,
-                position: 'top',
-                column_id: colMap[targetColName]
-              });
-            } else {
-              // Creer la carte si elle n'existe pas encore
-              await github.rest.projects.createCard({
-                column_id: colMap[targetColName],
-                content_id: issue.id,
-                content_type: 'Issue'
-              });
-            }
-
-            console.log(`Issue #${issue.number} deplacee vers "${targetColName}"`);
-
 
 ================================================================================
-FILE: .github\workflows\update_bug_report.yml  (35 lignes)
+FILE: .github\workflows\create_workflow_file.yml  (110 lignes)
+================================================================================
+name: Create Workflow File
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-workflow:
+    if: contains(github.event.issue.title, '[WORKFLOW]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 🔥 PARSING ROBUSTE (FINI LES FICHIERS VIDES)
+      - name: Extract fields
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            function extract(label) {
+              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const data = {
+              name: extract("Nom du workflow"),
+              objective: extract("Objectif"),
+              checklist: extract("Checklist"),
+              format: extract("Format fichier"),
+              montage: extract("Montage")
+            };
+
+            core.setOutput("name", data.name);
+            core.setOutput("objective", data.objective);
+            core.setOutput("checklist", data.checklist);
+            core.setOutput("format", data.format);
+            core.setOutput("montage", data.montage);
+
+      # 🔥 NOM DE FICHIER SAFE
+      - name: Generate safe filename
+        id: filename
+        run: |
+          NAME="${{ steps.extract.outputs.name }}"
+          SAFE_NAME=$(echo "$NAME" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+          echo "file=$SAFE_NAME.md" >> $GITHUB_OUTPUT
+
+      # 🔥 CREATION DU FICHIER
+      - name: Create markdown file
+        run: |
+          FILE=".github/workflow-definitions/${{ steps.filename.outputs.file }}"
+
+          echo "# ${{ steps.extract.outputs.name }}" > "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Objectif" >> "$FILE"
+          echo "${{ steps.extract.outputs.objective }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Fichier requis" >> "$FILE"
+          echo "- Format : ${{ steps.extract.outputs.format }}" >> "$FILE"
+          echo "- Montage : ${{ steps.extract.outputs.montage }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Checklist des etapes" >> "$FILE"
+          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Resultat attendu global" >> "$FILE"
+          echo "Tous les elements fonctionnent sans erreur." >> "$FILE"
+
+      # 🔥 COMMIT
+      - name: Commit file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .github/workflow-definitions/
+          git commit -m "Add new workflow"
+          git push
+
+      # 🔥 COMMENTAIRE
+      - name: Comment confirmation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "✅ Workflow créé automatiquement dans le repo."
+            });
+
+      # 🔥 FERMETURE AUTOMATIQUE
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            });
+
+================================================================================
+FILE: .github\workflows\sync_Kanban.yml  (24 lignes)
+================================================================================
+name: Sync Kanban → Labels
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install @octokit/rest @octokit/graphql
+
+      - run: node .github/Scripts/sync_kanban.js
+        env:
+          PAT_TOKEN:       ${{ secrets.PAT_TOKEN }}
+          OWNER:           ${{ github.repository_owner }}
+          REPO:            ${{ github.event.repository.name }}
+          PROJECT_NUMBERS: ${{ vars.PROJECT_NUMBERS }}
+
+================================================================================
+FILE: .github\workflows\update_bug_report.yml  (37 lignes)
 ================================================================================
 name: Update Bug Report Dropdown
 
 on:
-  push:
-    paths:
-      - '.github/workflow-definitions/**'
+  workflow_run:
+    workflows: ["Create Workflow File"]
+    types:
+      - completed
 
 permissions:
   contents: write
 
 jobs:
   update:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -501,7 +1024,7 @@ jobs:
           git push https://${{ secrets.GPAT }}@github.com/${{ github.repository }}.git HEAD:main
 
 ================================================================================
-FILE: .github\workflows\weekly_report.yml  (118 lignes)
+FILE: .github\workflows\weekly_report.yml  (119 lignes)
 ================================================================================
 name: Rapport hebdomadaire qualite
 
@@ -623,5 +1146,6 @@ jobs:
 
             console.log('Rapport cree avec succes');
 
+
 ================================================================================
-TOTAL: 11 fichiers | 567 lignes
+TOTAL: 22 fichiers | 1036 lignes
