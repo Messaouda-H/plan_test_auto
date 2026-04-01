@@ -19,9 +19,9 @@ import path from "path";
 async function main() {
   const token = process.env.GITHUB_TOKEN;
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-  const version = process.env.VERSION.trim();
+  const version = process.env.VERSION?.trim();
 
-  if (!version) throw new Error("VERSION non définie");
+  if (!version) throw new Error("VERSION non définie dans le workflow");
 
   const octokit = new Octokit({ auth: token });
 
@@ -38,20 +38,16 @@ async function main() {
     const body = (issue.body || "").toLowerCase();
     const title = (issue.title || "").toLowerCase();
     const labels = issue.labels.map((l) => l.name.toLowerCase());
-
     const hasVersion = body.includes(version.toLowerCase()) || title.includes(version.toLowerCase());
-    const isRelevant = labels.some((l) =>
-      ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l)
-    );
-
+    const isRelevant = labels.some((l) => ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l));
     return hasVersion || isRelevant;
   });
 
-  console.log(`✅ ${relevantIssues.length} issues trouvées`);
+  console.log(`✅ ${relevantIssues.length} issues trouvées pour ${version}`);
 
   const children = [];
 
-  // En-tête + légende (identique à avant)
+  // En-tête + légende
   children.push(
     new Paragraph({
       text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
@@ -61,7 +57,7 @@ async function main() {
     new Paragraph({ text: "Tests démarrés automatiquement via GitHub Actions", spacing: { after: 300 } })
   );
 
-  // Légende dev
+  // Légende (identique à ton PDF)
   children.push(new Paragraph({ text: "Surlignage pour équipe dev :", bold: true }));
   const legendDev = [
     { color: "FF00FF", text: "issue indique que l’issue a été fixée par dev" },
@@ -75,12 +71,10 @@ async function main() {
     children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: item.color, bold: true }), new TextRun(item.text)] }));
   });
 
-  // Légende test
   children.push(new Paragraph({ text: "Surlignage équipe test :", bold: true, spacing: { before: 300 } }));
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "00FF00", bold: true }), new TextRun("indique que l’issue a été testée et validée")] }));
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "FF00FF", bold: true }), new TextRun("indique que l’issue a été testée mais non validée")] }));
 
-  // Fonction d'extraction
   const extractField = (body, ids) => {
     for (const id of ids) {
       const regex = new RegExp(`### ${id}\\s*([\\s\\S]*?)(?=\\n###|$|$)`, "i");
@@ -90,30 +84,22 @@ async function main() {
     return "";
   };
 
-  // Extraction des images GitHub
   const extractImages = (body) => {
     const urls = [];
     const regex = /!\[.*?\]\((https:\/\/user-images\.githubusercontent\.com\/[^)]+)\)/g;
     let match;
-    while ((match = regex.exec(body)) !== null) {
-      urls.push(match[1]);
-    }
+    while ((match = regex.exec(body)) !== null) urls.push(match[1]);
     return urls;
   };
 
-  // Traitement de chaque issue (avec await pour les images)
+  let totalImages = 0;
+
   for (const issue of relevantIssues) {
     const body = issue.body || "";
     const isBacklog = issue.labels.some((l) => l.name.toLowerCase().includes("backlog"));
     const isUserIssue = issue.labels.some((l) => l.name.toLowerCase().includes("utilisateur"));
 
-    children.push(
-      new Paragraph({
-        text: `Issue n°${issue.number}: ${issue.title}`,
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 400, after: 200 },
-      })
-    );
+    children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_2, spacing: { before: 400, after: 200 } }));
 
     // Tableau résumé
     const table = new Table({
@@ -134,30 +120,28 @@ async function main() {
     });
     children.push(table);
 
-    // Champs détaillés (comme avant)
-    const fields = isBacklog
-      ? [
-          { label: "Utilisateur", value: extractField(body, ["Utilisateur"]) },
-          { label: "Demande", value: extractField(body, ["Demande"]) },
-          { label: "Description", value: extractField(body, ["Description"]) },
-          { label: "Décision prise", value: extractField(body, ["Decision"]) },
-          { label: "Milestone", value: extractField(body, ["Milestone"]) },
-          { label: "Commentaire", value: extractField(body, ["Commentaire"]) },
-        ]
-      : [
-          { label: "Version concernée", value: extractField(body, ["version"]) },
-          { label: "Workflow", value: extractField(body, ["workflow"]) },
-          { label: "Format du fichier", value: extractField(body, ["format"]) },
-          { label: isUserIssue ? "Fichier testé" : "Lien test", value: extractField(body, ["fichier", "test_data"]) },
-          { label: "PC utilisé", value: extractField(body, ["pc"]) },
-          { label: "Testeur", value: extractField(body, ["testeur"]) },
-          { label: "Système d’exploitation", value: extractField(body, ["os"]) },
-          { label: "Description", value: extractField(body, ["description", "Description du bug"]) },
-          { label: "Étapes pour reproduire", value: extractField(body, ["steps", "Etapes pour reproduire"]) },
-          { label: "Résultat attendu", value: extractField(body, ["expected"]) },
-          { label: "Résultat obtenu", value: extractField(body, ["actual"]) },
-          { label: "Logs / Erreurs", value: extractField(body, ["logs", "Lignes d'erreur"]) },
-        ];
+    // Champs détaillés
+    const fields = isBacklog ? [
+      { label: "Utilisateur", value: extractField(body, ["Utilisateur"]) },
+      { label: "Demande", value: extractField(body, ["Demande"]) },
+      { label: "Description", value: extractField(body, ["Description"]) },
+      { label: "Décision prise", value: extractField(body, ["Decision"]) },
+      { label: "Milestone", value: extractField(body, ["Milestone"]) },
+      { label: "Commentaire", value: extractField(body, ["Commentaire"]) },
+    ] : [
+      { label: "Version concernée", value: extractField(body, ["version"]) },
+      { label: "Workflow", value: extractField(body, ["workflow"]) },
+      { label: "Format du fichier", value: extractField(body, ["format"]) },
+      { label: isUserIssue ? "Fichier testé" : "Lien test", value: extractField(body, ["fichier", "test_data"]) },
+      { label: "PC utilisé", value: extractField(body, ["pc"]) },
+      { label: "Testeur", value: extractField(body, ["testeur"]) },
+      { label: "Système d’exploitation", value: extractField(body, ["os"]) },
+      { label: "Description", value: extractField(body, ["description", "Description du bug"]) },
+      { label: "Étapes pour reproduire", value: extractField(body, ["steps", "Etapes pour reproduire"]) },
+      { label: "Résultat attendu", value: extractField(body, ["expected"]) },
+      { label: "Résultat obtenu", value: extractField(body, ["actual"]) },
+      { label: "Logs / Erreurs", value: extractField(body, ["logs", "Lignes d'erreur"]) },
+    ];
 
     fields.forEach((f) => {
       if (f.value) {
@@ -166,26 +150,24 @@ async function main() {
       }
     });
 
-    // === CAPTURES D'ÉCRAN ===
+    // Captures d'écran
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
+      totalImages += imageUrls.length;
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
 
       for (const url of imageUrls) {
         try {
           const res = await fetch(url);
-          if (!res.ok) throw new Error("Failed");
-          const arrayBuffer = await res.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
+          if (!res.ok) throw new Error();
+          const buffer = Buffer.from(await res.arrayBuffer());
 
-          const image = new ImageRun({
-            data: buffer,
-            transformation: { width: 520, height: 0 }, // hauteur auto
-          });
-
-          children.push(new Paragraph({ children: [image], spacing: { before: 100, after: 100 } }));
-        } catch (e) {
-          console.warn(`⚠️ Impossible de télécharger l'image : ${url}`);
+          children.push(new Paragraph({
+            children: [new ImageRun({ data: buffer, transformation: { width: 520, height: 0 } })],
+            spacing: { before: 100, after: 100 }
+          }));
+        } catch {
+          console.warn(`⚠️ Impossible de télécharger : ${url}`);
         }
       }
     }
@@ -200,10 +182,10 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré avec ${imageUrls ? "images incluses" : ""} → ${filename}`);
+  console.log(`🎉 Rapport généré avec succès → ${filename} (${relevantIssues.length} issues | ${totalImages} images)`);
 }
 
 main().catch((err) => {
-  console.error("❌ Erreur :", err);
+  console.error("❌ Erreur critique :", err);
   process.exit(1);
 });
