@@ -47,7 +47,7 @@ async function main() {
 
   const children = [];
 
-  // En-tête + légende
+  // En-tête
   children.push(
     new Paragraph({
       text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
@@ -57,7 +57,7 @@ async function main() {
     new Paragraph({ text: "Tests démarrés automatiquement via GitHub Actions", spacing: { after: 300 } })
   );
 
-  // Légende (identique à ton PDF)
+  // Légende
   children.push(new Paragraph({ text: "Surlignage pour équipe dev :", bold: true }));
   const legendDev = [
     { color: "FF00FF", text: "issue indique que l’issue a été fixée par dev" },
@@ -91,8 +91,6 @@ async function main() {
     while ((match = regex.exec(body)) !== null) urls.push(match[1]);
     return urls;
   };
-
-  let totalImages = 0;
 
   for (const issue of relevantIssues) {
     const body = issue.body || "";
@@ -150,10 +148,9 @@ async function main() {
       }
     });
 
-    // Captures d'écran
+    // === CAPTURES D'ÉCRAN ===
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
-      totalImages += imageUrls.length;
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
 
       for (const url of imageUrls) {
@@ -166,8 +163,8 @@ async function main() {
             children: [new ImageRun({ data: buffer, transformation: { width: 520, height: 0 } })],
             spacing: { before: 100, after: 100 }
           }));
-        } catch {
-          console.warn(`⚠️ Impossible de télécharger : ${url}`);
+        } catch (e) {
+          console.warn(`⚠️ Impossible de télécharger l'image : ${url}`);
         }
       }
     }
@@ -182,10 +179,11 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré avec succès → ${filename} (${relevantIssues.length} issues | ${totalImages} images)`);
+  console.log(`🎉 Rapport généré avec succès → ${filename} (${relevantIssues.length} issues)`);
 }
 
 main().catch((err) => {
-  console.error("❌ Erreur critique :", err);
+  console.error("❌ Erreur critique :", err.message);
+  console.error(err);
   process.exit(1);
 });
