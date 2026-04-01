@@ -125,6 +125,14 @@ body :
     attributes:
       label: Lignes d'erreur (copier-coller depuis le terminal)
       render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures d'écran
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). Elles seront automatiquement ajoutées au rapport.
+      placeholder: Ajoutez une ou plusieurs captures d'écran
+    validations:
+      required: false
   - type: dropdown
     id: os
     attributes:
