@@ -1,6 +1,5 @@
 // generate_report.mjs
-// Génère un rapport .docx fidèle au format PDF Halyzia
-// à partir des issues GitHub filtrées par label de version
+// Génère un rapport .docx par version Halyzia détectée depuis les labels GitHub
 
 import { Octokit } from "@octokit/rest";
 import {
@@ -15,35 +14,29 @@ import path from "path";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-const TARGET_VERSION = process.env.VERSION; // ex: "2.0.0.4"
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/**
- * Extraire un champ depuis un body d'issue GitHub
- * Supporte deux formats :
- *   ### Gravité\nMajeur
- *   **Gravité:** Majeur
- */
+/** Détecte si un label ressemble à un numéro de version : 2.0.0.4, v2.0.0.4, version:2.0.0.4 */
+function parseVersionLabel(labelName) {
+  const cleaned = labelName.replace(/^version:/i, "").replace(/^v/i, "");
+  if (/^\d+\.\d+(\.\d+)*$/.test(cleaned)) return cleaned;
+  return null;
+}
+
+/** Extrait un champ depuis le body d'une issue GitHub */
 function extractField(body, field) {
   if (!body) return "";
   const lines = body.split("\n").map(l => l.trim());
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-
-    // Format markdown heading: ### Gravité
     if (line.match(new RegExp(`^#{1,4}\\s*${field}`, "i"))) {
-      // cherche la prochaine ligne non vide
       for (let j = i + 1; j < lines.length; j++) {
         if (lines[j] && !lines[j].startsWith("#")) return lines[j];
       }
     }
-
-    // Format bold inline: **Gravité:** valeur  ou  **Gravité** : valeur
-    const inlineMatch = line.match(
-      new RegExp(`\\*{1,2}${field}\\*{1,2}\\s*:?\\s*(.+)`, "i")
-    );
+    const inlineMatch = line.match(new RegExp(`\\*{1,2}${field}\\*{1,2}\\s*:?\\s*(.+)`, "i"));
     if (inlineMatch) return inlineMatch[1].trim();
   }
   return "";
@@ -62,25 +55,23 @@ function getStatus(labels) {
   return "";
 }
 
-/** Couleur de fond selon statut */
 function getStatusColor(status) {
   switch (status) {
-    case "Fix":                         return "90EE90"; // vert
-    case "Analyse en cours":            return "FFFF99"; // jaune
-    case "À tester":                    return "D8BFD8"; // violet clair
-    case "Corrigée version ultérieure": return "ADD8E6"; // bleu clair
-    case "Bloqué":                      return "FFB6C1"; // rouge clair
-    case "Pas un bug":                  return "E0E0E0"; // gris
-    default:                            return "FFFFFF";
+    case "Fix":                          return "90EE90";
+    case "Analyse en cours":             return "FFFF99";
+    case "À tester":                     return "D8BFD8";
+    case "Corrigée version ultérieure":  return "ADD8E6";
+    case "Bloqué":                       return "FFB6C1";
+    case "Pas un bug":                   return "E0E0E0";
+    default:                             return "FFFFFF";
   }
 }
 
-/** Gravité → couleur */
 function getSeverityColor(gravity) {
   const g = (gravity || "").toLowerCase();
-  if (g.includes("majeur") || g.includes("major"))   return "FFB6C1";
-  if (g.includes("mineur") || g.includes("minor"))   return "FFFF99";
   if (g.includes("critique") || g.includes("critical")) return "FF6961";
+  if (g.includes("majeur")   || g.includes("major"))    return "FFB6C1";
+  if (g.includes("mineur")   || g.includes("minor"))    return "FFFF99";
   return "FFFFFF";
 }
 
@@ -90,7 +81,7 @@ const border = { style: BorderStyle.SINGLE, size: 4, color: "AAAAAA" };
 const allBorders = { top: border, bottom: border, left: border, right: border };
 
 function cell(text, opts = {}) {
-  const { bold = false, fill = "FFFFFF", width = 1500, italic = false, color = "000000" } = opts;
+  const { bold = false, fill = "FFFFFF", width = 1500, italic = false } = opts;
   return new TableCell({
     borders: allBorders,
     width: { size: width, type: WidthType.DXA },
@@ -98,60 +89,49 @@ function cell(text, opts = {}) {
     margins: { top: 80, bottom: 80, left: 120, right: 120 },
     children: [
       new Paragraph({
+        children: [new TextRun({ text: String(text || ""), bold, italic, size: 18 })]
+      })
+    ]
+  });
+}
+
+function buildIssueTable(issue) {
+  const status   = getStatus(issue.labels);
+  const gravity  = extractField(issue.body, "Gravité") || extractField(issue.body, "Severity") || "";
+  const date     = issue.created_at ? issue.created_at.slice(0, 10) : "";
+  const assignee = issue.assignees?.map(a => a.login).join(", ") || issue.user?.login || "";
+
+  return new Table({
+    width: { size: 8100, type: WidthType.DXA },
+    columnWidths: [1600, 1000, 1800, 2500, 1200],
+    rows: [
+      new TableRow({
+        tableHeader: true,
         children: [
-          new TextRun({ text: String(text || ""), bold, italic, color, size: 18 })
+          cell("Nom",      { bold: true, fill: "D0E4F0", width: 1600 }),
+          cell("Date",     { bold: true, fill: "D0E4F0", width: 1000 }),
+          cell("Statut",   { bold: true, fill: "D0E4F0", width: 1800 }),
+          cell("Remarque", { bold: true, fill: "D0E4F0", width: 2500 }),
+          cell("Gravité",  { bold: true, fill: "D0E4F0", width: 1200 }),
+        ]
+      }),
+      new TableRow({
+        children: [
+          cell(assignee, { width: 1600 }),
+          cell(date,     { width: 1000 }),
+          cell(status,   { width: 1800, fill: getStatusColor(status) }),
+          cell("",       { width: 2500 }),
+          cell(gravity,  { width: 1200, fill: getSeverityColor(gravity) }),
         ]
       })
     ]
   });
 }
 
-function headerRow(cols) {
-  return new TableRow({
-    tableHeader: true,
-    children: cols.map(([text, width]) =>
-      cell(text, { bold: true, fill: "D0E4F0", width })
-    )
-  });
-}
-
-function issueRow(issue, status, gravity) {
-  const date = issue.created_at ? issue.created_at.slice(0, 10) : "";
-  const assignee = issue.assignees?.map(a => a.login).join(", ") || issue.user?.login || "";
-  const statusFill = getStatusColor(status);
-  const gravityFill = getSeverityColor(gravity);
-
-  return new TableRow({
-    children: [
-      cell(assignee,             { width: 1600 }),
-      cell(date,                 { width: 1000 }),
-      cell(status,               { width: 1800, fill: statusFill }),
-      cell("",                   { width: 2500 }), // Remarque (vide, à remplir à la réunion)
-      cell(gravity,              { width: 1200, fill: gravityFill }),
-    ]
-  });
-}
-
-function buildIssueTable(issue) {
-  const status = getStatus(issue.labels);
-  const gravity = extractField(issue.body, "Gravité") ||
-                  extractField(issue.body, "Severity") || "";
-
-  return new Table({
-    width: { size: 8100, type: WidthType.DXA },
-    columnWidths: [1600, 1000, 1800, 2500, 1200],
-    rows: [
-      headerRow([["Nom", 1600], ["Date", 1000], ["Statut", 1800], ["Remarque", 2500], ["Gravité", 1200]]),
-      issueRow(issue, status, gravity),
-    ]
-  });
-}
-
-/** Description issue : paragraphes depuis le body */
 function buildDescription(body) {
   if (!body) return [];
-
   const paras = [];
+
   paras.push(
     new Paragraph({
       children: [new TextRun({ text: "Description détaillée :", bold: true, size: 20 })],
@@ -159,12 +139,10 @@ function buildDescription(body) {
     })
   );
 
-  // Extraire la section "Description" si présente, sinon prendre tout le body
   let descText = body;
   const descMatch = body.match(/###\s*Description.*?\n([\s\S]*?)(?=\n###|$)/i);
   if (descMatch) descText = descMatch[1];
 
-  // Ajouter chaque ligne non-vide comme paragraph
   for (const line of descText.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("---")) continue;
@@ -175,85 +153,48 @@ function buildDescription(body) {
       })
     );
   }
-
   return paras;
 }
 
-// ─── Génération du document ──────────────────────────────────────────────────
+// ─── Génération d'un .docx pour une version ──────────────────────────────────
 
-async function run() {
-  console.log(`🔍 Récupération des issues pour la version ${TARGET_VERSION}...`);
+async function generateDocxForVersion(version, issues) {
+  const filtered = issues
+    .filter(issue =>
+      issue.labels.some(l => parseVersionLabel(l.name) === version)
+    )
+    .sort((a, b) => a.number - b.number);
 
-  const issues = await octokit.paginate(octokit.issues.listForRepo, {
-    owner,
-    repo,
-    state: "all",
-    per_page: 100,
-  });
+  console.log(`  → v${version} : ${filtered.length} issue(s)`);
 
-  console.log(`📋 ${issues.length} issues récupérées au total`);
-
-  // Filtre : label "version:X.X.X.X" OU "vX.X.X.X" OU le titre contient la version
-  const filtered = issues.filter(issue => {
-    const labelMatch = issue.labels.some(l =>
-      l.name === TARGET_VERSION ||
-      l.name === `version:${TARGET_VERSION}` ||
-      l.name.toLowerCase() === `v${TARGET_VERSION}`.toLowerCase()
-    );
-    // Fallback : milestone
-    const milestoneMatch = issue.milestone?.title === TARGET_VERSION ||
-                           issue.milestone?.title === `v${TARGET_VERSION}`;
-    return labelMatch || milestoneMatch;
-  });
-
-  console.log(`✅ ${filtered.length} issues filtrées pour v${TARGET_VERSION}`);
-
-  if (filtered.length === 0) {
-    console.warn("⚠️  Aucune issue trouvée. Vérifiez le nom du label (ex: '2.0.0.4' ou 'version:2.0.0.4')");
-    console.log("Labels existants :", [...new Set(issues.flatMap(i => i.labels.map(l => l.name)))].join(", "));
-  }
-
-  // ── Tri par numéro d'issue
-  filtered.sort((a, b) => a.number - b.number);
-
-  // ── Table des matières (sommaire simple)
   const tocEntries = filtered.map((issue, i) =>
     new Paragraph({
-      children: [
-        new TextRun({ text: `Issue n°${i + 1} : ${issue.title}`, size: 18, color: "2E75B6" })
-      ],
+      children: [new TextRun({ text: `Issue n°${i + 1} : ${issue.title}`, size: 18, color: "2E75B6" })],
       spacing: { after: 60 }
     })
   );
 
-  // ── Sections issues
   const issueBlocks = [];
   filtered.forEach((issue, i) => {
     issueBlocks.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_2,
-        children: [
-          new TextRun({ text: `Issue n°${i + 1} : ${issue.title}`, bold: true, size: 24, color: "2E75B6" })
-        ],
+        children: [new TextRun({ text: `Issue n°${i + 1} : ${issue.title}`, bold: true, size: 24, color: "2E75B6" })],
         spacing: { before: 400, after: 200 }
       })
     );
-
     issueBlocks.push(buildIssueTable(issue));
     issueBlocks.push(new Paragraph({ children: [], spacing: { after: 160 } }));
     issueBlocks.push(...buildDescription(issue.body));
-
-    // Lien GitHub
     issueBlocks.push(
       new Paragraph({
         children: [
-          new TextRun({ text: `GitHub : `, size: 16, color: "888888" }),
+          new TextRun({ text: "GitHub : ", size: 16, color: "888888" }),
           new TextRun({ text: issue.html_url, size: 16, color: "2E75B6" })
         ],
         spacing: { before: 100, after: 80 }
       })
     );
-
     issueBlocks.push(
       new Paragraph({
         border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" } },
@@ -263,12 +204,9 @@ async function run() {
     );
   });
 
-  // ── Construction du document complet
   const doc = new Document({
     styles: {
-      default: {
-        document: { run: { font: "Arial", size: 20 } }
-      },
+      default: { document: { run: { font: "Arial", size: 20 } } },
       paragraphStyles: [
         {
           id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal",
@@ -285,8 +223,8 @@ async function run() {
     sections: [{
       properties: {
         page: {
-          size: { width: 11906, height: 16838 }, // A4
-          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 } // ~2cm
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 }
         }
       },
       headers: {
@@ -294,7 +232,7 @@ async function run() {
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: `Halyzia® Bug Report — Version ${TARGET_VERSION}`, bold: true, size: 18, color: "1F3864" }),
+                new TextRun({ text: `Halyzia® Bug Report — Version ${version}`, bold: true, size: 18, color: "1F3864" }),
                 new TextRun({ text: "\t\tCampagne test interne | PROC-TEST", size: 16, color: "888888" })
               ],
               tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
@@ -320,94 +258,97 @@ async function run() {
         })
       },
       children: [
-        // ── TITRE PRINCIPAL
         new Paragraph({
           heading: HeadingLevel.HEADING_1,
-          children: [
-            new TextRun({ text: `Halyzia® release : ${TARGET_VERSION}`, bold: true, size: 36, color: "1F3864" })
-          ],
+          children: [new TextRun({ text: `Halyzia® release : ${version}`, bold: true, size: 36, color: "1F3864" })],
           spacing: { before: 0, after: 200 }
         }),
-
         new Paragraph({
-          children: [
-            new TextRun({ text: `Tests démarrés automatiquement via GitHub Actions`, size: 18, italic: true, color: "555555" })
-          ],
+          children: [new TextRun({ text: "Tests générés automatiquement via GitHub Actions", size: 18, italic: true, color: "555555" })],
           spacing: { after: 100 }
         }),
-
         new Paragraph({
-          children: [
-            new TextRun({ text: `Testeurs : Halissath / Filippo / Messaouda`, size: 18 })
-          ],
+          children: [new TextRun({ text: "Testeurs : Halissath / Filippo / Messaouda", size: 18 })],
           spacing: { after: 60 }
         }),
-
         new Paragraph({
-          children: [
-            new TextRun({ text: `Développeurs : Joël / Loïc / Adrien`, size: 18 })
-          ],
+          children: [new TextRun({ text: "Développeurs : Joël / Loïc / Adrien", size: 18 })],
           spacing: { after: 400 }
         }),
-
-        // ── LÉGENDE SURLIGNAGE
-        new Paragraph({
-          children: [new TextRun({ text: "Légende des statuts :", bold: true, size: 20 })],
-          spacing: { before: 200, after: 100 }
-        }),
-
-        ...[
-          ["Fix", "90EE90", "Issue fixée par dev"],
-          ["À corriger", "FFB6C1", "Issue à fixer par dev"],
-          ["Corrigée version ultérieure", "ADD8E6", "Sera corrigée plus tard"],
-          ["Non reproductible", "E0E0E0", "Non reproductible"],
-          ["Analyse en cours", "FFFF99", "En cours d'analyse"],
-          ["Pas un bug", "FFFFFF", "Comportement normal / décision technique"],
-        ].map(([label, fill, desc]) =>
-          new Paragraph({
-            children: [
-              new TextRun({ text: `  ${label}  `, highlight: fill === "FFFFFF" ? undefined : undefined,
-                            color: "000000", size: 18,
-                            shading: { type: ShadingType.CLEAR, fill } }),
-              new TextRun({ text: `  — ${desc}`, size: 18 })
-            ],
-            spacing: { after: 60 }
-          })
-        ),
-
         new Paragraph({
           border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "2E75B6" } },
           children: [],
-          spacing: { before: 300, after: 300 }
+          spacing: { before: 100, after: 300 }
         }),
-
-        // ── TABLE DES MATIÈRES
         new Paragraph({
           children: [new TextRun({ text: "Table des matières", bold: true, size: 24, color: "1F3864" })],
           spacing: { before: 200, after: 160 }
         }),
         ...tocEntries,
-
-        new Paragraph({
-          children: [new PageBreak()],
-        }),
-
-        // ── ISSUES
+        new Paragraph({ children: [new PageBreak()] }),
         ...issueBlocks,
       ]
     }]
   });
 
-  // ── Export
+  return { buffer: await Packer.toBuffer(doc), count: filtered.length };
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+async function run() {
+  console.log("🔍 Récupération de toutes les issues...");
+
+  const issues = await octokit.paginate(octokit.issues.listForRepo, {
+    owner,
+    repo,
+    state: "all",
+    per_page: 100,
+  });
+
+  console.log(`📋 ${issues.length} issues récupérées`);
+
+  // Détecte toutes les versions uniques depuis les labels
+  const versionsSet = new Set();
+  for (const issue of issues) {
+    for (const label of issue.labels) {
+      const v = parseVersionLabel(label.name);
+      if (v) versionsSet.add(v);
+    }
+  }
+
+  const versions = [...versionsSet].sort((a, b) => {
+    const pa = a.split(".").map(Number);
+    const pb = b.split(".").map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const diff = (pa[i] || 0) - (pb[i] || 0);
+      if (diff !== 0) return diff;
+    }
+    return 0;
+  });
+
+  if (versions.length === 0) {
+    console.warn("⚠️  Aucune version détectée dans les labels.");
+    console.log("Labels trouvés :", [...new Set(issues.flatMap(i => i.labels.map(l => l.name)))].join(", "));
+    process.exit(0);
+  }
+
+  console.log(`\n🏷️  Versions détectées : ${versions.join(", ")}`);
+
+  // Création du dossier reports/
   const outDir = "reports";
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-  const filename = path.join(outDir, `Bug_Report_Halyzia_V${TARGET_VERSION}.docx`);
-  const buffer = await Packer.toBuffer(doc);
-  fs.writeFileSync(filename, buffer);
+  // Génération d'un .docx par version
+  console.log("\n📝 Génération des rapports...");
+  for (const version of versions) {
+    const { buffer, count } = await generateDocxForVersion(version, issues);
+    const filename = path.join(outDir, `Bug_Report_Halyzia_V${version}.docx`);
+    fs.writeFileSync(filename, buffer);
+    console.log(`  ✅ ${filename} (${count} issue(s))`);
+  }
 
-  console.log(`\n✅ Rapport généré : ${filename}`);
-  console.log(`   ${filtered.length} issue(s) incluses`);
+  console.log(`\n🎉 ${versions.length} rapport(s) générés dans /${outDir}/`);
 }
 
 run().catch(err => {
