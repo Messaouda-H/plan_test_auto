@@ -1,0 +1,14 @@
+# Fichiers à ignorer
+node_modules/
+__pycache__/
+.vscode/
+.idea/
+*.log
+.DS_Store
+*.tmp
+
+# === NE PAS IGNORER les rapports (on veut les committer) ===
+!reports/
+!reports/*.docx
+!reports/*.md
+!reports/*.pdf
