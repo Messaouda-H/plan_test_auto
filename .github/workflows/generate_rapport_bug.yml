@@ -1,38 +1,71 @@
-name: Generate QA Report
+name: 📄 Generate QA Report (DOCX)
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version à générer"
+        description: "Version à générer (ex: 2.0.0.4)"
         required: true
-        default: "V1.7.1"
+        default: "2.0.0.4"
 
 permissions:
   contents: write
+  issues: read
 
 jobs:
-  report:
+  generate-report:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # ── Node 20 (plus stable que 18 pour ESM)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - run: npm install @octokit/rest docx
+      # ── Installation des dépendances avec package.json inline
+      - name: Install dependencies
+        run: |
+          cat > package.json << 'EOF'
+          {
+            "name": "halyzia-report-generator",
+            "version": "1.0.0",
+            "type": "module",
+            "dependencies": {
+              "@octokit/rest": "^20.1.1",
+              "docx": "^8.5.0"
+            }
+          }
+          EOF
+          npm install
 
-      - run: node .github/Scripts/generate_report.mjs
+      # ── Création du dossier reports s'il n'existe pas
+      - name: Ensure reports directory exists
+        run: mkdir -p reports
+
+      # ── Génération du rapport
+      - name: Generate DOCX report
+        run: node .github/Scripts/generate_report.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           VERSION: ${{ github.event.inputs.version }}
 
-      - run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+      # ── Debug : liste les fichiers générés
+      - name: List generated files
+        run: ls -lh reports/
+
+      # ── Commit et push vers le repo
+      - name: Commit and push report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add reports/
-          git diff --cached --quiet || git commit -m "Generate QA report"
+          git diff --cached --quiet && echo "Rien à committer" && exit 0
+
+          git commit -m "📄 Bug Report Halyzia v${{ github.event.inputs.version }} — généré automatiquement"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
