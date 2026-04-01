@@ -10,7 +10,6 @@ import {
   HeadingLevel,
   AlignmentType,
   WidthType,
-  ShadingType,
   BorderStyle,
 } from "docx";
 import fs from "fs";
@@ -21,11 +20,11 @@ async function main() {
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   const version = process.env.VERSION.trim();
 
-  if (!version) throw new Error("VERSION non définie");
+  if (!version) throw new Error("VERSION non définie dans les inputs du workflow");
 
   const octokit = new Octokit({ auth: token });
 
-  console.log(`🔍 Recherche des issues pour la version ${version}...`);
+  console.log(`🔍 Recherche de toutes les issues pour la version ${version}...`);
 
   // Récupère TOUTES les issues (ouvertes + fermées)
   const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
@@ -35,15 +34,18 @@ async function main() {
     per_page: 100,
   });
 
-  // Filtre les issues qui concernent cette version (dans le body ou le titre)
+  // Filtre les issues qui concernent cette version (titre, body ou label)
   const relevantIssues = issues.filter((issue) => {
-    const body = issue.body || "";
-    const title = issue.title || "";
-    return (
-      (body.includes(version) || title.includes(version)) &&
-      (issue.labels.some((l) => ["bug", "Test", "Issue Test", "Utilisateur"].includes(l.name)) ||
-        body.includes("Version Halyzia concernee"))
+    const body = (issue.body || "").toLowerCase();
+    const title = (issue.title || "").toLowerCase();
+    const labels = issue.labels.map((l) => l.name.toLowerCase());
+
+    const hasVersion = body.includes(version.toLowerCase()) || title.includes(version.toLowerCase());
+    const isRelevantType = labels.some((l) =>
+      ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l)
     );
+
+    return hasVersion || isRelevantType;
   });
 
   console.log(`✅ ${relevantIssues.length} issues trouvées pour ${version}`);
@@ -60,11 +62,11 @@ async function main() {
     }),
     new Paragraph({
       text: `Tests démarrés automatiquement via GitHub Actions`,
-      spacing: { after: 200 },
+      spacing: { after: 300 },
     })
   );
 
-  // === LÉGENDE (exactement comme dans ton PDF) ===
+  // === LÉGENDE (identique à ton PDF) ===
   children.push(new Paragraph({ text: "Surlignage pour équipe dev :", bold: true }));
   const legendDev = [
     { color: "FF00FF", text: "issue indique que l’issue a été fixée par dev" },
@@ -77,42 +79,35 @@ async function main() {
   legendDev.forEach((item) => {
     children.push(
       new Paragraph({
-        children: [
-          new TextRun({ text: "issue ", color: item.color, bold: true }),
-          new TextRun({ text: item.text }),
-        ],
+        children: [new TextRun({ text: "issue ", color: item.color, bold: true }), new TextRun(item.text)],
       })
     );
   });
 
-  children.push(new Paragraph({ text: "Surlignage équipe test :", bold: true, spacing: { before: 200 } }));
+  children.push(new Paragraph({ text: "Surlignage équipe test :", bold: true, spacing: { before: 300 } }));
   children.push(
-    new Paragraph({
-      children: [
-        new TextRun({ text: "issue ", color: "00FF00", bold: true }),
-        new TextRun("indique que l’issue a été testée et validée"),
-      ],
-    }),
-    new Paragraph({
-      children: [
-        new TextRun({ text: "issue ", color: "FF00FF", bold: true }),
-        new TextRun("indique que l’issue a été testée mais non validée"),
-      ],
-    })
+    new Paragraph({ children: [new TextRun({ text: "issue ", color: "00FF00", bold: true }), new TextRun("indique que l’issue a été testée et validée")] }),
+    new Paragraph({ children: [new TextRun({ text: "issue ", color: "FF00FF", bold: true }), new TextRun("indique que l’issue a été testée mais non validée")] })
   );
 
-  // === ISSUES ===
-  relevantIssues.forEach((issue) => {
-    // Extraction des champs du template GitHub
-    const extract = (label) => {
-      const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
-      const match = (issue.body || "").match(regex);
-      return match ? match[1].trim() : "Non renseigné";
-    };
+  // ====================== EXTRACTION INTELLIGENTE ======================
+  const extractField = (body, possibleIds) => {
+    for (const id of possibleIds) {
+      const regex = new RegExp(`### ${id}\\s*([\\s\\S]*?)(?=\\n###|$|$)`, "i");
+      const match = body.match(regex);
+      if (match && match[1].trim()) return match[1].trim();
+    }
+    return "";
+  };
 
-    const description = extract("Description du bug") || extract("Description");
-    const steps = extract("Etapes pour reproduire");
-    const logs = extract("Lignes d'erreur");
+  // ====================== AFFICHAGE DES ISSUES ======================
+  relevantIssues.forEach((issue) => {
+    const body = issue.body || "";
+    const labels = issue.labels.map((l) => l.name);
+
+    // Détection du type d'issue
+    const isBacklog = labels.some((l) => l.toLowerCase().includes("backlog"));
+    const isUserIssue = labels.some((l) => l.toLowerCase().includes("utilisateur"));
 
     children.push(
       new Paragraph({
@@ -122,7 +117,7 @@ async function main() {
       })
     );
 
-    // Tableau statut (simple mais lisible)
+    // Tableau résumé (Nom / Date / Statut / Gravité)
     const table = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: { top: { style: BorderStyle.SINGLE }, bottom: { style: BorderStyle.SINGLE } },
@@ -142,29 +137,54 @@ async function main() {
             new TableCell({ children: [new Paragraph(new Date(issue.created_at).toLocaleDateString("fr-FR"))] }),
             new TableCell({ children: [new Paragraph(issue.state === "closed" ? "Fix / Closed" : "Open")] }),
             new TableCell({ children: [new Paragraph("")] }),
-            new TableCell({ children: [new Paragraph(extract("Severite") || "Mineur")] }),
+            new TableCell({ children: [new Paragraph(extractField(body, ["severite", "Severite"]) || "Mineur")] }),
           ],
         }),
       ],
     });
-
     children.push(table);
 
-    // Description détaillée
-    children.push(
-      new Paragraph({ text: "Description détaillée :", bold: true, spacing: { before: 200 } }),
-      new Paragraph(description),
-    );
+    // === CHAMPS DÉTAILLÉS SELON LE TYPE ===
+    const fields = [];
 
-    if (steps) {
-      children.push(new Paragraph({ text: "Étapes pour reproduire :", bold: true, spacing: { before: 200 } }));
-      children.push(new Paragraph(steps));
+    if (isBacklog) {
+      fields.push({ label: "Utilisateur", value: extractField(body, ["Utilisateur"]) });
+      fields.push({ label: "Demande", value: extractField(body, ["Demande"]) });
+      fields.push({ label: "Description", value: extractField(body, ["Description"]) });
+      fields.push({ label: "Décision prise", value: extractField(body, ["Decision"]) });
+      fields.push({ label: "Milestone", value: extractField(body, ["Milestone"]) });
+      fields.push({ label: "Commentaire", value: extractField(body, ["Commentaire"]) });
+    } else {
+      // Issue Test ou Issue Utilisateur
+      fields.push({ label: "Version concernée", value: extractField(body, ["version"]) });
+      fields.push({ label: "Workflow", value: extractField(body, ["workflow"]) });
+      fields.push({ label: "Format du fichier", value: extractField(body, ["format"]) });
+      fields.push({ label: isUserIssue ? "Fichier testé" : "Lien vers dossier/fichier", value: extractField(body, ["fichier", "test_data"]) });
+      fields.push({ label: "PC utilisé", value: extractField(body, ["pc"]) });
+      fields.push({ label: "Testeur", value: extractField(body, ["testeur"]) });
+      fields.push({ label: "Système d’exploitation", value: extractField(body, ["os"]) });
+      fields.push({ label: "Description", value: extractField(body, ["description", "Description du bug"]) });
+      fields.push({ label: "Étapes pour reproduire", value: extractField(body, ["steps", "Etapes pour reproduire"]) });
+      fields.push({ label: "Résultat attendu", value: extractField(body, ["expected"]) });
+      fields.push({ label: "Résultat obtenu", value: extractField(body, ["actual"]) });
+      fields.push({ label: "Logs / Erreurs", value: extractField(body, ["logs", "Lignes d'erreur"]) });
     }
 
-    if (logs) {
-      children.push(new Paragraph({ text: "Logs / Traceback :", bold: true, spacing: { before: 200 } }));
-      children.push(new Paragraph({ text: logs, alignment: AlignmentType.LEFT }));
-    }
+    // Affichage des champs remplis
+    fields.forEach((field) => {
+      if (field.value) {
+        children.push(
+          new Paragraph({
+            text: `${field.label} :`,
+            bold: true,
+            spacing: { before: 200 },
+          }),
+          new Paragraph({ text: field.value })
+        );
+      }
+    });
+
+    children.push(new Paragraph({ text: "", spacing: { after: 300 } }));
   });
 
   const doc = new Document({ sections: [{ properties: {}, children }] });
@@ -175,7 +195,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré avec succès → ${filename} (${relevantIssues.length} issues)`);
+  console.log(`🎉 Rapport DOCX généré avec succès → ${filename} (${relevantIssues.length} issues)`);
 }
 
 main().catch((err) => {
