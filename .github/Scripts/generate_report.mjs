@@ -1,183 +1,90 @@
 import { Octokit } from "@octokit/rest";
 import fs from "fs";
-import {
-  Document,
-  Packer,
-  Paragraph,
-  HeadingLevel
-} from "docx";
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-
-const TARGET_VERSION = (process.env.VERSION || "V1.7.1")
-  .trim()
-  .toLowerCase();
+const TARGET_VERSION = process.env.VERSION;
 
 
-// ✅ Parser robuste
-function extractField(body, fieldName) {
+// 🔍 extraction champs
+function extractField(body, field) {
   if (!body) return "N/A";
 
   const lines = body.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].toLowerCase().includes(fieldName.toLowerCase())) {
+    if (lines[i].toLowerCase().includes(field.toLowerCase())) {
       return (lines[i + 1] || "").trim();
     }
   }
-
   return "N/A";
 }
 
 
-// ✅ Version robuste (multi formats)
-function extractVersion(body) {
-  const possibleFields = [
-    "Version Halyzia concernee",
-    "Version testée",
-    "Version",
-  ];
+// 🎯 statut kanban
+function getStatus(labels) {
+  const names = labels.map(l => l.name.toLowerCase());
 
-  for (const field of possibleFields) {
-    const value = extractField(body, field);
-    if (value !== "N/A" && value !== "") return value;
-  }
+  if (names.includes("status:done")) return "🟩 Fix";
+  if (names.includes("status:in progress")) return "🟨 Analyse en cours";
+  if (names.includes("status:to test")) return "🟪 À tester";
+  if (names.includes("status:blocked")) return "🟥 Bloqué";
 
-  return "N/A";
+  return "❓ Inconnu";
 }
 
 
-// 🎯 Statut lisible
-function formatStatus(labels) {
-  const names = labels.map(l => l.name);
-
-  if (names.includes("status: fixed")) return "🟩 Corrigé";
-  if (names.includes("status: to test")) return "🟦 À tester";
-  if (names.includes("status: in progress")) return "🟨 En cours";
-  if (names.includes("status: blocked")) return "🟥 Bloqué";
-
-  return "🟪 Inconnu";
-}
-
-
-async function generateReport() {
-  console.log("📥 Fetching issues...");
-
+async function run() {
   const issues = await octokit.paginate(octokit.issues.listForRepo, {
     owner,
     repo,
     state: "all",
-    per_page: 100,
   });
 
-  const bugIssues = issues.filter(issue =>
-    issue.labels.some(l => l.name === "bug")
+  // 🎯 filtre version
+  const filtered = issues.filter(issue =>
+    issue.labels.some(l => l.name === `version:${TARGET_VERSION}`)
   );
 
-  console.log(`🐞 Total bugs: ${bugIssues.length}`);
+  let md = "";
 
+  // 🧾 HEADER (comme ton PDF)
+  md += `# Halyzia® release : ${TARGET_VERSION}\n`;
+  md += `Tests démarrés automatiquement\n\n`;
 
-  // 🔍 DEBUG global
-  const allVersions = bugIssues.map(issue =>
-    extractVersion(issue.body || "")
-  );
+  md += `---\n\n`;
 
-  console.log("📊 Versions détectées:", [...new Set(allVersions)]);
-
-
-  // 🔥 FILTRE PRINCIPAL
-  const filtered = bugIssues.filter(issue => {
-    const body = issue.body || "";
-
-    const version = extractVersion(body)
-      .trim()
-      .toLowerCase();
-
-    console.log("------------");
-    console.log("Issue:", issue.title);
-    console.log("Version trouvée:", version);
-
-    return version === TARGET_VERSION;
-  });
-
-  console.log(`✅ Issues retenues: ${filtered.length}`);
-
-  if (filtered.length === 0) {
-    console.log("⚠️ Aucune issue match → vérifie la version EXACTE");
-  }
-
-
-  // 📄 Markdown
-  let md = `# 📊 Rapport QA — Version ${TARGET_VERSION}\n\n`;
-  md += `Nombre d'issues : ${filtered.length}\n\n---\n\n`;
-
-  const docChildren = [];
-
-  docChildren.push(
-    new Paragraph({
-      text: `Rapport QA — Version ${TARGET_VERSION}`,
-      heading: HeadingLevel.TITLE,
-    })
-  );
-
-
-  filtered.forEach((issue, index) => {
+  // 🐞 ISSUES
+  filtered.forEach((issue, i) => {
     const body = issue.body || "";
 
     const testeur = extractField(body, "Testeur");
     const gravite = extractField(body, "Gravité");
-    const environnement = extractField(body, "Environnement");
-    const fichier = extractField(body, "Lien vers dossier de test");
+    const description = extractField(body, "Description");
 
-    const status = formatStatus(issue.labels);
+    const status = getStatus(issue.labels);
 
-    // 📄 Markdown
-    md += `## 🐞 Issue ${index + 1} — ${issue.title}\n\n`;
-    md += `- Testeur : ${testeur}\n`;
-    md += `- Statut : ${status}\n`;
-    md += `- Gravité : ${gravite}\n`;
-    md += `- Environnement : ${environnement}\n`;
-    md += `- Fichier : ${fichier}\n`;
-    md += `- Lien : ${issue.html_url}\n\n---\n\n`;
+    md += `## Issue n°${i + 1} : ${issue.title}\n\n`;
 
-    // 📘 Word
-    docChildren.push(
-      new Paragraph({
-        text: `Issue ${index + 1} : ${issue.title}`,
-        heading: HeadingLevel.HEADING_1,
-      }),
-      new Paragraph(`Testeur : ${testeur}`),
-      new Paragraph(`Statut : ${status}`),
-      new Paragraph(`Gravité : ${gravite}`),
-      new Paragraph(`Environnement : ${environnement}`),
-      new Paragraph(`Fichier : ${fichier}`),
-      new Paragraph(`Lien : ${issue.html_url}`),
-      new Paragraph("")
-    );
+    md += `### Description détaillée :\n`;
+    md += `${body}\n\n`;
+
+    // 🔥 tableau EXACT style PDF
+    md += `| Nom | Date | Statut | Remarque | Gravité |\n`;
+    md += `|-----|------|--------|----------|---------|\n`;
+    md += `| ${testeur} | ${issue.created_at.slice(0,10)} | ${status} | - | ${gravite} |\n\n`;
+
+    md += `Lien : ${issue.html_url}\n\n`;
+
+    md += `---\n\n`;
   });
 
+  fs.writeFileSync("reports/report.md", md);
 
-  // 📁 dossier reports
-  const reportDir = new URL("../../reports", import.meta.url).pathname;
-
-  if (!fs.existsSync(reportDir)) {
-    fs.mkdirSync(reportDir);
-  }
-
-  fs.writeFileSync(`${reportDir}/report_${TARGET_VERSION}.md`, md);
-
-  const doc = new Document({
-    sections: [{ children: docChildren }],
-  });
-
-  const buffer = await Packer.toBuffer(doc);
-  fs.writeFileSync(`${reportDir}/report_${TARGET_VERSION}.docx`, buffer);
-
-  console.log("🎉 Rapport généré !");
+  console.log("✅ Rapport fidèle au PDF généré !");
 }
 
-generateReport().catch(console.error);
+run();
