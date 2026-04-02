@@ -21,7 +21,7 @@ async function main() {
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
   const version = process.env.VERSION?.trim();
 
-  if (!version) throw new Error("VERSION non définie dans le workflow");
+  if (!version) throw new Error("VERSION non définie");
 
   const octokit = new Octokit({ auth: token });
 
@@ -43,14 +43,14 @@ async function main() {
     return hasVersion || isRelevant;
   });
 
-  console.log(`✅ ${relevantIssues.length} issues trouvées pour ${version}`);
+  console.log(`✅ ${relevantIssues.length} issues trouvées`);
 
   const children = [];
 
   // En-tête
   children.push(
     new Paragraph({
-      text: `Halyzia® release : ${version} généré le ${new Date().toLocaleDateString("fr-FR")}`,
+      text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
       heading: HeadingLevel.HEADING_1,
       alignment: AlignmentType.CENTER,
     }),
@@ -84,12 +84,19 @@ async function main() {
     return "";
   };
 
+  // === NOUVELLE FONCTION IMAGES (corrigée pour 2026) ===
   const extractImages = (body) => {
     const urls = [];
-    const regex = /!\[.*?\]\((https:\/\/user-images\.githubusercontent\.com\/[^)]+)\)/g;
+    // Ancien format
+    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>]+/g;
+    // Nouveau format GitHub (depuis 2024-2025)
+    const newRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>]+/g;
+
     let match;
-    while ((match = regex.exec(body)) !== null) urls.push(match[1]);
-    return urls;
+    while ((match = oldRegex.exec(body)) !== null) urls.push(match[0]);
+    while ((match = newRegex.exec(body)) !== null) urls.push(match[0]);
+
+    return [...new Set(urls)]; // supprime les doublons
   };
 
   for (const issue of relevantIssues) {
@@ -118,7 +125,7 @@ async function main() {
     });
     children.push(table);
 
-    // Champs détaillés
+    // Champs détaillés (identique à avant)
     const fields = isBacklog ? [
       { label: "Utilisateur", value: extractField(body, ["Utilisateur"]) },
       { label: "Demande", value: extractField(body, ["Demande"]) },
@@ -163,8 +170,8 @@ async function main() {
             children: [new ImageRun({ data: buffer, transformation: { width: 520, height: 0 } })],
             spacing: { before: 100, after: 100 }
           }));
-        } catch (e) {
-          console.warn(`⚠️ Impossible de télécharger l'image : ${url}`);
+        } catch {
+          console.warn(`⚠️ Impossible de télécharger : ${url}`);
         }
       }
     }
@@ -183,7 +190,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("❌ Erreur critique :", err.message);
-  console.error(err);
+  console.error("❌ Erreur :", err.message);
   process.exit(1);
 });
