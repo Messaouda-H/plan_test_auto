@@ -11,7 +11,7 @@ import {
   AlignmentType,
   WidthType,
   BorderStyle,
-  ExternalHyperlink,   // ← ajouté pour les liens cliquables
+  ExternalHyperlink,
 } from "docx";
 import fs from "fs";
 import path from "path";
@@ -47,10 +47,10 @@ async function main() {
 
   const children = [];
 
-  // En-tête + légende (identique)
+  // En-tête + légende
   children.push(
     new Paragraph({
-      text: `Halyzia® release : ${version} généré le ${new Date().toLocaleDateString("fr-FR")}`,
+      text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
       heading: HeadingLevel.HEADING_1,
       alignment: AlignmentType.CENTER,
     }),
@@ -83,14 +83,30 @@ async function main() {
     return "";
   };
 
+  // ==================== NOUVELLE FONCTION IMAGES (beaucoup plus forte) ====================
   const extractImages = (body) => {
-    const urls = [];
-    const regex1 = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>]+/g;
-    const regex2 = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>]+/g;
+    const urls = new Set();
+
+    // 1. Format Markdown classique : ![texte](url)
+    const markdownRegex = /!\[.*?\]\((https:\/\/[^)]+)\)/g;
     let match;
-    while ((match = regex1.exec(body)) !== null) urls.push(match[0]);
-    while ((match = regex2.exec(body)) !== null) urls.push(match[0]);
-    return [...new Set(urls)];
+    while ((match = markdownRegex.exec(body)) !== null) {
+      urls.add(match[1]);
+    }
+
+    // 2. URLs GitHub récentes (user-attachments)
+    const attachmentRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g;
+    while ((match = attachmentRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+
+    // 3. Ancien format user-images.githubusercontent
+    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g;
+    while ((match = oldRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+
+    return Array.from(urls);
   };
 
   for (const issue of relevantIssues) {
@@ -100,7 +116,7 @@ async function main() {
 
     children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_2, spacing: { before: 400, after: 200 } }));
 
-    // Tableau résumé
+    // Tableau résumé (identique)
     const table = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: { top: { style: BorderStyle.SINGLE }, bottom: { style: BorderStyle.SINGLE } },
@@ -149,7 +165,7 @@ async function main() {
       }
     });
 
-    // === LIENS VERS LES CAPTURES D'ÉCRAN ===
+    // ==================== LIENS CAPTURES D'ÉCRAN ====================
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
@@ -159,14 +175,17 @@ async function main() {
           new Paragraph({
             children: [
               new ExternalHyperlink({
-                children: [new TextRun({ text: `📸 Capture ${i+1} - Ouvrir l'image`, style: { color: "0000FF", underline: true } })],
+                children: [new TextRun({ text: `📸 Capture ${i + 1} - Ouvrir l'image`, style: { color: "0000FF", underline: true } })],
                 link: url
               })
             ],
-            spacing: { before: 100, after: 100 }
+            spacing: { before: 80, after: 80 }
           })
         );
       });
+    } else {
+      // Debug : si aucune image n'est trouvée, on met un message visible
+      children.push(new Paragraph({ text: "(Aucune capture d'écran détectée dans cette issue)", italic: true }));
     }
 
     children.push(new Paragraph({ text: "", spacing: { after: 400 } }));
@@ -179,7 +198,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(` Rapport généré avec liens cliquables → ${filename}`);
+  console.log(`🎉 Rapport généré → ${filename} (${relevantIssues.length} issues)`);
 }
 
 main().catch((err) => {
