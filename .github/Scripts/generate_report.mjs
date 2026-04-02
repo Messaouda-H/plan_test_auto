@@ -50,7 +50,7 @@ async function main() {
   // En-tête + légende (identique)
   children.push(
     new Paragraph({
-      text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
+      text: `Halyzia® release : ${version} généré le ${new Date().toLocaleDateString("fr-FR")}`,
       heading: HeadingLevel.HEADING_1,
       alignment: AlignmentType.CENTER,
     }),
