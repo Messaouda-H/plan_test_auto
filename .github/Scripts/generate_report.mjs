@@ -11,7 +11,7 @@ import {
   AlignmentType,
   WidthType,
   BorderStyle,
-  ImageRun,
+  ExternalHyperlink,   // ← ajouté pour les liens cliquables
 } from "docx";
 import fs from "fs";
 import path from "path";
@@ -47,7 +47,7 @@ async function main() {
 
   const children = [];
 
-  // En-tête
+  // En-tête + légende (identique)
   children.push(
     new Paragraph({
       text: `Halyzia® release : ${version} livré le ${new Date().toLocaleDateString("fr-FR")}`,
@@ -57,7 +57,6 @@ async function main() {
     new Paragraph({ text: "Tests démarrés automatiquement via GitHub Actions", spacing: { after: 300 } })
   );
 
-  // Légende
   children.push(new Paragraph({ text: "Surlignage pour équipe dev :", bold: true }));
   const legendDev = [
     { color: "FF00FF", text: "issue indique que l’issue a été fixée par dev" },
@@ -84,19 +83,14 @@ async function main() {
     return "";
   };
 
-  // === NOUVELLE FONCTION IMAGES (corrigée pour 2026) ===
   const extractImages = (body) => {
     const urls = [];
-    // Ancien format
-    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>]+/g;
-    // Nouveau format GitHub (depuis 2024-2025)
-    const newRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>]+/g;
-
+    const regex1 = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>]+/g;
+    const regex2 = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>]+/g;
     let match;
-    while ((match = oldRegex.exec(body)) !== null) urls.push(match[0]);
-    while ((match = newRegex.exec(body)) !== null) urls.push(match[0]);
-
-    return [...new Set(urls)]; // supprime les doublons
+    while ((match = regex1.exec(body)) !== null) urls.push(match[0]);
+    while ((match = regex2.exec(body)) !== null) urls.push(match[0]);
+    return [...new Set(urls)];
   };
 
   for (const issue of relevantIssues) {
@@ -125,7 +119,7 @@ async function main() {
     });
     children.push(table);
 
-    // Champs détaillés (identique à avant)
+    // Champs détaillés
     const fields = isBacklog ? [
       { label: "Utilisateur", value: extractField(body, ["Utilisateur"]) },
       { label: "Demande", value: extractField(body, ["Demande"]) },
@@ -155,25 +149,24 @@ async function main() {
       }
     });
 
-    // === CAPTURES D'ÉCRAN ===
+    // === LIENS VERS LES CAPTURES D'ÉCRAN ===
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
 
-      for (const url of imageUrls) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error();
-          const buffer = Buffer.from(await res.arrayBuffer());
-
-          children.push(new Paragraph({
-            children: [new ImageRun({ data: buffer, transformation: { width: 520, height: 0 } })],
+      imageUrls.forEach((url, i) => {
+        children.push(
+          new Paragraph({
+            children: [
+              new ExternalHyperlink({
+                children: [new TextRun({ text: `📸 Capture ${i+1} - Ouvrir l'image`, style: { color: "0000FF", underline: true } })],
+                link: url
+              })
+            ],
             spacing: { before: 100, after: 100 }
-          }));
-        } catch {
-          console.warn(`⚠️ Impossible de télécharger : ${url}`);
-        }
-      }
+          })
+        );
+      });
     }
 
     children.push(new Paragraph({ text: "", spacing: { after: 400 } }));
@@ -186,7 +179,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré avec succès → ${filename} (${relevantIssues.length} issues)`);
+  console.log(` Rapport généré avec liens cliquables → ${filename}`);
 }
 
 main().catch((err) => {
