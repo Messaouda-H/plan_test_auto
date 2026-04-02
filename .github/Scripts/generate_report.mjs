@@ -11,7 +11,7 @@ import {
   AlignmentType,
   WidthType,
   BorderStyle,
-  ExternalHyperlink,
+  ImageRun,
 } from "docx";
 import fs from "fs";
 import path from "path";
@@ -83,29 +83,20 @@ async function main() {
     return "";
   };
 
-  // ==================== NOUVELLE FONCTION IMAGES (beaucoup plus forte) ====================
+  // Regex très forte pour toutes les captures d'écran GitHub
   const extractImages = (body) => {
     const urls = new Set();
-
-    // 1. Format Markdown classique : ![texte](url)
-    const markdownRegex = /!\[.*?\]\((https:\/\/[^)]+)\)/g;
+    const regexes = [
+      /!\[.*?\]\((https:\/\/[^)]+)\)/g,                                 // Markdown classique
+      /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g,     // Nouveau format 2025-2026
+      /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g        // Ancien format
+    ];
     let match;
-    while ((match = markdownRegex.exec(body)) !== null) {
-      urls.add(match[1]);
-    }
-
-    // 2. URLs GitHub récentes (user-attachments)
-    const attachmentRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g;
-    while ((match = attachmentRegex.exec(body)) !== null) {
-      urls.add(match[0]);
-    }
-
-    // 3. Ancien format user-images.githubusercontent
-    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g;
-    while ((match = oldRegex.exec(body)) !== null) {
-      urls.add(match[0]);
-    }
-
+    regexes.forEach(regex => {
+      while ((match = regex.exec(body)) !== null) {
+        urls.add(match[0]);
+      }
+    });
     return Array.from(urls);
   };
 
@@ -116,7 +107,7 @@ async function main() {
 
     children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_2, spacing: { before: 400, after: 200 } }));
 
-    // Tableau résumé (identique)
+    // Tableau résumé
     const table = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: { top: { style: BorderStyle.SINGLE }, bottom: { style: BorderStyle.SINGLE } },
@@ -165,27 +156,30 @@ async function main() {
       }
     });
 
-    // ==================== LIENS CAPTURES D'ÉCRAN ====================
+    // ==================== IMAGES INTÉGRÉES DIRECTEMENT ====================
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
 
-      imageUrls.forEach((url, i) => {
-        children.push(
-          new Paragraph({
+      for (const url of imageUrls) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error();
+          const buffer = Buffer.from(await res.arrayBuffer());
+
+          children.push(new Paragraph({
             children: [
-              new ExternalHyperlink({
-                children: [new TextRun({ text: `📸 Capture ${i + 1} - Ouvrir l'image`, style: { color: "0000FF", underline: true } })],
-                link: url
+              new ImageRun({
+                data: buffer,
+                transformation: { width: 520, height: 0 }   // largeur fixe, hauteur automatique
               })
             ],
-            spacing: { before: 80, after: 80 }
-          })
-        );
-      });
-    } else {
-      // Debug : si aucune image n'est trouvée, on met un message visible
-      children.push(new Paragraph({ text: "(Aucune capture d'écran détectée dans cette issue)", italic: true }));
+            spacing: { before: 120, after: 120 }
+          }));
+        } catch {
+          children.push(new Paragraph({ text: `⚠️ Impossible de charger l'image : ${url}`, italic: true }));
+        }
+      }
     }
 
     children.push(new Paragraph({ text: "", spacing: { after: 400 } }));
@@ -198,7 +192,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré → ${filename} (${relevantIssues.length} issues)`);
+  console.log(`🎉 Rapport avec images intégrées généré → ${filename}`);
 }
 
 main().catch((err) => {
