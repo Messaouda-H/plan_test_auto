@@ -11,7 +11,7 @@ import {
   AlignmentType,
   WidthType,
   BorderStyle,
-  ImageRun,
+  ExternalHyperlink,
 } from "docx";
 import fs from "fs";
 import path from "path";
@@ -83,20 +83,29 @@ async function main() {
     return "";
   };
 
-  // Regex très forte pour toutes les captures d'écran GitHub
+  // ==================== NOUVELLE FONCTION IMAGES (beaucoup plus forte) ====================
   const extractImages = (body) => {
     const urls = new Set();
-    const regexes = [
-      /!\[.*?\]\((https:\/\/[^)]+)\)/g,                                 // Markdown classique
-      /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g,     // Nouveau format 2025-2026
-      /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g        // Ancien format
-    ];
+
+    // 1. Format Markdown classique : ![texte](url)
+    const markdownRegex = /!\[.*?\]\((https:\/\/[^)]+)\)/g;
     let match;
-    regexes.forEach(regex => {
-      while ((match = regex.exec(body)) !== null) {
-        urls.add(match[0]);
-      }
-    });
+    while ((match = markdownRegex.exec(body)) !== null) {
+      urls.add(match[1]);
+    }
+
+    // 2. URLs GitHub récentes (user-attachments)
+    const attachmentRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g;
+    while ((match = attachmentRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+
+    // 3. Ancien format user-images.githubusercontent
+    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g;
+    while ((match = oldRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+
     return Array.from(urls);
   };
 
@@ -107,7 +116,7 @@ async function main() {
 
     children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_2, spacing: { before: 400, after: 200 } }));
 
-    // Tableau résumé
+    // Tableau résumé (identique)
     const table = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: { top: { style: BorderStyle.SINGLE }, bottom: { style: BorderStyle.SINGLE } },
@@ -156,30 +165,27 @@ async function main() {
       }
     });
 
-    // ==================== IMAGES INTÉGRÉES DIRECTEMENT ====================
+    // ==================== LIENS CAPTURES D'ÉCRAN ====================
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
 
-      for (const url of imageUrls) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error();
-          const buffer = Buffer.from(await res.arrayBuffer());
-
-          children.push(new Paragraph({
+      imageUrls.forEach((url, i) => {
+        children.push(
+          new Paragraph({
             children: [
-              new ImageRun({
-                data: buffer,
-                transformation: { width: 520, height: 0 }   // largeur fixe, hauteur automatique
+              new ExternalHyperlink({
+                children: [new TextRun({ text: ` Capture ${i + 1} - Crtrl + clic pour suivre le lien `, style: { color: "0000FF", underline: true } })],
+                link: url
               })
             ],
-            spacing: { before: 120, after: 120 }
-          }));
-        } catch {
-          children.push(new Paragraph({ text: `⚠️ Impossible de charger l'image : ${url}`, italic: true }));
-        }
-      }
+            spacing: { before: 80, after: 80 }
+          })
+        );
+      });
+    } else {
+      // Debug : si aucune image n'est trouvée, on met un message visible
+      children.push(new Paragraph({ text: "(Aucune capture d'écran détectée dans cette issue)", italic: true }));
     }
 
     children.push(new Paragraph({ text: "", spacing: { after: 400 } }));
@@ -192,7 +198,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport avec images intégrées généré → ${filename}`);
+  console.log(`🎉 Rapport généré → ${filename} (${relevantIssues.length} issues)`);
 }
 
 main().catch((err) => {
