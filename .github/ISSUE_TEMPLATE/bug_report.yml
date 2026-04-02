@@ -65,11 +65,11 @@ body:
         - Autre
     validations:
       required: true
-  - type: input
+  - type: textarea
     id: test_data
     attributes:
       label: Lien vers dossier/fichier de test
-      description: Lien vers dossier (Drive, serveur, etc.)
+      description: Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos fichiers ici 
       placeholder: https://...
     validations:
       required: true
@@ -137,7 +137,7 @@ body:
     id: screenshots
     attributes:
       label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). Elles seront automatiquement ajoutées au rapport.
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
       placeholder: Ajoutez une ou plusieurs captures d'écran
     validations:
       required: false

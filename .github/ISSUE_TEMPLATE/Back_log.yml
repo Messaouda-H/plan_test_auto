@@ -43,6 +43,16 @@ body :
       label : Milestone
     validations :
       required: true
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
   - type : input 
     id : Commentaire 
     attributes:

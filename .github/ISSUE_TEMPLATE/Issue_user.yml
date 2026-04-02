@@ -130,10 +130,20 @@ body :
     id: screenshots
     attributes:
       label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). Elles seront automatiquement ajoutées au rapport.
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
       placeholder: Ajoutez une ou plusieurs captures d'écran
     validations:
       required: false
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
   - type: dropdown
     id: os
     attributes:
