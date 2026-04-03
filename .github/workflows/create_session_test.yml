@@ -1,31 +1,127 @@
-name: Export Test Session
+name: Create Test Session File
 
 on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
-  export:
+  create-test-session:
+    if: contains(github.event.issue.title, '[TEST SESSION]')
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Create MD file
+      # 🔥 PARSING
+      - name: Extract fields
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            function extract(label) {
+              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const data = {
+              testeur: extract("Testeur"),
+              date: extract("Date du test"),
+              version: extract("Version testée"),
+              workflow: extract("Workflow testé"),
+              checklist: extract("Workflow exécuté"),
+              extra: extract("Tests supplémentaires"),
+              notes: extract("Notes libres")
+            };
+
+            for (const key in data) {
+              core.setOutput(key, data[key]);
+            }
+
+      # 🔥 NOM DE FICHIER SAFE
+      - name: Generate safe filename
+        id: filename
         run: |
-          mkdir -p test-sessions
-          echo "${{ github.event.issue.body }}" > test-sessions/test-${{ github.event.issue.number }}.md
+          DATE="${{ steps.extract.outputs.date }}"
+          TESTEUR="${{ steps.extract.outputs.testeur }}"
 
+          SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
+          SAFE_USER=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+
+          echo "file=test-${SAFE_DATE}-${SAFE_USER}.md" >> $GITHUB_OUTPUT
+
+      # 🔥 CREATION DU FICHIER
+      - name: Create markdown file
+        run: |
+          FILE="test-sessions/${{ steps.filename.outputs.file }}"
+          mkdir -p test-sessions
+
+          echo "# Session de test" > "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Informations générales" >> "$FILE"
+          echo "- Testeur : ${{ steps.extract.outputs.testeur }}" >> "$FILE"
+          echo "- Date : ${{ steps.extract.outputs.date }}" >> "$FILE"
+          echo "- Version : ${{ steps.extract.outputs.version }}" >> "$FILE"
+          echo "- Workflow : ${{ steps.extract.outputs.workflow }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Workflow exécuté" >> "$FILE"
+          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Tests supplémentaires" >> "$FILE"
+          echo "${{ steps.extract.outputs.extra }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Notes" >> "$FILE"
+          echo "${{ steps.extract.outputs.notes }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Statut" >> "$FILE"
+
+          if [[ "${{ steps.extract.outputs.checklist }}" == *"[ ]"* || "${{ steps.extract.outputs.extra }}" == *"[ ]"* ]]; then
+            echo "❌ Session incomplète" >> "$FILE"
+          else
+            echo "✅ Session complète" >> "$FILE"
+          fi
+
+      # 🔥 COMMIT
       - name: Commit file
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add .
-          git commit -m "Add test session ${{ github.event.issue.number }}"
+          git add test-sessions/
+          git commit -m "Add test session"
           git push
 
-      - name: Close issue
-        uses: peter-evans/close-issue@v3
+      # 🔥 COMMENTAIRE
+      - name: Comment confirmation
+        uses: actions/github-script@v7
         with:
-          issue-number: ${{ github.event.issue.number }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "🧪 Session de test exportée en fichier `.md` dans `test-sessions/`."
+            });
+
+      # 🔥 FERMETURE
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            });
