@@ -1,9 +1,9 @@
 name: Issue Test
 description: Signaler un bug detecte pendant les tests Halyzia
-title: 'Issue Test'
+title: Issue Test
 labels:
   - Test
-  - "status: todo"
+  - 'status: todo'
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
 body:
@@ -17,7 +17,7 @@ body:
     id: session_link
     attributes:
       label: Lien vers la session de test
-      placeholder: #123
+      placeholder: null
   - type: dropdown
     id: version
     attributes:
@@ -45,6 +45,8 @@ body:
         - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
         - '"Workflow 1 — NEW + Detection complete"'
         - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"WF-26/03"'
+        - '"[WORKFLOW] workflow 03/04/26"'
         - '"abcd"'
         - '"ddd"'
         - '"me"'
@@ -69,7 +71,9 @@ body:
     id: test_data
     attributes:
       label: Lien vers dossier/fichier de test
-      description: Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos fichiers ici 
+      description: >-
+        Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos
+        fichiers ici
       placeholder: https://...
     validations:
       required: true
@@ -84,7 +88,7 @@ body:
     id: testeur
     attributes:
       label: Testeur
-      placeholder: ex.  Halissath 
+      placeholder: ex.  Halissath
     validations:
       required: true
   - type: dropdown
@@ -137,7 +141,7 @@ body:
     id: screenshots
     attributes:
       label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement).
       placeholder: Ajoutez une ou plusieurs captures d'écran
     validations:
       required: false
