@@ -13,6 +13,14 @@ body:
       required: true
 
   - type: input
+    id: date_test
+    attributes:
+      label: Date du test
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+
+  - type: input
     id: version
     attributes:
       label: Version testée
@@ -34,17 +42,18 @@ body:
   - type: textarea
     id: checklist
     attributes:
-      label: Checklist exécutée
-      description: Cocher les étapes réalisées
+      label: Workflow exécuté (tests prédéfinis)
+      description: Cocher UNIQUEMENT les étapes du workflow
       placeholder: |
-        - [x] NEW > charger dossier
-        - [x] PSD
-        - [ ] Export metrics
+        - [ ] Étape 1
+        - [ ] Étape 2
+        - [ ] Étape 3
 
   - type: textarea
     id: extra_tests
     attributes:
-      label: Vérifications supplémentaires
+      label: Tests supplémentaires (hors workflow)
+      description: Tests libres ajoutés par le testeur
       placeholder: |
         - [ ] Test export PDF
         - [ ] Test performance
@@ -53,12 +62,13 @@ body:
     id: notes
     attributes:
       label: Notes libres
-      placeholder: Observations, idées, comportements étranges
+      placeholder: Observations, idées, bugs
 
-  - type: textarea
-    id: issues_created
+  - type: checkboxes
+    id: validation
     attributes:
-      label: Issues créées pendant la session
-      placeholder: |
-        #12
-        #15
+      label: Validation finale
+      options:
+        - label: Tous les tests ont été exécutés
+        - label: Les résultats sont validés
+        - label: La session est complète ✅

@@ -1,0 +1,31 @@
+name: Export Test Session
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Create MD file
+        run: |
+          mkdir -p test-sessions
+          echo "${{ github.event.issue.body }}" > test-sessions/test-${{ github.event.issue.number }}.md
+
+      - name: Commit file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Add test session ${{ github.event.issue.number }}"
+          git push
+
+      - name: Close issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
