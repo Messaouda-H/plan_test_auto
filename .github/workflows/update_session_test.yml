@@ -1,4 +1,4 @@
-name: Update Bug Report Dropdown
+name: Update session tests Dropdown
 
 on:
   workflow_run:

@@ -4,8 +4,7 @@ title: Issue Test
 labels:
   - Test
   - 'status: todo'
-assignees:
-  - NOM_DU_DEV_PAR_DEFAUT
+
 body:
   - type: markdown
     attributes:

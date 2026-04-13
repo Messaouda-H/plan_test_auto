@@ -72,3 +72,5 @@ body:
         - label: Tous les tests ont été exécutés
         - label: Les résultats sont validés
         - label: La session est complète ✅
+    validation:
+      required: true
