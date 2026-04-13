@@ -50,12 +50,13 @@ jobs:
         id: filename
         run: |
           DATE="${{ steps.extract.outputs.date }}"
-          TESTEUR="${{ steps.extract.outputs.testeur }}"
+          NAME="${{ steps.extract.outputs.name }}"
 
+          SAFE_NAME=$(echo "$NAME" | tr ' ' '_' | tr -cd '[:alnum:]_-')
           SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
-          SAFE_USER=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+          
 
-          echo "file=test-${SAFE_DATE}-${SAFE_USER}.md" >> $GITHUB_OUTPUT
+          echo "file=test-${SAFE_DATE}-${SAFE_NAME}.md" >> $GITHUB_OUTPUT
 
       #  CREATION DU FICHIER
       - name: Create markdown file
@@ -63,7 +64,7 @@ jobs:
           FILE="test-sessions/${{ steps.filename.outputs.file }}"
           mkdir -p test-sessions
 
-          echo "# Session de test" > "$FILE"
+          echo "# ${{ steps.extract.outputs.name }}" > "$FILE"
           echo "" >> "$FILE"
 
           echo "## Informations générales" >> "$FILE"
