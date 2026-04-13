@@ -1,5 +1,5 @@
 name: Issue Test
-description: Signaler un bug detecte pendant les tests Halyzia
+description: Signaler une annomalie detecte pendant les tests Halyzia
 title: Issue Test
 labels:
   - Test

@@ -4,14 +4,23 @@ title : 'Issue Utilisateur'
 labels: 
   - Utilisateur
   - status : todo
-assignees:
-  - NOM_DU_DEV_PAR_DEFAUT
+
 body : 
   - type : markdown 
     attributes :
       value : |
         ## Signalemnt d'une issue prevenant d'un utilisateur  
         Remplir tous les champs.
+  - type: dropdown
+    id: Type d'Issue
+    attributes:
+      label: Type d'Issue
+      options:
+        - Manque 
+        - Annomalie
+        - Autre
+    validations:
+      required: true
   - type: dropdown
     id: version
     attributes:
