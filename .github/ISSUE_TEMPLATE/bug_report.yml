@@ -26,6 +26,7 @@ body:
         Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
       options:
         - '""'
+        - '"annotations test"'
     validations:
       required: true
   - type: dropdown
