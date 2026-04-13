@@ -32,6 +32,7 @@ jobs:
             }
 
             const data = {
+              name: extract("Nom de la session test")
               testeur: extract("Testeur"),
               date: extract("Date du test"),
               version: extract("Version testée"),
