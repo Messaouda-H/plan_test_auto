@@ -4,7 +4,6 @@ title: Issue Test
 labels:
   - Test
   - 'status: todo'
-
 body:
   - type: markdown
     attributes:
@@ -12,7 +11,6 @@ body:
         ## Signalement d'annomalie — Halyzia
         Remplir tous les champs. Le bug sera automatiquement
         assigne et suivi dans le tableau de bord.
-  
   - type: input
     id: version
     attributes:
@@ -27,7 +25,11 @@ body:
       description: |
         Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
       options:
-        - Autre
+        - '"Session de test"'
+        - '"Session de test"'
+        - '"Session de test"'
+        - '"Session de test"'
+        - '"Session de test"'
     validations:
       required: true
   - type: dropdown
