@@ -3,7 +3,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 
 // Dossier des sessions tests
-const workflowsDir = path.join(__dirname, "test-sessions");
+const workflowsDir = path.join(__dirname, "..","..","test-sessions");
 
 // Fichier bug report YAML
 const bugTemplatePath = path.join(__dirname, "..", "ISSUE_TEMPLATE", "bug_report.yml");
