@@ -1,8 +1,9 @@
 name: Rapport hebdomadaire qualite
 
 on:
-  issues:
-    types: [dev]
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
 
 permissions:
   issues: write
