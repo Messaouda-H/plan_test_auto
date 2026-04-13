@@ -1,8 +1,9 @@
 name: Session de test
 description: Suivi complet d'une session de test
-title: "[TEST SESSION] "
-labels: ["test-session", "status: in-progress"]
-
+title: '[TEST SESSION] '
+labels:
+  - test-session
+  - 'status: in-progress'
 body:
   - type: input
     id: name
@@ -11,14 +12,12 @@ body:
       placeholder: ex. session de test annotation
     validations:
       required: true
-
   - type: input
     id: testeur
     attributes:
       label: Testeur
     validations:
       required: true
-
   - type: input
     id: date_test
     attributes:
@@ -26,7 +25,6 @@ body:
       placeholder: YYYY-MM-DD
     validations:
       required: true
-
   - type: input
     id: version
     attributes:
@@ -34,18 +32,27 @@ body:
       placeholder: ex. 2.0.0.4
     validations:
       required: true
-
   - type: dropdown
     id: workflow
     attributes:
       label: Workflow testé
       options:
-        - WF-01
-        - WF-02
-        - Autre
+        - '""'
+        - '"26-03"'
+        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
+        - '"Workflow 1 — NEW + Detection complete"'
+        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"WF-11"'
+        - '"WF-12"'
+        - '"WF-26/03"'
+        - '"WF-67"'
+        - '"[WORKFLOW] workflow 03/04/26"'
+        - '"abcd"'
+        - '"ddd"'
+        - '"me"'
+        - '"test"'
     validations:
       required: true
-
   - type: textarea
     id: checklist
     attributes:
@@ -55,7 +62,6 @@ body:
         - [ ] Étape 1
         - [ ] Étape 2
         - [ ] Étape 3
-
   - type: textarea
     id: extra_tests
     attributes:
@@ -64,13 +70,11 @@ body:
       placeholder: |
         - [ ] Test export PDF
         - [ ] Test performance
-
   - type: textarea
     id: notes
     attributes:
       label: Notes libres
       placeholder: Observations, idées, bugs
-
   - type: checkboxes
     id: validation
     attributes:
