@@ -4,6 +4,13 @@ title: "[TEST SESSION] "
 labels: ["test-session", "status: in-progress"]
 
 body:
+  - type: input
+    id: name
+    attributes:
+      label: Nom du workflow
+      placeholder: ex. session de test annotation
+    validations:
+      required: true
 
   - type: input
     id: testeur
