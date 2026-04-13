@@ -1,14 +1,9 @@
 name: Sync Kanban → Labels
 
 on:
-  projects_v2_item: 
-  types: [edited]
-
-
-permissions:
-  contents: read
-  issues: write
-
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   sync:
