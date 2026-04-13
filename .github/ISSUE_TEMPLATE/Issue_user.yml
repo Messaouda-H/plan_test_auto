@@ -14,9 +14,9 @@ body :
   - type: dropdown
     id: Type d'Issue
     attributes:
-      label: Type d'Issue
+      label: Type du signalement
       options:
-        - Manque 
+        - Manque
         - Annomalie
         - Autre
     validations:
