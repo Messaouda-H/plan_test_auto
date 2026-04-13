@@ -3,7 +3,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 
 // Dossier des workflows
-const workflowsDir = path.join(__dirname, "..", "workflow-definition");
+const workflowsDir = path.join(__dirname, "..", "workflow-definitions");
 
 // Fichier test_session YAML
 const bugTemplatePath = path.join(__dirname, "..", "ISSUE_TEMPLATE", "test_session.yml");
