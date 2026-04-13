@@ -1,10 +1,9 @@
 name: Sync Kanban → Labels
 
 on:
-  workflow_run:
-    workflows: ["Back Logs"]
-    types:
-      - completed
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
