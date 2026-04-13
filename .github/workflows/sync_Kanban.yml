@@ -1,8 +1,14 @@
 name: Sync Kanban → Labels
 
 on:
-  issues:
-    types: [dev]
+  projects_v2_item: 
+  types: [edited]
+
+
+permissions:
+  contents: read
+  issues: write
+
 
 jobs:
   sync:
