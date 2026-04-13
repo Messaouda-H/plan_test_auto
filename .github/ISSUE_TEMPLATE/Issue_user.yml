@@ -5,14 +5,15 @@ labels:
   - Utilisateur
   - status : todo
 
-body : 
+body: 
   - type : markdown 
     attributes :
       value : |
         ## Signalemnt d'une issue prevenant d'un utilisateur  
         Remplir tous les champs.
+
   - type: dropdown
-    id: Type du signalement
+    id: Type_du_signalement
     attributes:
       label: Type du signalement
       options:
