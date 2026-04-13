@@ -27,6 +27,7 @@ body:
       options:
         - '""'
         - '"annotations test"'
+        - '"detection des ripples"'
     validations:
       required: true
   - type: dropdown
