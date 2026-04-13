@@ -21,8 +21,8 @@ body:
   - type: input
     id: version
     attributes:
-    label: Version Halyzia
-    placeholder: ex. V1.7.1
+      label: Version Halyzia
+      placeholder: ex. V1.7.1
     validations:
     required: true
   - type: dropdown
