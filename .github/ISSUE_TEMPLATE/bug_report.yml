@@ -30,7 +30,7 @@ body:
     attributes:
       label: La session test en cours quand l'annomalie est apparue
       description: |
-        Voir les definitions completes dans .github/test-sessions/
+        Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
       options:
         - "Autre"
     validations:
