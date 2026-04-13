@@ -27,7 +27,7 @@ const doc = yaml.load(yamlContent);
 
 // Mettre à jour le dropdown "workflow"
 doc.body.forEach(field => {
-  if (field.id === "Session Test") {
+  if (field.id === "Session_Test") {
     field.attributes.options = workflowOptions;
   }
 });

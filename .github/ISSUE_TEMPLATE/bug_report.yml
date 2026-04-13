@@ -24,9 +24,9 @@ body:
       label: Version Halyzia
       placeholder: ex. V1.7.1
     validations:
-    required: true
+      required: true
   - type: dropdown
-    id: Session Test
+    id: Session_Test
     attributes:
       label: La session test en cours quand l'annomalie est apparue
       description: |
