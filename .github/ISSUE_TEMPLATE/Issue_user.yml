@@ -12,7 +12,7 @@ body :
         ## Signalemnt d'une issue prevenant d'un utilisateur  
         Remplir tous les champs.
   - type: dropdown
-    id: Type d'Issue
+    id: Type du signalement
     attributes:
       label: Type du signalement
       options:
