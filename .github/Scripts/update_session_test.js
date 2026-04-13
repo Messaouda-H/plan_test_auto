@@ -2,11 +2,11 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
-// Dossier des sessions tests
-const workflowsDir = path.join(__dirname, "..", "test-sessions");
+// Dossier des workflows
+const workflowsDir = path.join(__dirname, "..", "workflow-definition");
 
-// Fichier bug report YAML
-const bugTemplatePath = path.join(__dirname, "..", "ISSUE_TEMPLATE", "bug_report.yml");
+// Fichier test_session YAML
+const bugTemplatePath = path.join(__dirname, "..", "ISSUE_TEMPLATE", "test_session.yml");
 
 // Lire tous les fichiers Markdown
 const workflowFiles = fs.readdirSync(workflowsDir)
@@ -27,11 +27,11 @@ const doc = yaml.load(yamlContent);
 
 // Mettre à jour le dropdown "workflow"
 doc.body.forEach(field => {
-  if (field.id === "Session Test") {
+  if (field.id === "workflow") {
     field.attributes.options = workflowOptions;
   }
 });
 
 // Écrire le YAML mis à jour
 fs.writeFileSync(bugTemplatePath, yaml.dump(doc), "utf-8");
-console.log("bug_report.yml mis à jour avec les sessions test existants !");
+console.log("test_session.yml mis à jour avec les sessions test existants !");

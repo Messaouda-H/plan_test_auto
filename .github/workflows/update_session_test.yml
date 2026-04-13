@@ -2,7 +2,7 @@ name: Update Bug Report Dropdown
 
 on:
   workflow_run:
-    workflows: ["Create Test Session File"]
+    workflows: ["Create Workflow File"]
     types:
       - completed
 
@@ -27,12 +27,12 @@ jobs:
         run: npm install js-yaml
 
       - name: Run script
-        run: node .github/Scripts/update_bug_report.js
+        run: node .github/Scripts/update_session_test.js
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .github/ISSUE_TEMPLATE/bug_report.yml
-          git commit -m "Mise à jour automatique des sessions tests" || echo "Rien à commit"
+          git add .github/ISSUE_TEMPLATE/test_session.yml
+          git commit -m "Mise à jour automatique des workflows " || echo "Rien à commit"
           git push https://${{ secrets.GPAT }}@github.com/${{ github.repository }}.git HEAD:main

@@ -18,39 +18,21 @@ body:
     attributes:
       label: Lien vers la session de test
       placeholder: null
-  - type: dropdown
+  - type: input
     id: version
     attributes:
-      label: Version Halyzia concernee
-      options:
-        - V1.7.1
-        - V1.7.1.RC2
-        - V1.7.1.RC1
-        - V1.7.0.6
-        - V1.7.0.5
-        - V1.7.0.4
-        - 2.0.0.4
-        - Autre
+    label: Version Halyzia
+    placeholder: ex. V1.7.1
     validations:
-      required: true
+    required: true
   - type: dropdown
-    id: workflow
+    id: Session Test
     attributes:
-      label: Workflow en cours quand le bug est apparu
+      label: La session test en cours quand l'annomalie est apparue
       description: |
-        Voir les definitions completes dans .github/workflow-definitions/
+        Voir les definitions completes dans .github/test-sessions/
       options:
-        - '""'
-        - '"26-03"'
-        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
-        - '"Workflow 1 — NEW + Detection complete"'
-        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
-        - '"WF-26/03"'
-        - '"[WORKFLOW] workflow 03/04/26"'
-        - '"abcd"'
-        - '"ddd"'
-        - '"me"'
-        - '"test"'
+        - "Autre"
     validations:
       required: true
   - type: dropdown

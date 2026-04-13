@@ -427,7 +427,7 @@ FILE: .github\package.json  (5 lignes)
 
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\Back_log.yml  (60 lignes)
+FILE: .github\ISSUE_TEMPLATE\Back_log.yml  (70 lignes)
 ================================================================================
 name : Back Logs 
 description : Ajouter un nouveau Back log
@@ -474,6 +474,16 @@ body :
       label : Milestone
     validations :
       required: true
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
   - type : input 
     id : Commentaire 
     attributes:
@@ -492,7 +502,7 @@ body :
 
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\Issue_user.yml  (135 lignes)
+FILE: .github\ISSUE_TEMPLATE\Issue_user.yml  (160 lignes)
 ================================================================================
 name : Issue utilsateurs
 description : Signaler une Issue detecte par des utilisateus 
@@ -500,25 +510,32 @@ title : 'Issue Utilisateur'
 labels: 
   - Utilisateur
   - status : todo
-assignees:
-  - NOM_DU_DEV_PAR_DEFAUT
-body : 
+
+body: 
   - type : markdown 
     attributes :
       value : |
         ## Signalemnt d'une issue prevenant d'un utilisateur  
         Remplir tous les champs.
+
+  - type: dropdown
+    id: Type_du_signalement
+    attributes:
+      label: Type du signalement
+      options:
+        - Manque
+        - Annomalie
+        - Autre
+    validations:
+      required: true
   - type: dropdown
     id: version
     attributes:
       label: Version Halyzia concernee
       options:
+        - V2.0.0.4
+        - V2.0.0.0
         - V1.7.1
-        - V1.7.1.RC2
-        - V1.7.1.RC1
-        - V1.7.0.6
-        - V1.7.0.5
-        - V1.7.0.4
         - Autre
     validations:
       required: true
@@ -621,6 +638,24 @@ body :
     attributes:
       label: Lignes d'erreur (copier-coller depuis le terminal)
       render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures d'écran
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
+      placeholder: Ajoutez une ou plusieurs captures d'écran
+    validations:
+      required: false
+  - type: dropdown
+    id: assignee_choice
+    attributes:
+      label: Assigner à
+      description: Choisir la personne responsable
+      options:
+        - Halissath
+        - Messaouda
+    validations:
+      required: true
   - type: dropdown
     id: os
     attributes:
@@ -632,28 +667,28 @@ body :
         - Autre
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (152 lignes)
+FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (166 lignes)
 ================================================================================
 name: Issue Test
-description: Signaler un bug detecte pendant les tests Halyzia
-title: 'Issue Test'
+description: Signaler une annomalie detecte pendant les tests Halyzia
+title: Issue Test
 labels:
   - Test
-  - "status: todo"
+  - 'status: todo'
 assignees:
   - NOM_DU_DEV_PAR_DEFAUT
 body:
   - type: markdown
     attributes:
       value: |
-        ## Signalement de bug — Halyzia
+        ## Signalement d'annomalie — Halyzia
         Remplir tous les champs. Le bug sera automatiquement
         assigne et suivi dans le tableau de bord.
   - type: input
     id: session_link
     attributes:
       label: Lien vers la session de test
-      placeholder: #123
+      placeholder: null
   - type: dropdown
     id: version
     attributes:
@@ -665,6 +700,7 @@ body:
         - V1.7.0.6
         - V1.7.0.5
         - V1.7.0.4
+        - 2.0.0.4
         - Autre
     validations:
       required: true
@@ -680,6 +716,8 @@ body:
         - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
         - '"Workflow 1 — NEW + Detection complete"'
         - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
+        - '"WF-26/03"'
+        - '"[WORKFLOW] workflow 03/04/26"'
         - '"abcd"'
         - '"ddd"'
         - '"me"'
@@ -700,11 +738,13 @@ body:
         - Autre
     validations:
       required: true
-  - type: input
+  - type: textarea
     id: test_data
     attributes:
       label: Lien vers dossier/fichier de test
-      description: Lien vers dossier (Drive, serveur, etc.)
+      description: >-
+        Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos
+        fichiers ici
       placeholder: https://...
     validations:
       required: true
@@ -719,7 +759,7 @@ body:
     id: testeur
     attributes:
       label: Testeur
-      placeholder: ex.  Halissath 
+      placeholder: ex.  Halissath
     validations:
       required: true
   - type: dropdown
@@ -768,6 +808,14 @@ body:
     attributes:
       label: Lignes d'erreur (copier-coller depuis le terminal)
       render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures d'écran
+      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement).
+      placeholder: Ajoutez une ou plusieurs captures d'écran
+    validations:
+      required: false
   - type: dropdown
     id: os
     attributes:
@@ -787,6 +835,7 @@ body:
         - Messaouda
     validations:
       required: true
+
 
 ================================================================================
 FILE: .github\ISSUE_TEMPLATE\create_workflow.yml  (45 lignes)
@@ -839,7 +888,7 @@ body:
       required: true
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\test_session.yml  (63 lignes)
+FILE: .github\ISSUE_TEMPLATE\test_session.yml  (73 lignes)
 ================================================================================
 name: Session de test
 description: Suivi complet d'une session de test
@@ -852,6 +901,14 @@ body:
     id: testeur
     attributes:
       label: Testeur
+    validations:
+      required: true
+
+  - type: input
+    id: date_test
+    attributes:
+      label: Date du test
+      placeholder: YYYY-MM-DD
     validations:
       required: true
 
@@ -877,17 +934,18 @@ body:
   - type: textarea
     id: checklist
     attributes:
-      label: Checklist exécutée
-      description: Cocher les étapes réalisées
+      label: Workflow exécuté (tests prédéfinis)
+      description: Cocher UNIQUEMENT les étapes du workflow
       placeholder: |
-        - [x] NEW > charger dossier
-        - [x] PSD
-        - [ ] Export metrics
+        - [ ] Étape 1
+        - [ ] Étape 2
+        - [ ] Étape 3
 
   - type: textarea
     id: extra_tests
     attributes:
-      label: Vérifications supplémentaires
+      label: Tests supplémentaires (hors workflow)
+      description: Tests libres ajoutés par le testeur
       placeholder: |
         - [ ] Test export PDF
         - [ ] Test performance
@@ -896,15 +954,16 @@ body:
     id: notes
     attributes:
       label: Notes libres
-      placeholder: Observations, idées, comportements étranges
+      placeholder: Observations, idées, bugs
 
-  - type: textarea
-    id: issues_created
+  - type: checkboxes
+    id: validation
     attributes:
-      label: Issues créées pendant la session
-      placeholder: |
-        #12
-        #15
+      label: Validation finale
+      options:
+        - label: Tous les tests ont été exécutés
+        - label: Les résultats sont validés
+        - label: La session est complète ✅
 
 ================================================================================
 FILE: .github\workflow-definitions\26-03.md  (16 lignes)
@@ -1083,6 +1142,25 @@ mon objectif
 Tous les éléments fonctionnent sans erreur ni message d'alerte inattendu.
 
 ================================================================================
+FILE: .github\workflow-definitions\WORKFLOW_workflow_030426.md  (14 lignes)
+================================================================================
+# [WORKFLOW] workflow 03/04/26
+
+## Objectif
+[WORKFLOW] workflow 03/04/26
+
+## Fichier requis
+- Format : [WORKFLOW] workflow 03/04/26
+- Montage : [WORKFLOW] workflow 03/04/26
+
+## Checklist des etapes
+[WORKFLOW] workflow 03/04/26
+
+## Resultat attendu global
+Tous les elements fonctionnent sans erreur.
+
+
+================================================================================
 FILE: .github\workflow-definitions\abcd.md  (14 lignes)
 ================================================================================
 # abcd
@@ -1192,6 +1270,137 @@ jobs:
 
               console.log("Assigné à:", assignee);
             }
+
+================================================================================
+FILE: .github\workflows\create_session_test.yml  (126 lignes)
+================================================================================
+name: Create Test Session File
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-test-session:
+    if: contains(github.event.issue.title, '[TEST SESSION]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 🔥 PARSING
+      - name: Extract fields
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            function extract(label) {
+              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const data = {
+              testeur: extract("Testeur"),
+              date: extract("Date du test"),
+              version: extract("Version testée"),
+              workflow: extract("Workflow testé"),
+              checklist: extract("Workflow exécuté"),
+              extra: extract("Tests supplémentaires"),
+              notes: extract("Notes libres")
+            };
+
+            for (const key in data) {
+              core.setOutput(key, data[key]);
+            }
+
+      # 🔥 NOM DE FICHIER SAFE
+      - name: Generate safe filename
+        id: filename
+        run: |
+          DATE="${{ steps.extract.outputs.date }}"
+          TESTEUR="${{ steps.extract.outputs.testeur }}"
+
+          SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
+          SAFE_USER=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+
+          echo "file=test-${SAFE_DATE}-${SAFE_USER}.md" >> $GITHUB_OUTPUT
+
+      # 🔥 CREATION DU FICHIER
+      - name: Create markdown file
+        run: |
+          FILE="test-sessions/${{ steps.filename.outputs.file }}"
+          mkdir -p test-sessions
+
+          echo "# Session de test" > "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Informations générales" >> "$FILE"
+          echo "- Testeur : ${{ steps.extract.outputs.testeur }}" >> "$FILE"
+          echo "- Date : ${{ steps.extract.outputs.date }}" >> "$FILE"
+          echo "- Version : ${{ steps.extract.outputs.version }}" >> "$FILE"
+          echo "- Workflow : ${{ steps.extract.outputs.workflow }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Workflow exécuté" >> "$FILE"
+          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Tests supplémentaires" >> "$FILE"
+          echo "${{ steps.extract.outputs.extra }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Notes" >> "$FILE"
+          echo "${{ steps.extract.outputs.notes }}" >> "$FILE"
+          echo "" >> "$FILE"
+
+          echo "## Statut" >> "$FILE"
+
+          if [[ "${{ steps.extract.outputs.checklist }}" == *"[ ]"* || "${{ steps.extract.outputs.extra }}" == *"[ ]"* ]]; then
+            echo "❌ Session incomplète" >> "$FILE"
+          else
+            echo "✅ Session complète" >> "$FILE"
+          fi
+
+      # 🔥 COMMIT
+      - name: Commit file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add test-sessions/
+          git commit -m "Add test session"
+          git push
+
+      # 🔥 COMMENTAIRE
+      - name: Comment confirmation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "🧪 Session de test exportée en fichier `.md` dans `test-sessions/`."
+            });
+
+      # 🔥 FERMETURE
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            });
 
 ================================================================================
 FILE: .github\workflows\create_workflow_file.yml  (110 lignes)
@@ -1390,7 +1599,7 @@ name: Sync Kanban → Labels
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -1401,7 +1610,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 22 
 
       - run: npm install @octokit/rest @octokit/graphql
 
@@ -1579,32 +1788,32 @@ jobs:
 
 
 ================================================================================
-FILE: reports\report.md  (5 lignes)
+FILE: test-sessions\test-2026-04-03-session_test.md  (23 lignes)
 ================================================================================
-# Halyzia® release : V1.7.1
-Tests démarrés automatiquement
+# Session de test
 
----
+## Informations générales
+- Testeur : session test
+- Date : 2026-04-03
+- Version : 2.0.0.4
+- Workflow : WF-01
 
+## Workflow exécuté
+(tests prédéfinis)
+
+_No response_
+
+## Tests supplémentaires
+(hors workflow)
+
+_No response_
+
+## Notes
+_No response_
+
+## Statut
+✅ Session complète
 
 
 ================================================================================
-FILE: reports\report_2.0.0.4.md  (2 lignes)
-================================================================================
-# Rapport QA — Version 2.0.0.4
-
-
-
-================================================================================
-FILE: reports\report_v1.7.1.md  (6 lignes)
-================================================================================
-# 📊 Rapport QA — Version v1.7.1
-
-Nombre d'issues : 0
-
----
-
-
-
-================================================================================
-TOTAL: 29 fichiers | 1460 lignes
+TOTAL: 29 fichiers | 1669 lignes

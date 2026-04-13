@@ -22,37 +22,11 @@ body:
         - Autre
     validations:
       required: true
-  - type: dropdown
+  - type: input
     id: version
     attributes:
-      label: Version Halyzia concernee
-      options:
-        - V1.7.1
-        - V1.7.1.RC2
-        - V1.7.1.RC1
-        - V1.7.0.6
-        - V1.7.0.5
-        - V1.7.0.4
-        - 2.0.0.4
-        - Autre
-    validations:
-      required: true
-  - type: dropdown
-    id: workflow
-    attributes:
-      label: Workflow en cours quand le bug est apparu
-      description: |
-        Voir les definitions completes dans .github/workflow-definitions/
-      options:
-        - '""'
-        - '"26-03"'
-        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
-        - '"Workflow 1 — NEW + Detection complete"'
-        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
-        - '"abcd"'
-        - '"ddd"'
-        - '"me"'
-        - '"test"'
+    label: Version Halyzia
+    placeholder: ex. V1.7.1
     validations:
       required: true
   - type: dropdown
