@@ -32,7 +32,7 @@ jobs:
             }
 
             const data = {
-              name: extract("Nom de la session test")
+              name: extract("Nom de la session test"),
               testeur: extract("Testeur"),
               date: extract("Date du test"),
               version: extract("Version testée"),
@@ -69,6 +69,7 @@ jobs:
           echo "" >> "$FILE"
 
           echo "## Informations générales" >> "$FILE"
+          
           echo "- Testeur : ${{ steps.extract.outputs.testeur }}" >> "$FILE"
           echo "- Date : ${{ steps.extract.outputs.date }}" >> "$FILE"
           echo "- Version : ${{ steps.extract.outputs.version }}" >> "$FILE"
