@@ -1,7 +1,9 @@
 name: Session de test
 description: Suivi complet d'une session de test
 title: "[TEST SESSION] "
-labels: ["test-session", "status: in-progress"]
+labels : 
+  - Fichiers
+  
 
 body:
   - type: input

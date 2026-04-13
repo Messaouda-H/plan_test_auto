@@ -1,7 +1,9 @@
 name: Create Workflow
 description: Ajouter un nouveau workflow de test
 title: "[WORKFLOW] "
-labels: [workflow]
+labels : 
+  - Fichiers
+  
 
 body:
   - type: input
