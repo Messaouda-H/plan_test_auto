@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halyzia - Portail de Test</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #2ea44f; padding-bottom: 10px; }
+        .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .step-item { display: flex; align-items: center; background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 4px; border-left: 4px solid #2ea44f; cursor: pointer; }
+        .step-item input { width: auto; margin-right: 15px; transform: scale(1.5); }
+        button { width: 100%; background-color: #2ea44f; color: white; padding: 15px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #22863a; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Session de Test Halyzia</h1>
+
+    <div class="section">
+        <label>Nom du Testeur</label>
+        <input type="text" id="testeur" placeholder="ex. Messaouda">
+
+        <label>Version Halyzia</label>
+        <input type="text" id="version" placeholder="ex. 2.0.0.6">
+
+        <label>Choisir le Workflow</label>
+        <select id="wfChoice" onchange="loadWorkflowSteps()">
+            <option value="">-- Sélectionnez un workflow --</option>
+            <option value="WF-01">WF-01 — NEW + Detection complete</option>
+            <option value="WF-02">WF-02 — Bipolaire + Detection Ripples</option>
+            <option value="WF-67">WF-67 — Detection Ripples</option>
+            <option value="WF-80">WF-80 — Ajuster filtres</option>
+        </select>
+    </div>
+
+    <div class="section" id="checklistSection" style="display:none;">
+        <label>🛠 Étapes du Workflow (Cochez pendant le test)</label>
+        <div id="stepsContainer"></div>
+    </div>
+
+    <div class="section">
+        <label>🚀 Tests supplémentaires ou Notes</label>
+        <textarea id="notes" rows="4" placeholder="Observations, imprévus..."></textarea>
+    </div>
+
+    <button onclick="generateAndSend()">✅ Valider et Sauvegarder la Session</button>
+
+    <script>
+        // Simulation des données de tes fichiers .md (WF-01, WF-02, etc.) [cite: 77, 81, 85, 86]
+        const workflowData = {
+            "WF-01": ["NEW > charger le dossier", "Ajustement affichage", "Zoom et scroll", "PSD + marquer bad", "Lancer scalogramme", "Annoter signal"],
+            "WF-02": ["Appliquer filtre 200-600Hz", "Montage bipolaire", "Lancer Ripples et FR", "Lancer Spikes", "Export métriques"],
+            "WF-67": ["Check 1", "Check 2", "Check 3", "Check 4"],
+            "WF-80": ["Ajuster filtres permanents", "Vérifier rendu visuel"]
+        };
+
+        function loadWorkflowSteps() {
+            const wf = document.getElementById('wfChoice').value;
+            const container = document.getElementById('stepsContainer');
+            const section = document.getElementById('checklistSection');
+            container.innerHTML = "";
+            
+            if (workflowData[wf]) {
+                section.style.display = "block";
+                workflowData[wf].forEach((step, i) => {
+                    container.innerHTML += `<label class="step-item"><input type="checkbox" class="step-check"> ${step}</label>`;
+                });
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        function generateAndSend() {
+            const testeur = document.getElementById('testeur').value;
+            const wf = document.getElementById('wfChoice').value;
+            const checks = document.querySelectorAll('.step-check');
+            let checklistMd = "";
+            
+            // On construit la checklist avec les cases cochées [x] ou non [ ]
+            checks.forEach((c, i) => {
+                const status = c.checked ? "[x]" : "[ ]";
+                const label = c.parentElement.textContent.trim();
+                checklistMd += `- ${status} ${label}%0A`;
+            });
+
+            const body = `### Nom de la session test%0A${wf}_${new Date().toLocaleDateString()}%0A%0A### Testeur%0A${testeur}%0A%0A### Date du test%0A${new Date().toISOString().split('T')[0]}%0A%0A### Version testée%0A${document.getElementById('version').value}%0A%0A### Workflow testé%0A"${wf}"%0A%0A### Workflow exécuté%0A${checklistMd}%0A%0A### Notes libres%0A${document.getElementById('notes').value}%0A%0A### Validation finale%0A- [x] Tous les tests ont été exécutés%0A- [x] La session est complète ✅`;
+
+            // On ouvre l'URL de création d'issue avec les paramètres pré-remplis
+            const repoUrl = "https://github.com/TON_NOM_UTILISATEUR/TON_REPO/issues/new";
+            const fullUrl = `${repoUrl}?title=[TEST SESSION] ${wf}&body=${body}&labels=Fichiers`;
+            
+            window.location.href = fullUrl;
+        }
+    </script>
+</body>
+</html>
