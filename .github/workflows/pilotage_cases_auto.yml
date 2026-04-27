@@ -1,56 +1,51 @@
-name: Pilotage Temps Réel
+name: Initialiser Checklist Session
 on:
   issues:
     types: [opened]
 
 jobs:
-  inject-checklist:
+  setup:
     if: contains(github.event.issue.title, '[TEST SESSION]')
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Checkout repo
-        [cite_start]uses: actions/checkout@v4 [cite: 97]
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Préparer les données
-        id: prepare
+      - name: Extraire Checklist
+        id: get_wf
+        run: |
+          # 1. On trouve le nom du workflow dans le corps de l'issue
+          WF_NAME=$(echo '${{ github.event.issue.body }}' | grep -A 1 "### Workflow à charger" | tail -n 1 | tr -d '"')
+          
+          # 2. On cherche le fichier correspondant
+          WF_PATH=".github/workflow-definitions/${WF_NAME}.md"
+          
+          if [ -f "$WF_PATH" ]; then
+            # On extrait tout ce qui est sous "## Checklist" jusqu'au prochain titre
+            CHECKLIST=$(sed -n '/## Checklist/,/##/p' "$WF_PATH" | grep '^-')
+            
+            # On prépare le nouveau corps de l'issue
+            {
+              echo "NEW_BODY<<EOF"
+              echo "${{ github.event.issue.body }}"
+              echo -e "\n\n---\n## 📋 CHECKLIST TEMPS RÉEL\n"
+              echo "$CHECKLIST"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Issue
+        if: steps.get_wf.outputs.NEW_BODY != ''
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.issue.body; [cite: 98]
-            // On cherche le workflow entre guillemets (format actuel de ton issue)
-            const match = body.match(/### Workflow testé\s*\n\n"(.+)"/); [cite: 101]
-            const wfName = match ? match[1] : null;
-            
-            if (wfName) {
-              const fs = require('fs');
-              [cite_start]// Chemin basé sur ta structure existante [cite: 123]
-              const path = `.github/workflow-definitions/${wfName}.md`; 
-              
-              if (fs.existsSync(path)) {
-                const content = fs.readFileSync(path, 'utf8');
-                [cite_start]// On extrait la partie après "Checklist des etapes" [cite: 82, 83]
-                const parts = content.split(/## Checklist.*/i);
-                if (parts.length > 1) {
-                  const checklist = parts[1].split('##')[0].trim();
-                  core.exportVariable('WF_CHECKLIST', checklist);
-                }
-              }
-            }
-
-      - name: Mettre à jour l'Issue
-        if: env.WF_CHECKLIST != ''
-        uses: actions/github-script@v7
-        env:
-          CHECKLIST_DATA: ${{ env.WF_CHECKLIST }}
-        with:
-          script: |
-            const checklist = process.env.CHECKLIST_DATA; 
-            const currentBody = context.payload.issue.body; [cite: 98]
-            const newBody = `${currentBody}\n\n---\n### ✅ LISTE DE TÂCHES (À COCHER EN DIRECT)\n${checklist}`;
-            
-            [cite_start]await github.rest.issues.update({ [cite: 114]
+            await github.rest.issues.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: newBody
+              body: process.env.NEW_BODY
             });
+        env:
+          NEW_BODY: ${{ steps.get_wf.outputs.NEW_BODY }}
