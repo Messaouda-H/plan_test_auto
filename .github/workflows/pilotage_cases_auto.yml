@@ -1,0 +1,48 @@
+name: Pilotage Temps Réel
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  inject-checklist:
+    if: contains(github.event.issue.title, '[TEST SESSION]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get Workflow Checklist
+        id: get_wf
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+            // Extraction du nom du workflow choisi [cite: 101]
+            const match = body.match(/### Workflow testé\s*\n\n"(.+)"/);
+            const wfName = match ? match[1] : null;
+            
+            if (wfName) {
+              const fs = require('fs');
+              [cite_start]const path = `.github/workflow-definitions/${wfName}.md`; [cite: 123]
+              if (fs.existsSync(path)) {
+                const content = fs.readFileSync(path, 'utf8');
+                [cite_start]// On récupère tout ce qui est sous la section Checklist [cite: 77]
+                const checklist = content.split('## Checklist')[1].split('##')[0].trim();
+                core.setOutput('checklist', checklist);
+              }
+            }
+
+      - name: Update Issue Body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const checklist = `${{ steps.get_wf.outputs.checklist }}`;
+            const currentBody = context.payload.issue.body;
+            const newBody = currentBody + "\n\n---\n### ✅ LISTE DE TÂCHES (À COCHER EN DIRECT)\n" + checklist;
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: newBody
+            });
