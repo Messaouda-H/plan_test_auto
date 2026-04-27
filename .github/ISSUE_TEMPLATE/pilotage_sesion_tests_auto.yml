@@ -1,0 +1,46 @@
+name: Pilotage de Session Temps Réel
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  prepare-session:
+    if: contains(github.event.issue.title, '[TEST SESSION]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extraire le Workflow choisi
+        id: parse
+        run: |
+          # On récupère le nom du workflow dans le body de l'issue
+          WF_NAME=$(echo "${{ github.event.issue.body }}" | grep -A 1 "### Workflow testé" | tail -n 1 | xargs)
+          echo "wf=$WF_NAME" >> $GITHUB_OUTPUT
+
+      - name: Récupérer la Checklist
+        id: get_checklist
+        run: |
+          WF_FILE=".github/workflow-definitions/${{ steps.parse.outputs.wf }}.md"
+          # On extrait la checklist du fichier .md
+          if [ -f "$WF_FILE" ]; then
+            CHECKLIST=$(sed -n '/## Checklist/,/##/p' "$WF_FILE" | grep '^-' | sed 's/^- /- [ ] /')
+            echo "list<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHECKLIST" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Injecter la Checklist dans l'Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const checklist = `${{ steps.get_checklist.outputs.list }}`;
+            const newBody = context.payload.issue.body + "\n\n---\n## ✅ Checklist à compléter en temps réel\n" + checklist;
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: newBody
+            });
