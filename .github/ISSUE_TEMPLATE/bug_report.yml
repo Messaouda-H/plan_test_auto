@@ -30,6 +30,7 @@ body:
         - '"ajuster les filtres permannents"'
         - '"annotations test"'
         - '"detection des ripples"'
+        - '"27/04"'
     validations:
       required: true
   - type: dropdown
