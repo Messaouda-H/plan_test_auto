@@ -158,17 +158,17 @@ body:
     attributes:
       label: "Workflows 6 à 16 (Cochez celui réalisé)"
       options:
-        - label: "WF 6 : Persistance (Fermer/Rouvrir Halyzia)"
-        - label: "WF 7 : Redétection overlap + Carte topo"
-        - label: "WF 8 : Concaténation bipolaire/monopolaire"
-        - label: "WF 9 : Écraser un dossier existant (NEW)"
-        - label: "WF 10 : Mi-enregistrement + Hourly rate"
-        - label: "WF 11 : Changement emplacement source"
-        - label: "WF 12 : Double clic TRC/EDF (Ouverture rapide)"
-        - label: "WF 13 : Conservation analyses (Tous dossiers)"
-        - label: "WF 14 : Ouverture dossier ancienne version"
-        - label: "WF 15 : Fréquence < 1200Hz"
-        - label: "WF 16 : Fréquence <= 500Hz + Warning"
+        - label: "WF 6 : : Workflow 1 lors des annotations fermer Halyzia et rouvrir le dossier, en référencement avec un canal macro. Avec micro-électrode monté en MED sans Rattachement aux électrodes macros. Lancer le PSD en montage. Fermer et rouvrir le même dossier"
+        - label: "WF 7 : Workflow 1 (dupliquer le dossier du workflow pour ne pas avoir à tout recommencer), rouvrir le dossier, lancer une détection de FR avec le même détecteur sur une échelle de temps qui overlappe avec l’ancienne durée de détection (Ex : 0 100s et 50 200s) > ouvrir la carte topo et vérifier le taux horaire > lancer une détection de Ripples avec le même détecteur avec différents paramètres > lancer une détection de spikes avec un détecteur Janca"
+        - label: "WF 8 : Workflow 1 (dupliquer le dossier du workflow pour ne pas avoir à tout recommencer) > Passer en bipolaire lancer une détection de Ripples sur la même échelle de temps qu’en monopolaire > Ouvrir la carte topo en bipolaire et vérifier le hourly rate > Repasser en monopolaire > Ouvrir la carte topo et vérifier le calcul du hourly rate > Lancer une détection de Fast ripple sur une sélection de canaux sur une même échelle de temps que la précédente détection de FR (vérifier qu’il y’a concaténation et qu’il n’y a pas de warning)"
+        - label: "WF 9 : Écraser un dossier existant (NEW sélectionner un dossier déjà créé)"
+        - label: "WF 10 : Ouvrir un dossier du workflow 4 au lancement d’Halyzia > relancer les détections sur des durées de temps différents mi-enregistrement > Ouvrir la carte topo et vérifier le calcul du hourly rate"
+        - label: "WF 11 : Renommer et changer l’emplacement d’un fichier source et ouvrir les fichiers dans Halyzia "
+        - label: "WF 12 : Double clic pour ouvrir les fichiers TRC et EDF. Double cliquer une deuxième fois pour vérifier qu’Halyzia ouvre l’ancien dossier créé immédiatement."
+        - label: "WF 13 : ouvrir à nouveau tous les dossiers créés dans les différents Workflow et vérifier que les analyses sont conservées. Repasser en monopolaire pour ceux qui sont en re-référencement pour vérifier la conservation de l’analyse et le comportement des fonctionnements tels que (filtre visuels, artefact, filtre permanent etc.)"
+        - label: "WF 14 : Ouvrir un dossier Halyzia créé avec une ancienne version et dans lequel il y’a eu détection d’évènement > Ouvrez les différents cartes topo et event viewer."
+        - label: "WF 15 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure à 1200Hz et lancer la détection de chaque type d’évènement."
+        - label: "WF 16 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure ou égale à 500Hz et lancer une détection de Ripple puis vérifier qu’on reçoit bien le warning qui informe sur la fréquence qui sera utilisé."
 
   - type: checkboxes
     id: averifier
