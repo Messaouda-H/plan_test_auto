@@ -31,6 +31,7 @@ body:
         - '"annotations test"'
         - '"detection des ripples"'
         - '"27/04"'
+        - '"Rapport de Session de Test"'
     validations:
       required: true
   - type: dropdown
