@@ -15,20 +15,20 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        [cite_start]uses: actions/checkout@v4 [cite: 97]
 
       # PARSING ET FILTRAGE DES TESTS COCHÉS
       - name: Extract and Filter Fields
         id: extract
-        uses: actions/github-script@v7
+        [cite_start]uses: actions/github-script@v7 [cite: 98]
         with:
           script: |
-            const body = context.payload.issue.body;
+            const body = context.payload.issue.body; [cite: 98]
 
             function extract(label) {
-              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
-              const match = body.match(regex);
-              return match ? match[1].trim() : "";
+              [cite_start]const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`); [cite: 99]
+              [cite_start]const match = body.match(regex); [cite: 100]
+              [cite_start]return match ? match[1].trim() : ""; [cite: 100]
             }
 
             // Fonction pour ne garder que les lignes cochées [x]
@@ -39,7 +39,7 @@ jobs:
                 .trim();
             }
 
-            // Extraction des blocs de workflows et tests
+            // Extraction groupée de tous les workflows
             const rawWorkflows = [
               extract("Workflow 1 : NEW + Détections complètes"),
               extract("Workflow 2 : Bipolaire + Ripples/FR"),
@@ -50,56 +50,56 @@ jobs:
             ].join('\n');
 
             const data = {
-              testeur: extract("Testeur"),
-              date: extract("Date du test"),
-              version: extract("Version testée"),
-              notes: extract("Notes et Observations"),
-              // On ne garde que ce qui est coché dans les workflows et vérifications
+              [cite_start]testeur: extract("Testeur"), [cite: 101]
+              [cite_start]date: extract("Date du test"), [cite: 101]
+              [cite_start]version: extract("Version testée"), [cite: 101]
+              [cite_start]notes: extract("Notes et Observations"), [cite: 102]
+              // Filtrage dynamique pour ne garder que les lignes [x]
               checkedTests: getCheckedOnly(rawWorkflows),
-              checkedVerify: getCheckedOnly(extract("✅ A VÉRIFIER")),
-              checkedShortcuts: getCheckedOnly(extract("⌨️ Raccourcis annotation"))
+              checkedVerify: getCheckedOnly("✅ A VÉRIFIER"),
+              checkedShortcuts: getCheckedOnly("⌨️ Raccourcis annotation")
             };
 
             for (const key in data) {
-              core.setOutput(key, data[key]);
+              [cite_start]core.setOutput(key, data[key]); [cite: 103]
             }
 
-      # NOM DE FICHIER : test_nomdutesteur_date.md
+      # GÉNÉRATION DU NOM DE FICHIER : test_nomdutesteur_date.md
       - name: Generate safe filename
         id: filename
         run: |
-          TESTEUR="${{ steps.extract.outputs.testeur }}"
-          DATE="${{ steps.extract.outputs.date }}"
+          TESTEUR="${{ steps.extract.outputs.testeur }}" 
+          DATE="${{ steps.extract.outputs.date }}" 
           
-          # Nettoyage des caractères spéciaux pour le nom de fichier
+          # Nettoyage pour éviter les erreurs de caractères spéciaux
           SAFE_TESTEUR=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_')
           SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
           
           echo "file=test_${SAFE_TESTEUR}_${SAFE_DATE}.md" >> $GITHUB_OUTPUT
 
-      # CRÉATION DU FICHIER MD
+      # CRÉATION DU FICHIER MD DANS LE DOSSIER test-sessions/
       - name: Create markdown file
         run: |
-          FILE="test-sessions/${{ steps.filename.outputs.file }}"
-          mkdir -p test-sessions
+          FILE="test-sessions/${{ steps.filename.outputs.file }}" [cite: 106]
+          mkdir -p test-sessions [cite: 106]
 
           echo "# Rapport de Session de Test" > "$FILE"
           echo "" >> "$FILE"
           echo "## Informations générales" >> "$FILE"
-          echo "- **Testeur :** ${{ steps.extract.outputs.testeur }}" >> "$FILE"
-          echo "- **Date :** ${{ steps.extract.outputs.date }}" >> "$FILE"
-          echo "- **Version Halyzia :** ${{ steps.extract.outputs.version }}" >> "$FILE"
+          [cite_start]echo "- **Testeur :** ${{ steps.extract.outputs.testeur }}" >> "$FILE" [cite: 106]
+          [cite_start]echo "- **Date :** ${{ steps.extract.outputs.date }}" >> "$FILE" [cite: 107]
+          [cite_start]echo "- **Version Halyzia :** ${{ steps.extract.outputs.version }}" >> "$FILE" [cite: 107]
           echo "" >> "$FILE"
 
-          echo "## Tests validés (Workflows)" >> "$FILE"
+          echo "## 🛠 Workflows validés" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.checkedTests }}" ]; then
-            echo "_Aucun test de workflow coché._" >> "$FILE"
+            echo "_Aucun workflow n'a de tests cochés._" >> "$FILE"
           else
             echo "${{ steps.extract.outputs.checkedTests }}" >> "$FILE"
           fi
           echo "" >> "$FILE"
 
-          echo "## Points vérifiés" >> "$FILE"
+          echo "## ✅ Points de vérification confirmés" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.checkedVerify }}" ]; then
             echo "_Aucun point de vérification coché._" >> "$FILE"
           else
@@ -107,7 +107,7 @@ jobs:
           fi
           echo "" >> "$FILE"
 
-          echo "## Raccourcis testés" >> "$FILE"
+          echo "## ⌨️ Raccourcis testés" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.checkedShortcuts }}" ]; then
             echo "_Aucun raccourci coché._" >> "$FILE"
           else
@@ -115,36 +115,36 @@ jobs:
           fi
           echo "" >> "$FILE"
 
-          echo "## Observations" >> "$FILE"
+          echo "## 📝 Observations" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.notes }}" ] || [ "${{ steps.extract.outputs.notes }}" == "_No response_" ]; then
             echo "_Aucune observation particulière._" >> "$FILE"
           else
-            echo "${{ steps.extract.outputs.notes }}" >> "$FILE"
+            [cite_start]echo "${{ steps.extract.outputs.notes }}" >> "$FILE" [cite: 108]
           fi
 
-      # COMMIT
+      # COMMIT ET PUSH VERS LE REPO
       - name: Commit file
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add test-sessions/
-          git commit -m "Add test session report: ${{ steps.filename.outputs.file }}"
-          git push
+          git config user.name "github-actions" [cite: 111]
+          git config user.email "actions@github.com" [cite: 111]
+          git add test-sessions/ [cite: 111]
+          git commit -m "Add test session report: ${{ steps.filename.outputs.file }}" [cite: 111]
+          git push [cite: 111]
 
-      # COMMENTAIRE ET FERMETURE
+      # COMMENTAIRE SUR L'ISSUE ET FERMETURE AUTOMATIQUE
       - name: Finalize Issue
-        uses: actions/github-script@v7
+        [cite_start]uses: actions/github-script@v7 [cite: 112]
         with:
           script: |
-            await github.rest.issues.createComment({
+            await github.rest.issues.createComment({ [cite: 112]
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: "✅ Rapport généré avec succès : `test-sessions/${{ steps.filename.outputs.file }}`. Seuls les tests cochés ont été conservés."
+              body: "🧪 Session de test exportée avec succès sous le nom `${{ steps.filename.outputs.file }}`. Seuls les tests cochés ont été conservés."
             });
-            await github.rest.issues.update({
+            await github.rest.issues.update({ [cite: 114]
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              state: "closed"
+              state: "closed" [cite: 114]
             });
