@@ -3,18 +3,16 @@
 ## Informations générales
 - **Testeur :** messaouda
 - **Date :** 2026-04-29
-- **Version Halyzia :** 2.0.0.7
+- **Version Halyzia :** 2.0.0.9
 
-## Tests validés (Workflows)
-_Aucun test de workflow coché._
+## 🛠 Workflows validés
+_Aucun workflow n'a de tests cochés._
 
-## Points vérifiés
+## ✅ Points de vérification confirmés
 - [x] Double cliquer sur un canal hors mode annotation
-- [x] Rajouter des notes
-- [x] Supprimer évènements en mode annotation : sauvegarde ok
 
-## Raccourcis testés
-_Aucun raccourci coché._
+## ⌨️ Raccourcis testés
+- [x] Affichage zones artefactées dans carte topo
 
-## Observations
+## 📝 Observations
 _Aucune observation particulière._
