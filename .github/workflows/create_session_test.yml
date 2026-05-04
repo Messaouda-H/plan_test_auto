@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # PARSING ET FILTRAGE DES TESTS COCHÉS
+      # PARSING ET EXTRACTION PAR SECTION
       - name: Extract and Filter Fields
         id: extract
         uses: actions/github-script@v7
@@ -39,57 +39,49 @@ jobs:
                 .trim();
             }
 
-            const rawWorkflows = [
-              extract("Workflow 1 : NEW + Détections complètes"),
-              extract("Workflow 2 : Bipolaire + Ripples/FR"),
-              extract("Workflow 3 : MED + Spikes"),
-              extract("Workflow 4 : Couleurs + AVG + Détection FR/Ripples"),
-              extract("Workflow 5 : Macro-référencement + 3 types d'évènements"),
-              extract("Workflows 6 à 16 (Cochez celui réalisé)")
-            ].join('\n');
-
+            // On extrait chaque bloc séparément pour garder la structure
             const data = {
               testeur: extract("Testeur"),
               date: extract("Date du test"),
               version: extract("Version testée"),
               notes: extract("Notes et Observations"),
-              checkedContent: getCheckedOnly(rawWorkflows + '\n' + extract("✅ A VÉRIFIER") + '\n' + extract("⌨️ Raccourcis annotation"))
+              wf1: getCheckedOnly(extract("Workflow 1 : NEW + Détections complètes")),
+              wf2: getCheckedOnly(extract("Workflow 2 : Bipolaire + Ripples/FR")),
+              wf3: getCheckedOnly(extract("Workflow 3 : MED + Spikes")),
+              wf4: getCheckedOnly(extract("Workflow 4 : Couleurs + AVG + Détection FR/Ripples")),
+              wf5: getCheckedOnly(extract("Workflow 5 : Macro-référencement + 3 types d'évènements")),
+              wf6_16: getCheckedOnly(extract("Workflows 6 à 16 (Cochez celui réalisé)")),
+              verify: getCheckedOnly(extract("✅ A VÉRIFIER")),
+              shortcuts: getCheckedOnly(extract("⌨️ Raccourcis annotation"))
             };
 
             for (const key in data) {
               core.setOutput(key, data[key]);
             }
 
-      # GÉNÉRATION DU NOM DE FICHIER UNIQUE (ANTI-ÉCRASEMENT)
+      # GÉNÉRATION DU NOM DE FICHIER UNIQUE
       - name: Generate unique filename
         id: filename
         run: |
           TESTEUR="${{ steps.extract.outputs.testeur }}"
           DATE="${{ steps.extract.outputs.date }}"
-          
-          # Nettoyage des caractères pour le système de fichiers
           SAFE_TESTEUR=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_')
           SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
-          
           BASE_NAME="test_${SAFE_TESTEUR}_${SAFE_DATE}"
           FILE_NAME="${BASE_NAME}.md"
-          
-          # Boucle pour vérifier l'existence et ajouter _v2, _v3 si besoin
           INDEX=1
           while [ -f "test-sessions/${FILE_NAME}" ]; do
             INDEX=$((INDEX + 1))
             FILE_NAME="${BASE_NAME}_v${INDEX}.md"
           done
-          
           echo "file=${FILE_NAME}" >> $GITHUB_OUTPUT
 
-      # CRÉATION DU FICHIER MD
+      # CRÉATION DU FICHIER MD AVEC STRUCTURE DÉTAILLÉE
       - name: Create markdown file
         run: |
           FILE="test-sessions/${{ steps.filename.outputs.file }}"
           mkdir -p test-sessions
 
-          # Utilisation du nom du fichier dans le titre pour une identification claire
           echo "# Rapport : ${{ steps.filename.outputs.file }}" > "$FILE"
           echo "" >> "$FILE"
           echo "## Informations générales" >> "$FILE"
@@ -98,13 +90,56 @@ jobs:
           echo "- **Version Halyzia :** ${{ steps.extract.outputs.version }}" >> "$FILE"
           echo "" >> "$FILE"
 
-          echo "## ✅ Étapes et vérifications réalisées" >> "$FILE"
-          if [ -z "${{ steps.extract.outputs.checkedContent }}" ]; then
-            echo "_Aucune étape n'a été cochée durant cette session._" >> "$FILE"
-          else
-            echo "${{ steps.extract.outputs.checkedContent }}" >> "$FILE"
+          echo "## 📋 Détails de la traçabilité" >> "$FILE"
+
+          # Affichage des sections uniquement si elles contiennent des cases cochées
+          if [ ! -z "${{ steps.extract.outputs.wf1 }}" ]; then
+            echo "### Workflow 1" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf1 }}" >> "$FILE"
+            echo "" >> "$FILE"
           fi
-          echo "" >> "$FILE"
+
+          if [ ! -z "${{ steps.extract.outputs.wf2 }}" ]; then
+            echo "### Workflow 2" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf2 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf3 }}" ]; then
+            echo "### Workflow 3" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf3 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf4 }}" ]; then
+            echo "### Workflow 4" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf4 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf5 }}" ]; then
+            echo "### Workflow 5" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf5 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf6_16 }}" ]; then
+            echo "### Workflows 6 à 16" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf6_16 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.verify }}" ]; then
+            echo "### ✅ Vérifications générales" >> "$FILE"
+            echo "${{ steps.extract.outputs.verify }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.shortcuts }}" ]; then
+            echo "### ⌨️ Raccourcis" >> "$FILE"
+            echo "${{ steps.extract.outputs.shortcuts }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
 
           echo "## 📝 Observations" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.notes }}" ] || [ "${{ steps.extract.outputs.notes }}" == "_No response_" ]; then
