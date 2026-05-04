@@ -33,6 +33,7 @@ body:
         - '"27/04"'
         - '"Rapport : test_Messaouda_2026-05-04.md"'
         - '"Rapport de Session de Test"'
+        - '"Rapport : test_messaouda_2026-05-04.md"'
     validations:
       required: true
   - type: dropdown
