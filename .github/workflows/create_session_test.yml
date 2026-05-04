@@ -51,8 +51,8 @@ jobs:
               wf4: getCheckedOnly(extract("Workflow 4")),
               wf5: getCheckedOnly(extract("Workflow 5")),
               wf6_16: getCheckedOnly(extract("Workflows 6 à 16")),
-              verify: getCheckedOnly(extract("A VÉRIFIER")),
-              shortcuts: getCheckedOnly(extract("Raccourcis annotation"))
+              verify: getCheckedOnly(extract("✅ A VÉRIFIER")),
+              shortcuts: getCheckedOnly(extract("⌨️ Raccourcis annotation"))
             };
 
             for (const key in data) {
