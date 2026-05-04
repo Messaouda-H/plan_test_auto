@@ -25,7 +25,18 @@ body:
       description: |
         Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
       options:
-        - Aucun
+        - '"[TEST SESSION]"'
+        - '""'
+        - '"ajuster les filtres permannents"'
+        - '"annotations test"'
+        - '"detection des ripples"'
+        - '"27/04"'
+        - '"Rapport : test_Messaouda_2026-05-04.md"'
+        - '"Rapport de Session de Test"'
+        - '"Rapport : test_messaouda_2026-05-04.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v2.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v3.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v4.md"'
     validations:
       required: true
   - type: dropdown
