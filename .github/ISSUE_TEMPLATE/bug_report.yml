@@ -25,6 +25,7 @@ body:
       description: |
         Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
       options:
+        - '"Rapport de Session : test_messaouda_202-05-05.md"'
         - '"Rapport de Session de Test"'
         - '"Rapport : test_messaouda_2026-05-04.md"'
         - '"Rapport : test_messaouda_2026-05-04_v2.md"'
