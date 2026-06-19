@@ -82,7 +82,7 @@ jobs:
           FILE="test-sessions/${{ steps.filename.outputs.file }}"
           mkdir -p test-sessions
 
-          echo "# Rapport de Session : ${{ steps.filename.outputs.file }}" > "$FILE"
+          echo "# Test session report : ${{ steps.filename.outputs.file }}" > "$FILE"
           echo "" >> "$FILE"
           echo "## Informations générales" >> "$FILE"
           echo "- **Testeur :** ${{ steps.extract.outputs.testeur }}" >> "$FILE"
@@ -124,7 +124,7 @@ jobs:
           fi
 
           if [ ! -z "${{ steps.extract.outputs.wf6_16 }}" ]; then
-            echo "### Workflows 6 à 16" >> "$FILE"
+            echo "### Workflows 6 to 16" >> "$FILE"
             echo "${{ steps.extract.outputs.wf6_16 }}" >> "$FILE"
             echo "" >> "$FILE"
           fi

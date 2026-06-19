@@ -1,4 +1,4 @@
-name: Issue Test
+name: Test issue
 description: Signaler une annomalie detecte pendant les tests Halyzia
 title: Issue Test
 labels:
