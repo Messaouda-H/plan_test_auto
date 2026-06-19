@@ -33,6 +33,7 @@ body:
         - '"Rapport : test_messaouda_2026-05-04_v4.md"'
         - '"Rapport : test_messaouda_2026-05-04_v5.md"'
         - '"Rapport de Session : test_messaouda_2026-05-04_v6.md"'
+        - '"Rapport de Session : test_messaouda_2026-05-05.md"'
     validations:
       required: true
   - type: dropdown
