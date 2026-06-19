@@ -135,16 +135,29 @@ async function main() {
 
   // ==================== AJOUT DU RECAPITULATIF / STATISTIQUES ====================
   const sessionCount = Object.keys(groupedIssues).length;
+  const totalIssuesCount = relevantIssues.length;
   
   children.push(new Paragraph({ text: "", spacing: { after: 200 } }));
+  
+  // 1. Nombre de sessions de tests
   children.push(
     new Paragraph({
       text: `Nombre de sessions de tests pour cette version : ${sessionCount}`,
       bold: true,
-      spacing: { before: 300, after: 150 }
+      spacing: { before: 300, after: 50 }
     })
   );
 
+  // 2. Nombre total de toutes les issues (Ajout demandé)
+  children.push(
+    new Paragraph({
+      text: `Nombre total d'issues pour cette version : ${totalIssuesCount}`,
+      bold: true,
+      spacing: { before: 50, after: 150 }
+    })
+  );
+
+  // 3. Liste détaillée par session
   if (sessionCount > 0) {
     children.push(new Paragraph({ text: "Liste des sessions de tests et leur nombre d'anomalies :", italic: true, spacing: { after: 100 } }));
     for (const [sessionName, issuesList] of Object.entries(groupedIssues)) {
