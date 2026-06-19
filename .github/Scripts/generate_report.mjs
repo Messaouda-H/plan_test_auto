@@ -68,18 +68,15 @@ async function main() {
     const title = (issue.title || "").toLowerCase();
     const labels = issue.labels.map((l) => l.name.toLowerCase());
     
-    // 1. Doit avoir un label pertinent
     const isRelevantLabel = labels.some((l) => 
       ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l)
     );
     
-    // 2. Doit correspondre à la version cible (vérification du champ spécifique, puis du texte global)
     const exactVersionField = extractField(issue.body || "", ["version", "Version concernée", "Halyzia's version"]).toLowerCase();
     const hasVersionInText = body.includes(version.toLowerCase()) || title.includes(version.toLowerCase());
     
     const matchesVersion = exactVersionField ? exactVersionField.includes(version.toLowerCase()) : hasVersionInText;
 
-    // Condition ET (Stricte)
     return isRelevantLabel && matchesVersion;
   });
 
@@ -135,6 +132,46 @@ async function main() {
   children.push(new Paragraph({ text: "Surlignage équipe test :", bold: true, spacing: { before: 300 } }));
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "00FF00", bold: true }), new TextRun("indique que l’issue a été testée et validée")] }));
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "FF00FF", bold: true }), new TextRun("indique que l’issue a été testée mais non validée")] }));
+
+  // ==================== AJOUT DU RECAPITULATIF / STATISTIQUES ====================
+  const sessionCount = Object.keys(groupedIssues).length;
+  
+  children.push(new Paragraph({ text: "", spacing: { after: 200 } }));
+  children.push(
+    new Paragraph({
+      text: `Nombre de sessions de tests pour cette version : ${sessionCount}`,
+      bold: true,
+      spacing: { before: 300, after: 150 }
+    })
+  );
+
+  if (sessionCount > 0) {
+    children.push(new Paragraph({ text: "Liste des sessions de tests et leur nombre d'anomalies :", italic: true, spacing: { after: 100 } }));
+    for (const [sessionName, issuesList] of Object.entries(groupedIssues)) {
+      children.push(
+        new Paragraph({
+          bullet: { level: 0 },
+          children: [
+            new TextRun({ text: `${sessionName} : `, bold: true }),
+            new TextRun({ text: `${issuesList.length} issue${issuesList.length > 1 ? 's' : ''}` })
+          ]
+        })
+      );
+    }
+  }
+
+  if (standaloneIssues.length > 0) {
+    children.push(
+      new Paragraph({
+        bullet: { level: 0 },
+        children: [
+          new TextRun({ text: `Issues hors Session (Backlogs / Externes) : `, bold: true }),
+          new TextRun({ text: `${standaloneIssues.length} issue${standaloneIssues.length > 1 ? 's' : ''}` })
+        ]
+      })
+    );
+  }
+  children.push(new Paragraph({ text: "", spacing: { after: 300 } }));
 
   // Fonction interne pour générer le bloc d'une issue individuelle
   const appendIssueBlock = (issue) => {
