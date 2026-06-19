@@ -25,6 +25,7 @@ body:
       description: |
         See full definitions in PLAN_TEST_AUTO/test-sessions/
       options:
+        - '"Rapport de Session : test_Messaouda_2026-06-19.md"'
         - '"Rapport de Session : test_messaouda_202-05-05.md"'
         - '"Rapport de Session de Test"'
         - '"Rapport : test_messaouda_2026-05-04.md"'
@@ -55,8 +56,8 @@ body:
     attributes:
       label: Link to test folder/file
       description: >-
-        Link to folder (Drive, server, zip, etc.) or drag and drop your files here
-
+        Link to folder (Drive, server, zip, etc.) or drag and drop your files
+        here
       placeholder: https://...
     validations:
       required: true
@@ -124,7 +125,7 @@ body:
     id: screenshots
     attributes:
       label: Screenshot
-      description: Please place your screanshot here. 
+      description: Please place your screanshot here.
       placeholder: you can add one or multiple screenshots...
     validations:
       required: false
