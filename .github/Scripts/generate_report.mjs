@@ -45,6 +45,57 @@ async function main() {
 
   console.log(`✅ ${relevantIssues.length} issues trouvées`);
 
+  const extractField = (body, ids) => {
+    for (const id of ids) {
+      const regex = new RegExp(`### ${id}\\s*([\\s\\S]*?)(?=\\n###|$|$)`, "i");
+      const match = body.match(regex);
+      if (match && match[1].trim()) return match[1].trim();
+    }
+    return "";
+  };
+
+  const extractImages = (body) => {
+    const urls = new Set();
+    const markdownRegex = /!\[.*?\]\((https:\/\/[^)]+)\)/g;
+    let match;
+    while ((match = markdownRegex.exec(body)) !== null) {
+      urls.add(match[1]);
+    }
+    const attachmentRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g;
+    while ((match = attachmentRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g;
+    while ((match = oldRegex.exec(body)) !== null) {
+      urls.add(match[0]);
+    }
+    return Array.from(urls);
+  };
+
+  // ==================== REGROUPEMENT DES ISSUES PAR SESSION ====================
+  const groupedIssues = {};
+  const standaloneIssues = [];
+
+  relevantIssues.forEach((issue) => {
+    const body = issue.body || "";
+    // On extrait la valeur de la session liée (par exemple : "test_messaouda_2026-05-04_v6.md")
+    let sessionLinked = extractField(body, ["sessiontest", "La session test en cours quand l'annomalie est apparue"]);
+    
+    // Nettoyage des guillemets éventuels autour du nom de fichier
+    if (sessionLinked) {
+      sessionLinked = sessionLinked.replace(/^"|"$/g, '').trim();
+    }
+
+    if (sessionLinked && sessionLinked !== '""' && sessionLinked.toLowerCase() !== "aucun") {
+      if (!groupedIssues[sessionLinked]) {
+        groupedIssues[sessionLinked] = [];
+      }
+      groupedIssues[sessionLinked].push(issue);
+    } else {
+      standaloneIssues.push(issue);
+    }
+  });
+
   const children = [];
 
   // En-tête + légende
@@ -74,49 +125,14 @@ async function main() {
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "00FF00", bold: true }), new TextRun("indique que l’issue a été testée et validée")] }));
   children.push(new Paragraph({ children: [new TextRun({ text: "issue ", color: "FF00FF", bold: true }), new TextRun("indique que l’issue a été testée mais non validée")] }));
 
-  const extractField = (body, ids) => {
-    for (const id of ids) {
-      const regex = new RegExp(`### ${id}\\s*([\\s\\S]*?)(?=\\n###|$|$)`, "i");
-      const match = body.match(regex);
-      if (match && match[1].trim()) return match[1].trim();
-    }
-    return "";
-  };
-
-  // ==================== NOUVELLE FONCTION IMAGES (beaucoup plus forte) ====================
-  const extractImages = (body) => {
-    const urls = new Set();
-
-    // 1. Format Markdown classique : ![texte](url)
-    const markdownRegex = /!\[.*?\]\((https:\/\/[^)]+)\)/g;
-    let match;
-    while ((match = markdownRegex.exec(body)) !== null) {
-      urls.add(match[1]);
-    }
-
-    // 2. URLs GitHub récentes (user-attachments)
-    const attachmentRegex = /https:\/\/github\.com\/user-attachments\/assets\/[^)\s>"]+/g;
-    while ((match = attachmentRegex.exec(body)) !== null) {
-      urls.add(match[0]);
-    }
-
-    // 3. Ancien format user-images.githubusercontent
-    const oldRegex = /https:\/\/user-images\.githubusercontent\.com\/[^)\s>"]+/g;
-    while ((match = oldRegex.exec(body)) !== null) {
-      urls.add(match[0]);
-    }
-
-    return Array.from(urls);
-  };
-
-  for (const issue of relevantIssues) {
+  // Fonction interne pour générer le bloc d'une issue individuelle
+  const appendIssueBlock = (issue) => {
     const body = issue.body || "";
     const isBacklog = issue.labels.some((l) => l.name.toLowerCase().includes("backlog"));
     const isUserIssue = issue.labels.some((l) => l.name.toLowerCase().includes("utilisateur"));
 
-    children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_2, spacing: { before: 400, after: 200 } }));
+    children.push(new Paragraph({ text: `Issue n°${issue.number}: ${issue.title}`, heading: HeadingLevel.HEADING_3, spacing: { before: 300, after: 150 } }));
 
-    // Tableau résumé (identique)
     const table = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: { top: { style: BorderStyle.SINGLE }, bottom: { style: BorderStyle.SINGLE } },
@@ -135,7 +151,6 @@ async function main() {
     });
     children.push(table);
 
-    // Champs détaillés
     const fields = isBacklog ? [
       { label: "Utilisateur", value: extractField(body, ["Utilisateur"]) },
       { label: "Demande", value: extractField(body, ["Demande"]) },
@@ -165,17 +180,15 @@ async function main() {
       }
     });
 
-    // ==================== LIENS CAPTURES D'ÉCRAN ====================
     const imageUrls = extractImages(body);
     if (imageUrls.length > 0) {
       children.push(new Paragraph({ text: "Captures d'écran :", bold: true, spacing: { before: 300 } }));
-
       imageUrls.forEach((url, i) => {
         children.push(
           new Paragraph({
             children: [
               new ExternalHyperlink({
-                children: [new TextRun({ text: ` Capture ${i + 1} - Crtrl + clic pour suivre le lien `, style: { color: "0000FF", underline: true } })],
+                children: [new TextRun({ text: ` Capture ${i + 1} - Ctrl + clic pour suivre le lien `, style: { color: "0000FF", underline: true } })],
                 link: url
               })
             ],
@@ -184,11 +197,41 @@ async function main() {
         );
       });
     } else {
-      // Debug : si aucune image n'est trouvée, on met un message visible
       children.push(new Paragraph({ text: "(Aucune capture d'écran détectée dans cette issue)", italic: true }));
     }
 
-    children.push(new Paragraph({ text: "", spacing: { after: 400 } }));
+    children.push(new Paragraph({ text: "", spacing: { after: 300 } }));
+  };
+
+  // ==================== GENERATION SECTIONS : SESSIONS DE TESTS ====================
+  for (const sessionName of Object.keys(groupedIssues)) {
+    children.push(
+      new Paragraph({
+        text: `📍 Session de Test : ${sessionName}`,
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 500, after: 200 },
+      })
+    );
+
+    // Injection de toutes les issues liées à cette session spécifique
+    groupedIssues[sessionName].forEach((issue) => {
+      appendIssueBlock(issue);
+    });
+  }
+
+  // ==================== GENERATION SECTIONS : ISSUES ORPHELINES / AUTRES ====================
+  if (standaloneIssues.length > 0) {
+    children.push(
+      new Paragraph({
+        text: `📍 Issues hors Session (Backlogs et Demandes Externes)`,
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 500, after: 200 },
+      })
+    );
+
+    standaloneIssues.forEach((issue) => {
+      appendIssueBlock(issue);
+    });
   }
 
   const doc = new Document({ sections: [{ properties: {}, children }] });
@@ -198,7 +241,7 @@ async function main() {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, buffer);
 
-  console.log(`🎉 Rapport généré → ${filename} (${relevantIssues.length} issues)`);
+  console.log(`🎉 Rapport généré → ${filename} (${relevantIssues.length} issues organisées par session)`);
 }
 
 main().catch((err) => {

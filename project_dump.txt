@@ -427,10 +427,10 @@ FILE: .github\package.json  (5 lignes)
 
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\Back_log.yml  (70 lignes)
+FILE: .github\ISSUE_TEMPLATE\Back_log.yml  (71 lignes)
 ================================================================================
 name : Back Logs 
-description : Ajouter un nouveau Back log
+description : Add a new feature request
 title: '[Back log]'
 labels : 
   - BackLog 
@@ -441,19 +441,20 @@ body :
   - type: markdown
     attributes:
       value:  |
-        ## Signalement de Backlog — Halyzia
-          Remplir tous les champs. 
+        ## Backlog Report — Halyzia**
+          Please complete all fields.
+
   - type: input
-    id : Utilisateur 
+    id : User 
     attributes: 
-      label : Nom de l'utilsateur (intern / Beta)
+      label : User name (internal / beta)
       placeholder : ex. Halissath / Adrien 
     validations:
       required: true
   - type: input
-    id : Demande
+    id : Request
     attributes: 
-       label : Entrez l'intitulé de la Demande
+       label : Enter the request title
     validations: 
       required : true 
   - type : input 
@@ -465,7 +466,7 @@ body :
   - type: input 
     id: Decision 
     attributes:
-      label : Quelle decision a ete prise pour cette demande 
+      label : What decision was made for this request? 
     validations :
       required: true
   - type: input 
@@ -477,7 +478,7 @@ body :
   - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
+      label: Assigned to
       description: Choisir la personne responsable
       options:
         - Halissath
@@ -485,9 +486,9 @@ body :
     validations:
       required: true
   - type : input 
-    id : Commentaire 
+    id : Comments
     attributes:
-      label: Commentaire
+      label: Comments
   
 
 
@@ -504,7 +505,7 @@ body :
 ================================================================================
 FILE: .github\ISSUE_TEMPLATE\Issue_user.yml  (138 lignes)
 ================================================================================
-name : Issue utilsateurs
+name : Issue user
 description : Signaler une Issue detecte par des utilisateus 
 title : 'Issue Utilisateur'
 labels: 
@@ -521,24 +522,24 @@ body:
   - type: dropdown
     id: Type_du_signalement
     attributes:
-      label: Type du signalement
+      label: Reporting cause
       options:
-        - Manque
-        - Annomalie
-        - Autre
+        - Lack
+        - anomaly
+        - other
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version Halyzia
-      placeholder: ex. V1.7.1
+      label: Halyzia's version 
+      placeholder: ex. 2.0.1
     validations:
       required: true
   - type: dropdown
     id: format
     attributes:
-      label: Format du fichier EEG utilise
+      label: EEG file format
       options:
         - .ncs
         - .edf
@@ -546,89 +547,89 @@ body:
         - .ns5
         - .medd
         - .nsc
-        - Autre
+        - other
     validations:
       required: true
   - type: input
     id: fichier
     attributes:
-      label: Nom du fichier teste
-      placeholder: ex. P110_DP002-sieste_micmac-ncs
+      label: Test file name 
+      placeholder: ex. Patient-folder-ncs
     validations:
       required: true
   - type: input
     id: pc
     attributes:
-      label: PC utilise
+      label: Used laptop
       placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
     validations:
       required: true
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
       placeholder: ex. Halissath 
     validations:
       required: true
   - type: dropdown
     id: severite
     attributes:
-      label: Severite
+      label: Severity
       options:
-        - Critique — crash / perte de donnees
-        - Majeur — fonctionnalite bloquee
-        - Mineur — comportement incorrect mais contournable
-        - Cosmétique — affichage seulement
+        - Critical - Application crash or data loss
+        - Major - Functionality blocked/unavailable
+        - Minor - Incorrect behavior but with a workaround available
+        - Visual — Display/UI issue only
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
-      label: Description du bug
-      placeholder: Decrivez precisement ce qui s'est passe...
+      label: Deficiency description 
+      placeholder: Please describe exactly what happened...
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Etapes pour reproduire
+      label: Steps to reproduce
       placeholder: |
-        1. Ouvrir Halyzia V1.7.1
-        2. NEW > selectionner dossier X
-        3. Appliquer filtre permanent...
-        4. Observer le bug
+        1. Open Halyzia V1.7.1
+        2. NEW > Select folder X
+        3. Apply a permanent filter...
+        4. Observe the bug
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Resultat attendu
+      label: Expected results
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Resultat obtenu
+      label: Actual results
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Lignes d'erreur (copier-coller depuis le terminal)
+      label: Error lines (if any)
       render: shell
   - type: textarea
     id: screenshots
     attributes:
-      label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
-      placeholder: Ajoutez une ou plusieurs captures d'écran
+      label: Screenshot
+      description: Please place your screanshot here. 
+      placeholder: you can add one or multiple screenshots...
     validations:
       required: false
   - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
-      description: Choisir la personne responsable
+      label: Assigned to
+      description: Select the person responsible for handling this issue.
       options:
         - Halissath
         - Messaouda
@@ -637,17 +638,17 @@ body:
   - type: dropdown
     id: os
     attributes:
-      label: Systeme d'exploitation
+      label: OS
       options:
         - Windows 10
         - Windows 11
         - macOS
-        - Autre
+        - other
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (144 lignes)
+FILE: .github\ISSUE_TEMPLATE\bug_report.yml  (150 lignes)
 ================================================================================
-name: Issue Test
+name: Test issue
 description: Signaler une annomalie detecte pendant les tests Halyzia
 title: Issue Test
 labels:
@@ -657,33 +658,39 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Signalement d'annomalie — Halyzia
-        Remplir tous les champs. Le bug sera automatiquement
-        assigne et suivi dans le tableau de bord.
+        ## Halyzia Issue Report
+            Please complete all fields. 
+            The issue will be automatically assigned and tracked in the dashboard.
   - type: input
     id: version
     attributes:
-      label: Version Halyzia
+      label: Halyzia's version
       placeholder: ex. V1.7.1
     validations:
       required: true
   - type: dropdown
     id: sessiontest
     attributes:
-      label: La session test en cours quand l'annomalie est apparue
+      label: The current test session when the anomaly occurred
       description: |
-        Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
+        See full definitions in PLAN_TEST_AUTO/test-sessions/
       options:
-        - '""'
-        - '"ajuster les filtres permannents"'
-        - '"annotations test"'
-        - '"detection des ripples"'
+        - '"Rapport de Session : test_Messaouda_2026-06-19.md"'
+        - '"Rapport de Session : test_messaouda_202-05-05.md"'
+        - '"Rapport de Session de Test"'
+        - '"Rapport : test_messaouda_2026-05-04.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v2.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v3.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v4.md"'
+        - '"Rapport : test_messaouda_2026-05-04_v5.md"'
+        - '"Rapport de Session : test_messaouda_2026-05-04_v6.md"'
+        - '"Rapport de Session : test_messaouda_2026-05-05.md"'
     validations:
       required: true
   - type: dropdown
     id: format
     attributes:
-      label: Format du fichier EEG utilise
+      label: EEG format
       options:
         - .ncs
         - .edf
@@ -691,251 +698,344 @@ body:
         - .ns5
         - .medd
         - .nsc
-        - Autre
+        - other
     validations:
       required: true
   - type: textarea
     id: test_data
     attributes:
-      label: Lien vers dossier/fichier de test
+      label: Link to test folder/file
       description: >-
-        Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos
-        fichiers ici
+        Link to folder (Drive, server, zip, etc.) or drag and drop your files
+        here
       placeholder: https://...
     validations:
       required: true
   - type: input
     id: pc
     attributes:
-      label: PC utilise
+      label: Used laptop
       placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
     validations:
       required: true
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
       placeholder: ex.  Halissath
     validations:
       required: true
   - type: dropdown
-    id: severite
+    id: severity
     attributes:
       label: Severite
       options:
-        - Critique — crash / perte de donnees
-        - Majeur — fonctionnalite bloquee
-        - Mineur — comportement incorrect mais contournable
-        - Cosmétique — affichage seulement
+        - Critical - Application crash or data loss
+        - Major - Functionality blocked/unavailable
+        - Minor - Incorrect behavior but with a workaround available
+        - Visual — Display/UI issue only
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
-      label: Description du bug
-      placeholder: Decrivez precisement ce qui s'est passe...
+      label: Deficiency description
+      placeholder: Please describe exactly what happened...
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Etapes pour reproduire
+      label: Steps to reproduce
       placeholder: |
-        1. Ouvrir Halyzia V1.7.1
-        2. NEW > selectionner dossier X
-        3. Appliquer filtre permanent...
-        4. Observer le bug
+        1. Open Halyzia V1.7.1
+        2. NEW > Select folder X
+        3. Apply a permanent filter...
+        4. Observe the bug
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Resultat attendu
+      label: Expected results
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Resultat obtenu
+      label: Actual results
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Lignes d'erreur (copier-coller depuis le terminal)
+      label: Error lines (if any)
       render: shell
   - type: textarea
     id: screenshots
     attributes:
-      label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement).
-      placeholder: Ajoutez une ou plusieurs captures d'écran
+      label: Screenshot
+      description: Please place your screanshot here.
+      placeholder: you can add one or multiple screenshots...
     validations:
       required: false
   - type: dropdown
-    id: os
-    attributes:
-      label: Systeme d'exploitation
-      options:
-        - Windows 11
-        - Windows 10
-        - macOS
-        - Autre
-  - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
-      description: Choisir la personne responsable
+      label: Assigned to
+      description: Select the person responsible for handling this issue.
       options:
         - Halissath
         - Messaouda
     validations:
       required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS
+        - other
 
 
 ================================================================================
-FILE: .github\ISSUE_TEMPLATE\create_workflow.yml  (47 lignes)
+FILE: .github\ISSUE_TEMPLATE\test_session.yml  (232 lignes)
 ================================================================================
-name: Create Workflow
-description: Ajouter un nouveau workflow de test
-title: "[WORKFLOW] "
-labels : 
-  - Fichiers
-  
-
-body:
-  - type: input
-    id: name
-    attributes:
-      label: Nom du workflow
-      placeholder: ex. Workflow 3 — Test export
-    validations:
-      required: true
-
-  - type: textarea
-    id: objective
-    attributes:
-      label: Objectif
-    validations:
-      required: true
-
-  - type: textarea
-    id: checklist
-    attributes:
-      label: Checklist
-      description: Une ligne = une étape
-      placeholder: |
-        - [ ] Etape 1
-        - [ ] Etape 2
-    validations:
-      required: true
-
-  - type: input
-    id: format
-    attributes:
-      label: Format fichier
-      placeholder: ex. .ncs
-    validations:
-      required: true
-
-  - type: input
-    id: montage
-    attributes:
-      label: Montage
-    validations:
-      required: true
-
-================================================================================
-FILE: .github\ISSUE_TEMPLATE\test_session.yml  (87 lignes)
-================================================================================
-name: Session de test
+name: Test session
 description: Suivi complet d'une session de test
 title: '[TEST SESSION] '
 labels:
   - Fichiers
 body:
-  - type: input
-    id: name
+  - type: markdown
     attributes:
-      label: Nom de la session test
-      placeholder: ex. session de test annotation
-    validations:
-      required: true
+      value: |
+        ## 📋 Test Instructions 
+        Check the workflow steps you completed, then fill the "To Verify" section at the bottom of the page.
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
     validations:
       required: true
   - type: input
     id: date_test
     attributes:
-      label: Date du test
+      label: Test date 
       placeholder: YYYY-MM-DD
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version testée
-      placeholder: ex. 2.0.0.4
+      label: Tested Version 
+      placeholder: ex. 2.0.0.7
     validations:
       required: true
-  - type: dropdown
-    id: workflow
+  - type: checkboxes
+    id: wf1
     attributes:
-      label: Workflow testé
+      label: "Workflow 1 "
       options:
-        - '""'
-        - '"26-03"'
-        - '".github/ISSUE_TEMPLATE/workflow_test.yml"'
-        - '"Workflow 1 — NEW + Detection complete"'
-        - '"Workflow 2 — Bipolaire + Detection Ripples/FR"'
-        - '"WF-11"'
-        - '"WF-12"'
-        - '"WF-26/03"'
-        - '"WF-67"'
-        - '"WF-80"'
-        - '"[WORKFLOW] workflow 03/04/26"'
-        - '"abcd"'
-        - '"ddd"'
-        - '"me"'
-        - '"test"'
-    validations:
-      required: true
-  - type: textarea
-    id: checklist
+        - label: "NEW"
+        - label: "Ajustement des paramètres d’affichage"
+        - label: "Zoom et scroll dans le signal"
+        - label: "Masquer puis montrer les lignes de graduation temporelle"
+        - label: "PSD et marquage de quelques signaux as bad"
+        - label: "Hide canaux marqué as bad"
+        - label: "hide un canal macro"
+        - label: "Modifier l’amplitude de quelques canaux (2 micros et 3macro)"
+        - label: "lancer le scalogramme (macro et micro)"
+        - label: "appliquer un filtre visuel sur les canaux modifiés (600Hz max)"
+        - label: "appliquer un filtre permanent que sur les macros (IIR-0,1-1023Hz -None)"
+        - label: "monter l’électrode micro en set tétrode"
+        - label: "passer en mode annotation"
+        - label: "annoter le signal (events manuels biomarqueurs, other events, texte libre, 2 notes)"
+        - label: "supprimer une note et une annotation other event"
+        - label: "Déplacer les évènements à l’aide de la molette de la souris"
+        - label: "appliquer un filtre visuel sur micro (50Hz max)"
+        - label: "lancer les détections Avrio (all, not hidden, sélection macroA,B,B_sub et 2 micro)"
+        - label: "Masquer puis afficher des évènements"
+        - label: "Plier puis déplier des évènements"
+        - label: "lancer les 3 eventviewer : afficher que les events manuels"
+        - label: "Labéliser les events manuels"
+        - label: "Filtrer sur les events manuels"
+        - label: "export métriques"
+        - label: "lancer les 5 cartes topo (events manuels seuls, puis deux types + filtres)"
+        - label: "Appliquer le hourly rate"
+
+  - type: checkboxes
+    id: wf2
     attributes:
-      label: Workflow exécuté (tests prédéfinis)
-      description: Cocher UNIQUEMENT les étapes du workflow
-      placeholder: |
-        - [ ] Étape 1
-        - [ ] Étape 2
-        - [ ] Étape 3
-  - type: textarea
-    id: extra_tests
+      label: "Workflow 2 "
+      options:
+        - label: "NEW"
+        - label: "Ajustement des paramètres d’affichage"
+        - label: "Zoom et scroll dans le signal"
+        - label: "PSD et marquage de quelques signaux as bad"
+        - label: "appliquer un filtre permanent sur tous les canaux (5-600Hz-Notch)"
+        - label: "monter l’électrode micro montage AVG avec rattachement à un macro"
+        - label: "Hide canaux marqué as bad"
+        - label: "hide un canal micro"
+        - label: "Modifier l’amplitude de quelques canaux (2 micros et 3macro)"
+        - label: "lancer le scalogramme (macro et micro)"
+        - label: "annoter le signal (2 artefact macro/micro, events biomarqueurs, 2 notes)"
+        - label: "supprimer une note et un event biomarqueur"
+        - label: "appliquer un filtre visuel sur macro (600Hz max)"
+        - label: "passer en bipolaire"
+        - label: "Lancer PSD"
+        - label: "lancer les détections sur les Ripples et FR (Avrio MedTech)"
+        - label: "Détection sur les spikes (Janca)"
+        - label: "Masquer puis afficher des évènements"
+        - label: "Plier puis déplier des évènements"
+        - label: "lancer les 3 event viewer (deux types d'event, labéliser et filtres)"
+        - label: "export métriques"
+        - label: "lancer les 5 cartes topo et appliquer les filtres"
+
+  - type: checkboxes
+    id: wf3
     attributes:
-      label: Tests supplémentaires (hors workflow)
-      description: Tests libres ajoutés par le testeur
-      placeholder: |
-        - [ ] Test export PDF
-        - [ ] Test performance
+      label: "Workflow 3 "
+      options:
+        - label: "NEW"
+        - label: "Ajustement des paramètres d’affichage"
+        - label: "Zoom et scroll dans le signal"
+        - label: "PSD et marquage de quelques signaux as bad"
+        - label: "Hide canaux marqué as bad"
+        - label: "Hide un canal macro"
+        - label: "passer en MED"
+        - label: "Lancer PSD"
+        - label: "Appliquer un filtre visuel IIR sur tous les signaux"
+        - label: "lancer les détections de spikes (Janca)"
+        - label: "annoter le signal (2 artefact macro/micro, 5 biomarqueurs dont 2 hors zone)"
+        - label: "supprimer une note et un event biomarqueur (dans zone auto)"
+        - label: "lancer le scalogramme"
+        - label: "Masquer les notes"
+        - label: "plier les spikes"
+        - label: "lancer l’eventviewer"
+        - label: "export métriques"
+        - label: "monter l’électrode micro montage MED avec rattachement macro"
+        - label: "lancer la carte topo (filtres + hourly rate, vérifier retrait events hors zone)"
+
+  - type: checkboxes
+    id: wf4
+    attributes:
+      label: "Workflow 4 "
+      options:
+        - label: "NEW"
+        - label: "Ajustement paramètres affichage"
+        - label: "Zoom et scroll"
+        - label: "PSD + marquage bad"
+        - label: "hide un canal macro"
+        - label: "Changer la couleur d'un canal macro et micro"
+        - label: "Lancer le scalogramme"
+        - label: "Annoter (Events manuels, notes, artefacts - supprimer note et artefact micro)"
+        - label: "Filtre permanent sur macros (FIR 200-600Hz-Notch)"
+        - label: "Filtre visuel sur micro (FIR 600Hz max)"
+        - label: "Montage référencement micro + rattachement macro"
+        - label: "Passer en mode AVG"
+        - label: "Détections FR et Ripples"
+        - label: "Lancer les 2 eventviewer"
+        - label: "Export métriques"
+        - label: "Lancer les 2 cartes topo + filtres"
+
+  - type: checkboxes
+    id: wf5
+    attributes:
+      label: "Workflow 5 "
+      options:
+        - label: "NEW"
+        - label: "Ajustement paramètres affichage"
+        - label: "Montage AVG sans rattachement macros"
+        - label: "Marquer macro as bad"
+        - label: "Hide un canal macro"
+        - label: "Passer en macro-référencement"
+        - label: "Lancer PSD"
+        - label: "Modifier amplitude (2 micros / 3 macros)"
+        - label: "Détections sur les 3 types d'events (détecteurs différents)"
+        - label: "Filtre visuel (FIR 50Hz sur sélection)"
+        - label: "Lancer scalogramme"
+        - label: "Ajuster amplitude via panel haut/droite"
+        - label: "Lancer event viewers"
+        - label: "Lancer 5 cartes topo"
+        - label: "Export CSV"
+
+  - type: checkboxes
+    id: wf6_16
+    attributes:
+      label: "Workflows 6 to 16 "
+      options:
+        - label: "WF 6 : : Workflow 1 lors des annotations fermer Halyzia et rouvrir le dossier, en référencement avec un canal macro. Avec micro-électrode monté en MED sans Rattachement aux électrodes macros. Lancer le PSD en montage. Fermer et rouvrir le même dossier"
+        - label: "WF 7 : Workflow 1 (dupliquer le dossier du workflow pour ne pas avoir à tout recommencer), rouvrir le dossier, lancer une détection de FR avec le même détecteur sur une échelle de temps qui overlappe avec l’ancienne durée de détection (Ex : 0 100s et 50 200s) > ouvrir la carte topo et vérifier le taux horaire > lancer une détection de Ripples avec le même détecteur avec différents paramètres > lancer une détection de spikes avec un détecteur Janca"
+        - label: "WF 8 : Workflow 1 (dupliquer le dossier du workflow pour ne pas avoir à tout recommencer) > Passer en bipolaire lancer une détection de Ripples sur la même échelle de temps qu’en monopolaire > Ouvrir la carte topo en bipolaire et vérifier le hourly rate > Repasser en monopolaire > Ouvrir la carte topo et vérifier le calcul du hourly rate > Lancer une détection de Fast ripple sur une sélection de canaux sur une même échelle de temps que la précédente détection de FR (vérifier qu’il y’a concaténation et qu’il n’y a pas de warning)"
+        - label: "WF 9 : Écraser un dossier existant (NEW sélectionner un dossier déjà créé)"
+        - label: "WF 10 : Ouvrir un dossier du workflow 4 au lancement d’Halyzia > relancer les détections sur des durées de temps différents mi-enregistrement > Ouvrir la carte topo et vérifier le calcul du hourly rate"
+        - label: "WF 11 : Renommer et changer l’emplacement d’un fichier source et ouvrir les fichiers dans Halyzia "
+        - label: "WF 12 : Double clic pour ouvrir les fichiers TRC et EDF. Double cliquer une deuxième fois pour vérifier qu’Halyzia ouvre l’ancien dossier créé immédiatement."
+        - label: "WF 13 : ouvrir à nouveau tous les dossiers créés dans les différents Workflow et vérifier que les analyses sont conservées. Repasser en monopolaire pour ceux qui sont en re-référencement pour vérifier la conservation de l’analyse et le comportement des fonctionnements tels que (filtre visuels, artefact, filtre permanent etc.)"
+        - label: "WF 14 : Ouvrir un dossier Halyzia créé avec une ancienne version et dans lequel il y’a eu détection d’évènement > Ouvrez les différents cartes topo et event viewer."
+        - label: "WF 15 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure à 1200Hz et lancer la détection de chaque type d’évènement."
+        - label: "WF 16 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure ou égale à 500Hz et lancer une détection de Ripple puis vérifier qu’on reçoit bien le warning qui informe sur la fréquence qui sera utilisé."
+
+  - type: checkboxes
+    id: averifier
+    attributes:
+      label: "✅ To verify"
+      options:
+        - label: "Double cliquer sur un canal hors mode annotation"
+        - label: "Entrer en mode annotation"
+        - label: "Rajouter des annotation biomarqueurs"
+        - label: "Rajouter others events (label prédéfinit et texte personnalisé)"
+        - label: "Rajouter des notes"
+        - label: "Quitter mode annotation et vérifier la conservation évènements"
+        - label: "Supprimer évènements en mode annotation : sauvegarde ok"
+        - label: "Passer en mode annotation dans tous les montages"
+        - label: "Lancer une détection après rajout annotations"
+        - label: "Vérifier que les annotations s’affichent dans la barre de navigation "
+        - label: "Regarder comment s’affiche les notes dans la barre de navigation"
+        - label: "Copier-coller des évènements détectés automatiquement"
+        - label: "Ouvrir un event viewer afficher que les évènements manuels, appliquer les filtres sur les évènements manuels"
+        - label: "Vérifier la performance (temps d’affichage de l’event viewer, temps de labélisation, temps d’application de filtre)"
+        - label: "Ajouter des annotations textes libres (spike, FR ou Ripples) et vérifier qu’ils ne sont pas pris en compte dans les évènements biomarqueurs"
+        - label: "Appliquer un artefact en bipolaire avant détection d’évènements"
+        - label: "Copier-coller un artefact"
+        - label: "Passer en bipolaire et vérifier que l’Artefact est dupliqué"
+        - label: "Ajouter un artefact en bipolaire"
+        - label: "Passer en monopolaire et vérifiez que l’artefact n’est pas sur les canaux impliqués"
+        - label: "Ajouter des artefacts après détection d’évènements et vérifier que les évènements disparaissent et ne s’affichent pas dans l’event viewer et l’export métrique"
+        - label: "Ajouté un évènement texte libre artefact et vérifier qu’il n’a pas les mêmes effets qu’artefact"
+        - label: "Carte topo : events manuels seul + filtres"
+        - label: "Hourly rate : annotation hors zone vs zone auto"
+        - label: "Carte topo sans évènements auto + hourly rate"
+        - label: "Générer carte topo évènements combinées"
+        - label: "Event display : plier/déplier, cacher/afficher"
+        - label: "Menu Save as : export csv"
+        - label: "Changer amplitude canal puis passage bipolaire"
+        - label: "Ajuster amplitude panel (haut/gauche) après modif manuelle"
+        - label: "Succession de deux détecteurs différents : archivage ok"
+        - label: "Normaliser scalogramme dans event viewer : performance"
+        - label: "Masquage évènements : disparition barre navigation"
+        - label: "Filtre visuel grisé si barre déjà ouverte"
+        - label: "Switch menu filtre (Permanent/Visuel) : fermeture automatique"
+
+  - type: checkboxes
+    id: raccourcis
+    attributes:
+      label: "⌨️ Shortcuts"
+      options:
+        - label: "Tab (rotation horaire)"
+        - label: "Shift + Tab (anti-horaire)"
+        - label: "Enter (valider type)"
+        - label: "Enter (liste labels) + flèches navigation"
+        - label: "Affichage zones artefactées dans carte topo"
+
   - type: textarea
     id: notes
     attributes:
-      label: Notes libres
-      placeholder: Observations, idées, bugs
-  - type: checkboxes
-    id: validation
-    attributes:
-      label: Validation finale
-      options:
-        - label: Tous les tests ont été exécutés
-        - label: Les résultats sont validés
-        - label: La session est complète ✅
-    validations:
-      required: true
-
+      label: "Notes and Observations"
+      placeholder: "Describe any anomalies or behaviors observed here..."
 
 ================================================================================
 FILE: .github\workflow-definitions\26-03.md  (16 lignes)
@@ -1330,7 +1430,7 @@ jobs:
             }
 
 ================================================================================
-FILE: .github\workflows\create_session_test.yml  (129 lignes)
+FILE: .github\workflows\create_session_test.yml  (175 lignes)
 ================================================================================
 name: Create Test Session File
 
@@ -1351,96 +1451,148 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      #  PARSING
-      - name: Extract fields
+      # PARSING ROBUSTE PAR SECTION
+      - name: Extract and Filter Fields
         id: extract
         uses: actions/github-script@v7
         with:
           script: |
             const body = context.payload.issue.body;
 
+            // Fonction d'extraction plus flexible (insensible à la casse et aux espaces)
             function extract(label) {
-              const regex = new RegExp(`### ${label}\\s*([\\s\\S]*?)(?=\\n###|$)`);
+              const regex = new RegExp(`### ${label}[\\s\\S]*?\\n([\\s\\S]*?)(?=\\n###|$)`, 'i');
               const match = body.match(regex);
               return match ? match[1].trim() : "";
             }
 
+            function getCheckedOnly(text) {
+              if (!text) return "";
+              return text.split('\n')
+                .filter(line => line.trim().startsWith('- [x]'))
+                .join('\n')
+                .trim();
+            }
+
             const data = {
-              name: extract("Nom de la session test"),
-              testeur: extract("Testeur"),
-              date: extract("Date du test"),
-              version: extract("Version testée"),
-              workflow: extract("Workflow testé"),
-              checklist: extract("Workflow exécuté"),
-              extra: extract("Tests supplémentaires"),
-              notes: extract("Notes libres")
+              testeur: extract("Tester"),
+              date: extract("Test Date"),
+              version: extract("Tested version"),
+              notes: extract("Notes and Observations"),
+              wf1: getCheckedOnly(extract("Workflow 1")),
+              wf2: getCheckedOnly(extract("Workflow 2")),
+              wf3: getCheckedOnly(extract("Workflow 3")),
+              wf4: getCheckedOnly(extract("Workflow 4")),
+              wf5: getCheckedOnly(extract("Workflow 5")),
+              wf6_16: getCheckedOnly(extract("Workflows 6 to 16")),
+              verify: getCheckedOnly(extract("✅ To verify")),
+              shortcuts: getCheckedOnly(extract("⌨️ Shortcuts"))
             };
 
             for (const key in data) {
               core.setOutput(key, data[key]);
             }
 
-      #  NOM DE FICHIER SAFE
-      - name: Generate safe filename
+      # GÉNÉRATION DU NOM DE FICHIER UNIQUE (ANTI-ÉCRASEMENT)
+      - name: Generate unique filename
         id: filename
         run: |
+          TESTEUR="${{ steps.extract.outputs.testeur }}"
           DATE="${{ steps.extract.outputs.date }}"
-          NAME="${{ steps.extract.outputs.name }}"
-
-          SAFE_NAME=$(echo "$NAME" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+          SAFE_TESTEUR=$(echo "$TESTEUR" | tr ' ' '_' | tr -cd '[:alnum:]_')
           SAFE_DATE=$(echo "$DATE" | tr -cd '0-9-')
-          
+          BASE_NAME="test_${SAFE_TESTEUR}_${SAFE_DATE}"
+          FILE_NAME="${BASE_NAME}.md"
+          INDEX=1
+          while [ -f "test-sessions/${FILE_NAME}" ]; do
+            INDEX=$((INDEX + 1))
+            FILE_NAME="${BASE_NAME}_v${INDEX}.md"
+          done
+          echo "file=${FILE_NAME}" >> $GITHUB_OUTPUT
 
-          echo "file=test-${SAFE_DATE}-${SAFE_NAME}.md" >> $GITHUB_OUTPUT
-
-      #  CREATION DU FICHIER
+      # CRÉATION DU FICHIER MD DÉTAILLÉ
       - name: Create markdown file
         run: |
           FILE="test-sessions/${{ steps.filename.outputs.file }}"
           mkdir -p test-sessions
 
-          echo "# ${{ steps.extract.outputs.name }}" > "$FILE"
+          echo "# Test session report : ${{ steps.filename.outputs.file }}" > "$FILE"
           echo "" >> "$FILE"
-
           echo "## Informations générales" >> "$FILE"
-          
-          echo "- Testeur : ${{ steps.extract.outputs.testeur }}" >> "$FILE"
-          echo "- Date : ${{ steps.extract.outputs.date }}" >> "$FILE"
-          echo "- Version : ${{ steps.extract.outputs.version }}" >> "$FILE"
-          echo "- Workflow : ${{ steps.extract.outputs.workflow }}" >> "$FILE"
+          echo "- **Testeur :** ${{ steps.extract.outputs.testeur }}" >> "$FILE"
+          echo "- **Date :** ${{ steps.extract.outputs.date }}" >> "$FILE"
+          echo "- **Version Halyzia :** ${{ steps.extract.outputs.version }}" >> "$FILE"
           echo "" >> "$FILE"
 
-          echo "## Workflow exécuté" >> "$FILE"
-          echo "${{ steps.extract.outputs.checklist }}" >> "$FILE"
-          echo "" >> "$FILE"
+          echo "## 📋 Traceability of performed steps" >> "$FILE"
 
-          echo "## Tests supplémentaires" >> "$FILE"
-          echo "${{ steps.extract.outputs.extra }}" >> "$FILE"
-          echo "" >> "$FILE"
-
-          echo "## Notes" >> "$FILE"
-          echo "${{ steps.extract.outputs.notes }}" >> "$FILE"
-          echo "" >> "$FILE"
-
-          echo "## Statut" >> "$FILE"
-
-          if [[ "${{ steps.extract.outputs.checklist }}" == *"[ ]"* || "${{ steps.extract.outputs.extra }}" == *"[ ]"* ]]; then
-            echo "❌ Session incomplète" >> "$FILE"
-          else
-            echo "✅ Session complète" >> "$FILE"
+          # Injection dynamique des sections si elles contiennent des éléments [x]
+          if [ ! -z "${{ steps.extract.outputs.wf1 }}" ]; then
+            echo "### Workflow 1" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf1 }}" >> "$FILE"
+            echo "" >> "$FILE"
           fi
 
-      #  COMMIT
+          if [ ! -z "${{ steps.extract.outputs.wf2 }}" ]; then
+            echo "### Workflow 2" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf2 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf3 }}" ]; then
+            echo "### Workflow 3" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf3 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf4 }}" ]; then
+            echo "### Workflow 4" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf4 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf5 }}" ]; then
+            echo "### Workflow 5" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf5 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.wf6_16 }}" ]; then
+            echo "### Workflows 6 to 16" >> "$FILE"
+            echo "${{ steps.extract.outputs.wf6_16 }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.verify }}" ]; then
+            echo "### ✅ General verification" >> "$FILE"
+            echo "${{ steps.extract.outputs.verify }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          if [ ! -z "${{ steps.extract.outputs.shortcuts }}" ]; then
+            echo "### ⌨️ Shortcuts" >> "$FILE"
+            echo "${{ steps.extract.outputs.shortcuts }}" >> "$FILE"
+            echo "" >> "$FILE"
+          fi
+
+          echo "## 📝 Obserations" >> "$FILE"
+          if [ -z "${{ steps.extract.outputs.notes }}" ] || [ "${{ steps.extract.outputs.notes }}" == "_No response_" ]; then
+            echo "_Aucune observation particulière._" >> "$FILE"
+          else
+            echo "${{ steps.extract.outputs.notes }}" >> "$FILE"
+          fi
+
+      # COMMIT ET PUSH
       - name: Commit file
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add test-sessions/
-          git commit -m "Add test session"
+          git commit -m "Add test session report: ${{ steps.filename.outputs.file }}"
           git push
 
-      #  COMMENTAIRE
-      - name: Comment confirmation
+      # FERMETURE DE L'ISSUE
+      - name: Finalize Issue
         uses: actions/github-script@v7
         with:
           script: |
@@ -1448,14 +1600,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: "🧪 Session de test exportée en fichier `.md` dans `test-sessions/`."
+              body: "🧪 Test session exported successfully : `test-sessions/${{ steps.filename.outputs.file }}`."
             });
-
-      #  FERMETURE
-      - name: Close issue
-        uses: actions/github-script@v7
-        with:
-          script: |
             await github.rest.issues.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -1652,6 +1798,61 @@ jobs:
 
           git commit -m "📄 Bug Report Halyzia v${{ github.event.inputs.version }} — généré automatiquement"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+================================================================================
+FILE: .github\workflows\pilotage_cases_auto.yml  (50 lignes)
+================================================================================
+name: Initialiser Checklist Session
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  setup:
+    if: contains(github.event.issue.title, '[TEST SESSION]')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extraire Checklist
+        id: get_wf
+        run: |
+          # 1. On trouve le nom du workflow dans le corps de l'issue
+          WF_NAME=$(echo '${{ github.event.issue.body }}' | grep -A 1 "### Workflow à charger" | tail -n 1 | tr -d '"')
+          
+          # 2. On cherche le fichier correspondant
+          WF_PATH=".github/workflow-definitions/${WF_NAME}.md"
+          
+          if [ -f "$WF_PATH" ]; then
+            # On extrait tout ce qui est sous "## Checklist" jusqu'au prochain titre
+            CHECKLIST=$(sed -n '/## Checklist/,/##/p' "$WF_PATH" | grep '^-')
+            
+            # On prépare le nouveau corps de l'issue
+            {
+              echo "NEW_BODY<<EOF"
+              echo "${{ github.event.issue.body }}"
+              echo -e "\n\n---\n## 📋 CHECKLIST TEMPS RÉEL\n"
+              echo "$CHECKLIST"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Issue
+        if: steps.get_wf.outputs.NEW_BODY != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: process.env.NEW_BODY
+            });
+        env:
+          NEW_BODY: ${{ steps.get_wf.outputs.NEW_BODY }}
 
 ================================================================================
 FILE: .github\workflows\sync_Kanban.yml  (24 lignes)
@@ -1891,116 +2092,229 @@ jobs:
 
 
 ================================================================================
-FILE: test-sessions\test-2026-04-13-.md  (23 lignes)
+FILE: test-sessions\test_Messaouda_2026-06-19.md  (34 lignes)
 ================================================================================
-# 
+# Rapport de Session : test_Messaouda_2026-06-19.md
 
 ## Informations générales
-- Testeur : messaouda
-- Date : 2026-04-13
-- Version : 2.0.0.5
-- Workflow : WF-01
+- **Testeur :** Messaouda
+- **Date :** 2026-06-19
+- **Version Halyzia :** 2.0.02
 
-## Workflow exécuté
-(tests prédéfinis)
+## 📋 Traceability of performed steps
+### Workflow 1
+- [x] lancer le scalogramme (macro et micro)
 
-_No response_
+### Workflow 2
+- [x] Zoom et scroll dans le signal
+- [x] PSD et marquage de quelques signaux as bad
+- [x] appliquer un filtre permanent sur tous les canaux (5-600Hz-Notch)
+- [x] monter l’électrode micro montage AVG avec rattachement à un macro
 
-## Tests supplémentaires
-(hors workflow)
+### Workflow 3
+- [x] Ajustement des paramètres d’affichage
 
-_No response_
+### Workflow 4
+- [x] Ajustement paramètres affichage
 
-## Notes
-_No response_
+### Workflows 6 à 16
+- [x] WF 16 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure ou égale à 500Hz et lancer une détection de Ripple puis vérifier qu’on reçoit bien le warning qui informe sur la fréquence qui sera utilisé.
 
-## Statut
-✅ Session complète
+### ✅ General verification
+- [x] Double cliquer sur un canal hors mode annotation
+
+### ⌨️ Shortcuts
+- [x] Tab (rotation horaire)
+
+## 📝 Obserations
+note
 
 
 ================================================================================
-FILE: test-sessions\test-2026-04-13-ajuster_les_filtres_permannents.md  (23 lignes)
+FILE: test-sessions\test_messaouda_202-05-05.md  (13 lignes)
 ================================================================================
-# ajuster les filtres permannents
+# Rapport de Session : test_messaouda_202-05-05.md
 
 ## Informations générales
-- Testeur : messaouda
-- Date : 2026-04-13
-- Version : 2.0.0.5
-- Workflow : WF-80
+- **Testeur :** messaouda
+- **Date :** 202-05-05
+- **Version Halyzia :** 2.0.0.7
 
-## Workflow exécuté
-(tests prédéfinis)
+## 📋 Traçabilité des étapes réalisées
+### Workflow 1
+- [x] NEW
 
-_No response_
-
-## Tests supplémentaires
-(hors workflow)
-
-_No response_
-
-## Notes
-_No response_
-
-## Statut
-✅ Session complète
+## 📝 Observations
+new note
 
 
 ================================================================================
-FILE: test-sessions\test-2026-04-13-annotations_test.md  (23 lignes)
+FILE: test-sessions\test_messaouda_2026-04-29.md  (25 lignes)
 ================================================================================
-# annotations test
+# Rapport de Session de Test
 
 ## Informations générales
-- Testeur : messaouda
-- Date : 2026-04-13
-- Version : 2.0.0.5
-- Workflow : WF-01
+- **Testeur :** messaouda
+- **Date :** 2026-04-29
+- **Version Halyzia :** 2.0.0.7
 
-## Workflow exécuté
-(tests prédéfinis)
+## ✅ Étapes et vérifications réalisées
+- [x] NEW
+- [x] Ajustement des paramètres d’affichage
+- [x] Déplacer les évènements à l’aide de la molette de la souris
+- [x] lancer les 3 event viewer (deux types d'event, labéliser et filtres)
+- [x] passer en MED
+- [x] Passer en macro-référencement
+- [x] Modifier amplitude (2 micros / 3 macros)
+- [x] Détections sur les 3 types d'events (détecteurs différents)
+- [x] Ajuster amplitude via panel haut/droite
+- [x] WF 14 : Ouvrir un dossier Halyzia créé avec une ancienne version et dans lequel il y’a eu détection d’évènement > Ouvrez les différents cartes topo et event viewer.
+- [x] WF 15 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure à 1200Hz et lancer la détection de chaque type d’évènement.
+- [x] WF 16 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure ou égale à 500Hz et lancer une détection de Ripple puis vérifier qu’on reçoit bien le warning qui informe sur la fréquence qui sera utilisé.
+- [x] Rajouter des annotation biomarqueurs
+- [x] Affichage zones artefactées dans carte topo
 
-_No response_
-
-## Tests supplémentaires
-(hors workflow)
-
-_No response_
-
-## Notes
-_No response_
-
-## Statut
-✅ Session complète
+## 📝 Observations
+_Aucune observation particulière._
 
 
 ================================================================================
-FILE: test-sessions\test-2026-04-13-detection_des_ripples.md  (23 lignes)
+FILE: test-sessions\test_messaouda_2026-05-04.md  (10 lignes)
 ================================================================================
-# detection des ripples
+# Rapport : test_messaouda_2026-05-04.md
 
 ## Informations générales
-- Testeur : messaouda
-- Date : 2026-04-13
-- Version : 2.0.0.6
-- Workflow : WF-67
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
 
-## Workflow exécuté
-(tests prédéfinis)
-
-_No response_
-
-## Tests supplémentaires
-(hors workflow)
-
-_No response_
-
-## Notes
-_No response_
-
-## Statut
-✅ Session complète
+## 📋 Détails de la traçabilité
+## 📝 Observations
+_Aucune observation particulière._
 
 
 ================================================================================
-TOTAL: 37 fichiers | 1816 lignes
+FILE: test-sessions\test_messaouda_2026-05-04_v2.md  (10 lignes)
+================================================================================
+# Rapport : test_messaouda_2026-05-04_v2.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Détails de la traçabilité
+## 📝 Observations
+_Aucune observation particulière._
+
+
+================================================================================
+FILE: test-sessions\test_messaouda_2026-05-04_v3.md  (10 lignes)
+================================================================================
+# Rapport : test_messaouda_2026-05-04_v3.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Détails de la traçabilité
+## 📝 Observations
+_Aucune observation particulière._
+
+
+================================================================================
+FILE: test-sessions\test_messaouda_2026-05-04_v4.md  (10 lignes)
+================================================================================
+# Rapport : test_messaouda_2026-05-04_v4.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Détails de la traçabilité
+## 📝 Observations
+_Aucune observation particulière._
+
+
+================================================================================
+FILE: test-sessions\test_messaouda_2026-05-04_v5.md  (10 lignes)
+================================================================================
+# Rapport : test_messaouda_2026-05-04_v5.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Détails de la traçabilité
+## 📝 Observations
+_Aucune observation particulière._
+
+
+================================================================================
+FILE: test-sessions\test_messaouda_2026-05-04_v6.md  (25 lignes)
+================================================================================
+# Rapport de Session : test_messaouda_2026-05-04_v6.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-04
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Traçabilité des étapes réalisées
+### Workflow 1
+- [x] NEW
+
+### Workflow 2
+- [x] hide un canal micro
+
+### Workflow 3
+- [x] Lancer PSD
+
+### Workflow 5
+- [x] Lancer PSD
+
+### Workflows 6 à 16
+- [x] WF 16 : Créé un dossier à partir d’un fichier dont la fréquence du signal est inférieure ou égale à 500Hz et lancer une détection de Ripple puis vérifier qu’on reçoit bien le warning qui informe sur la fréquence qui sera utilisé.
+
+## 📝 Observations
+_Aucune observation particulière._
+
+
+================================================================================
+FILE: test-sessions\test_messaouda_2026-05-05.md  (28 lignes)
+================================================================================
+# Rapport de Session : test_messaouda_2026-05-05.md
+
+## Informations générales
+- **Testeur :** messaouda
+- **Date :** 2026-05-05
+- **Version Halyzia :** 2.0.0.7
+
+## 📋 Traçabilité des étapes réalisées
+### Workflow 1
+- [x] NEW
+
+### Workflow 2
+- [x] export métriques
+
+### Workflow 5
+- [x] Ajustement paramètres affichage
+
+### Workflows 6 à 16
+- [x] WF 12 : Double clic pour ouvrir les fichiers TRC et EDF. Double cliquer une deuxième fois pour vérifier qu’Halyzia ouvre l’ancien dossier créé immédiatement.
+
+### ✅ Vérifications générales
+- [x] Texte libre 'artefact' : pas d'effet réel
+
+### ⌨️ Raccourcis clavier
+- [x] Enter (liste labels) + flèches navigation
+
+## 📝 Observations
+new note
+
+
+================================================================================
+TOTAL: 43 fichiers | 2100 lignes
