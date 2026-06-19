@@ -41,18 +41,18 @@ jobs:
             }
 
             const data = {
-              testeur: extract("Testeur"),
-              date: extract("Date du test"),
-              version: extract("Version testée"),
-              notes: extract("Notes et Observations"),
+              testeur: extract("Tester"),
+              date: extract("Test Date"),
+              version: extract("Tested version"),
+              notes: extract("Notes and Observations"),
               wf1: getCheckedOnly(extract("Workflow 1")),
               wf2: getCheckedOnly(extract("Workflow 2")),
               wf3: getCheckedOnly(extract("Workflow 3")),
               wf4: getCheckedOnly(extract("Workflow 4")),
               wf5: getCheckedOnly(extract("Workflow 5")),
-              wf6_16: getCheckedOnly(extract("Workflows 6 à 16")),
-              verify: getCheckedOnly(extract("✅ A VÉRIFIER")),
-              shortcuts: getCheckedOnly(extract("⌨️ Raccourcis annotation"))
+              wf6_16: getCheckedOnly(extract("Workflows 6 to 16")),
+              verify: getCheckedOnly(extract("✅ To verify")),
+              shortcuts: getCheckedOnly(extract("⌨️ Shortcuts"))
             };
 
             for (const key in data) {
@@ -90,7 +90,7 @@ jobs:
           echo "- **Version Halyzia :** ${{ steps.extract.outputs.version }}" >> "$FILE"
           echo "" >> "$FILE"
 
-          echo "## 📋 Traçabilité des étapes réalisées" >> "$FILE"
+          echo "## 📋 Traceability of performed steps" >> "$FILE"
 
           # Injection dynamique des sections si elles contiennent des éléments [x]
           if [ ! -z "${{ steps.extract.outputs.wf1 }}" ]; then
@@ -130,18 +130,18 @@ jobs:
           fi
 
           if [ ! -z "${{ steps.extract.outputs.verify }}" ]; then
-            echo "### ✅ Vérifications générales" >> "$FILE"
+            echo "### ✅ General verification" >> "$FILE"
             echo "${{ steps.extract.outputs.verify }}" >> "$FILE"
             echo "" >> "$FILE"
           fi
 
           if [ ! -z "${{ steps.extract.outputs.shortcuts }}" ]; then
-            echo "### ⌨️ Raccourcis clavier" >> "$FILE"
+            echo "### ⌨️ Shortcuts" >> "$FILE"
             echo "${{ steps.extract.outputs.shortcuts }}" >> "$FILE"
             echo "" >> "$FILE"
           fi
 
-          echo "## 📝 Observations" >> "$FILE"
+          echo "## 📝 Obserations" >> "$FILE"
           if [ -z "${{ steps.extract.outputs.notes }}" ] || [ "${{ steps.extract.outputs.notes }}" == "_No response_" ]; then
             echo "_Aucune observation particulière._" >> "$FILE"
           else
@@ -166,7 +166,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: "🧪 Session de test exportée avec succès : `test-sessions/${{ steps.filename.outputs.file }}`."
+              body: "🧪 Test session exported successfully : `test-sessions/${{ steps.filename.outputs.file }}`."
             });
             await github.rest.issues.update({
               owner: context.repo.owner,

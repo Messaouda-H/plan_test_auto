@@ -15,24 +15,24 @@ body:
   - type: dropdown
     id: Type_du_signalement
     attributes:
-      label: Type du signalement
+      label: Reporting cause
       options:
-        - Manque
-        - Annomalie
-        - Autre
+        - Lack
+        - anomaly
+        - other
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version Halyzia
+      label: Halyzia's version 
       placeholder: ex. V1.7.1
     validations:
       required: true
   - type: dropdown
     id: format
     attributes:
-      label: Format du fichier EEG utilise
+      label: EEG file format
       options:
         - .ncs
         - .edf
@@ -46,83 +46,83 @@ body:
   - type: input
     id: fichier
     attributes:
-      label: Nom du fichier teste
+      label: Test file name 
       placeholder: ex. P110_DP002-sieste_micmac-ncs
     validations:
       required: true
   - type: input
     id: pc
     attributes:
-      label: PC utilise
+      label: Used laptop
       placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
     validations:
       required: true
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
       placeholder: ex. Halissath 
     validations:
       required: true
   - type: dropdown
     id: severite
     attributes:
-      label: Severite
+      label: Severity
       options:
-        - Critique — crash / perte de donnees
-        - Majeur — fonctionnalite bloquee
-        - Mineur — comportement incorrect mais contournable
-        - Cosmétique — affichage seulement
+        - Critical - Application crash or data loss
+        - Major - Functionality blocked/unavailable
+        - Minor - Incorrect behavior but with a workaround available
+        - Visual — Display/UI issue only
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
-      label: Description du bug
-      placeholder: Decrivez precisement ce qui s'est passe...
+      label: Deficiency description 
+      placeholder: Please describe exactly what happened...
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Etapes pour reproduire
+      label: Steps to reproduce
       placeholder: |
-        1. Ouvrir Halyzia V1.7.1
-        2. NEW > selectionner dossier X
-        3. Appliquer filtre permanent...
-        4. Observer le bug
+        1. Open Halyzia V1.7.1
+        2. NEW > Select folder X
+        3. Apply a permanent filter...
+        4. Observe the bug
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Resultat attendu
+      label: Expected results
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Resultat obtenu
+      label: Actual results
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Lignes d'erreur (copier-coller depuis le terminal)
+      label: Error lines (if any)
       render: shell
   - type: textarea
     id: screenshots
     attributes:
-      label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement). 
-      placeholder: Ajoutez une ou plusieurs captures d'écran
+      label: Screenshot
+      description: Please place your screanshot here. 
+      placeholder: you can add one or multiple screenshots...
     validations:
       required: false
   - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
-      description: Choisir la personne responsable
+      label: Assigned to
+      description: Select the person responsible for handling this issue.
       options:
         - Halissath
         - Messaouda
@@ -131,9 +131,9 @@ body:
   - type: dropdown
     id: os
     attributes:
-      label: Systeme d'exploitation
+      label: OS
       options:
         - Windows 10
         - Windows 11
         - macOS
-        - Autre
+        - other

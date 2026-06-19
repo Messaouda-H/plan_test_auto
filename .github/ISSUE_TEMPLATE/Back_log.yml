@@ -1,5 +1,5 @@
 name : Back Logs 
-description : Ajouter un nouveau Back log
+description : Add a new feature request
 title: '[Back log]'
 labels : 
   - BackLog 
@@ -10,19 +10,20 @@ body :
   - type: markdown
     attributes:
       value:  |
-        ## Signalement de Backlog — Halyzia
-          Remplir tous les champs. 
+        **## Backlog Report — Halyzia**
+          Please complete all fields.
+
   - type: input
-    id : Utilisateur 
+    id : User 
     attributes: 
-      label : Nom de l'utilsateur (intern / Beta)
+      label : User name (internal / beta)
       placeholder : ex. Halissath / Adrien 
     validations:
       required: true
   - type: input
-    id : Demande
+    id : Request
     attributes: 
-       label : Entrez l'intitulé de la Demande
+       label : Enter the request title
     validations: 
       required : true 
   - type : input 
@@ -34,7 +35,7 @@ body :
   - type: input 
     id: Decision 
     attributes:
-      label : Quelle decision a ete prise pour cette demande 
+      label : What decision was made for this request? 
     validations :
       required: true
   - type: input 
@@ -46,7 +47,7 @@ body :
   - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
+      label: Assigned to
       description: Choisir la personne responsable
       options:
         - Halissath
@@ -54,9 +55,9 @@ body :
     validations:
       required: true
   - type : input 
-    id : Commentaire 
+    id : Comments
     attributes:
-      label: Commentaire
+      label: Comments
   
 
 

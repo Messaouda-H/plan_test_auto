@@ -7,32 +7,32 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 📋 Instructions de test
-        Cochez les étapes du workflow que vous réalisez, puis complétez la section **"A vérifier"** en bas de page.
+        ## 📋 Test Instructions 
+        Check the workflow steps you completed, then fill the "To Verify" section at the bottom of the page.
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
     validations:
       required: true
   - type: input
     id: date_test
     attributes:
-      label: Date du test
+      label: Test date 
       placeholder: YYYY-MM-DD
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version testée
+      label: Tested Version 
       placeholder: ex. 2.0.0.7
     validations:
       required: true
   - type: checkboxes
     id: wf1
     attributes:
-      label: "Workflow 1 : NEW + Détections complètes"
+      label: "Workflow 1 "
       options:
         - label: "NEW"
         - label: "Ajustement des paramètres d’affichage"
@@ -64,7 +64,7 @@ body:
   - type: checkboxes
     id: wf2
     attributes:
-      label: "Workflow 2 : Bipolaire + Ripples/FR"
+      label: "Workflow 2 "
       options:
         - label: "NEW"
         - label: "Ajustement des paramètres d’affichage"
@@ -92,7 +92,7 @@ body:
   - type: checkboxes
     id: wf3
     attributes:
-      label: "Workflow 3 : MED + Spikes"
+      label: "Workflow 3 "
       options:
         - label: "NEW"
         - label: "Ajustement des paramètres d’affichage"
@@ -117,7 +117,7 @@ body:
   - type: checkboxes
     id: wf4
     attributes:
-      label: "Workflow 4 : Couleurs + AVG + Détection FR/Ripples"
+      label: "Workflow 4 "
       options:
         - label: "NEW"
         - label: "Ajustement paramètres affichage"
@@ -139,7 +139,7 @@ body:
   - type: checkboxes
     id: wf5
     attributes:
-      label: "Workflow 5 : Macro-référencement + 3 types d'évènements"
+      label: "Workflow 5 "
       options:
         - label: "NEW"
         - label: "Ajustement paramètres affichage"
@@ -160,7 +160,7 @@ body:
   - type: checkboxes
     id: wf6_16
     attributes:
-      label: "Workflows 6 à 16 (Cochez celui réalisé)"
+      label: "Workflows 6 to 16 "
       options:
         - label: "WF 6 : : Workflow 1 lors des annotations fermer Halyzia et rouvrir le dossier, en référencement avec un canal macro. Avec micro-électrode monté en MED sans Rattachement aux électrodes macros. Lancer le PSD en montage. Fermer et rouvrir le même dossier"
         - label: "WF 7 : Workflow 1 (dupliquer le dossier du workflow pour ne pas avoir à tout recommencer), rouvrir le dossier, lancer une détection de FR avec le même détecteur sur une échelle de temps qui overlappe avec l’ancienne durée de détection (Ex : 0 100s et 50 200s) > ouvrir la carte topo et vérifier le taux horaire > lancer une détection de Ripples avec le même détecteur avec différents paramètres > lancer une détection de spikes avec un détecteur Janca"
@@ -177,30 +177,30 @@ body:
   - type: checkboxes
     id: averifier
     attributes:
-      label: "✅ A VÉRIFIER"
+      label: "✅ To verify"
       options:
         - label: "Double cliquer sur un canal hors mode annotation"
         - label: "Entrer en mode annotation"
         - label: "Rajouter des annotation biomarqueurs"
         - label: "Rajouter others events (label prédéfinit et texte personnalisé)"
         - label: "Rajouter des notes"
-        - label: "Quitter mode annotation : conservation évènements"
+        - label: "Quitter mode annotation et vérifier la conservation évènements"
         - label: "Supprimer évènements en mode annotation : sauvegarde ok"
         - label: "Passer en mode annotation dans tous les montages"
         - label: "Lancer une détection après rajout annotations"
-        - label: "Vérifier affichage annotations barre navigation"
-        - label: "Vérifier affichage notes barre navigation"
-        - label: "Copier-coller évènements auto"
-        - label: "Event viewer : events manuels seuls + filtres"
-        - label: "Performance : affichage, labélisation, filtres"
-        - label: "Texte libre (spike/FR/Ripples) non compté dans biomarqueurs"
-        - label: "Artefact en bipolaire avant détection"
+        - label: "Vérifier que les annotations s’affichent dans la barre de navigation "
+        - label: "Regarder comment s’affiche les notes dans la barre de navigation"
+        - label: "Copier-coller des évènements détectés automatiquement"
+        - label: "Ouvrir un event viewer afficher que les évènements manuels, appliquer les filtres sur les évènements manuels"
+        - label: "Vérifier la performance (temps d’affichage de l’event viewer, temps de labélisation, temps d’application de filtre)"
+        - label: "Ajouter des annotations textes libres (spike, FR ou Ripples) et vérifier qu’ils ne sont pas pris en compte dans les évènements biomarqueurs"
+        - label: "Appliquer un artefact en bipolaire avant détection d’évènements"
         - label: "Copier-coller un artefact"
-        - label: "Artefact dupliqué en passage bipolaire"
-        - label: "Ajouter artefact en bipolaire"
-        - label: "Passer monopolaire : absence artefact sur canaux impliqués"
-        - label: "Ajout artefact après détection : disparition event viewer/export"
-        - label: "Texte libre 'artefact' : pas d'effet réel"
+        - label: "Passer en bipolaire et vérifier que l’Artefact est dupliqué"
+        - label: "Ajouter un artefact en bipolaire"
+        - label: "Passer en monopolaire et vérifiez que l’artefact n’est pas sur les canaux impliqués"
+        - label: "Ajouter des artefacts après détection d’évènements et vérifier que les évènements disparaissent et ne s’affichent pas dans l’event viewer et l’export métrique"
+        - label: "Ajouté un évènement texte libre artefact et vérifier qu’il n’a pas les mêmes effets qu’artefact"
         - label: "Carte topo : events manuels seul + filtres"
         - label: "Hourly rate : annotation hors zone vs zone auto"
         - label: "Carte topo sans évènements auto + hourly rate"
@@ -218,7 +218,7 @@ body:
   - type: checkboxes
     id: raccourcis
     attributes:
-      label: "⌨️ Raccourcis annotation"
+      label: "⌨️ Shortcuts"
       options:
         - label: "Tab (rotation horaire)"
         - label: "Shift + Tab (anti-horaire)"
@@ -229,5 +229,5 @@ body:
   - type: textarea
     id: notes
     attributes:
-      label: "Notes et Observations"
-      placeholder: "Décrivez ici les anomalies ou comportements observés..."
+      label: "Notes and Observations"
+      placeholder: "Describe any anomalies or behaviors observed here..."

@@ -8,22 +8,22 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Signalement d'annomalie — Halyzia
-        Remplir tous les champs. Le bug sera automatiquement
-        assigne et suivi dans le tableau de bord.
+        ## Halyzia Issue Report
+            Please complete all fields. 
+            The issue will be automatically assigned and tracked in the dashboard.
   - type: input
     id: version
     attributes:
-      label: Version Halyzia
+      label: Halyzia's version
       placeholder: ex. V1.7.1
     validations:
       required: true
   - type: dropdown
     id: sessiontest
     attributes:
-      label: La session test en cours quand l'annomalie est apparue
+      label: The current test session when the anomaly occurred
       description: |
-        Voir les definitions completes dans PLAN_TEST_AUTO/test-sessions/
+        See full definitions in PLAN_TEST_AUTO/test-sessions/
       options:
         - '"Rapport de Session : test_messaouda_202-05-05.md"'
         - '"Rapport de Session de Test"'
@@ -38,7 +38,7 @@ body:
   - type: dropdown
     id: format
     attributes:
-      label: Format du fichier EEG utilise
+      label: EEG format
       options:
         - .ncs
         - .edf
@@ -52,97 +52,97 @@ body:
   - type: textarea
     id: test_data
     attributes:
-      label: Lien vers dossier/fichier de test
+      label: Link to test folder/file
       description: >-
-        Lien vers dossier (Drive, serveur, zip, etc.) ou glissez-déposez vos
-        fichiers ici
+        Link to folder (Drive, server, zip, etc.) or drag and drop your files here
+
       placeholder: https://...
     validations:
       required: true
   - type: input
     id: pc
     attributes:
-      label: PC utilise
+      label: Used laptop
       placeholder: ex. MSI / LAPTOP-LQFVND1H / Mac
     validations:
       required: true
   - type: input
     id: testeur
     attributes:
-      label: Testeur
+      label: Tester
       placeholder: ex.  Halissath
     validations:
       required: true
   - type: dropdown
-    id: severite
+    id: severity
     attributes:
       label: Severite
       options:
-        - Critique — crash / perte de donnees
-        - Majeur — fonctionnalite bloquee
-        - Mineur — comportement incorrect mais contournable
-        - Cosmétique — affichage seulement
+        - Critical - Application crash or data loss
+        - Major - Functionality blocked/unavailable
+        - Minor - Incorrect behavior but with a workaround available
+        - Visual — Display/UI issue only
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
-      label: Description du bug
-      placeholder: Decrivez precisement ce qui s'est passe...
+      label: Deficiency description
+      placeholder: Please describe exactly what happened...
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Etapes pour reproduire
+      label: Steps to reproduce
       placeholder: |
-        1. Ouvrir Halyzia V1.7.1
-        2. NEW > selectionner dossier X
-        3. Appliquer filtre permanent...
-        4. Observer le bug
+        1. Open Halyzia V1.7.1
+        2. NEW > Select folder X
+        3. Apply a permanent filter...
+        4. Observe the bug
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Resultat attendu
+      label: Expected results
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Resultat obtenu
+      label: Actual results
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Lignes d'erreur (copier-coller depuis le terminal)
+      label: Error lines (if any)
       render: shell
   - type: textarea
     id: screenshots
     attributes:
-      label: Captures d'écran
-      description: Glissez-déposez vos captures d'écran ici (ou collez-les directement).
-      placeholder: Ajoutez une ou plusieurs captures d'écran
+      label: Screenshot
+      description: Please place your screanshot here. 
+      placeholder: you can add one or multiple screenshots...
     validations:
       required: false
   - type: dropdown
-    id: os
-    attributes:
-      label: Systeme d'exploitation
-      options:
-        - Windows 11
-        - Windows 10
-        - macOS
-        - Autre
-  - type: dropdown
     id: assignee_choice
     attributes:
-      label: Assigner à
-      description: Choisir la personne responsable
+      label: Assigned to
+      description: Select the person responsible for handling this issue.
       options:
         - Halissath
         - Messaouda
     validations:
       required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS
+        - other
