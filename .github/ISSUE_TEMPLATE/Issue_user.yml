@@ -26,7 +26,7 @@ body:
     id: version
     attributes:
       label: Halyzia's version 
-      placeholder: ex. V1.7.1
+      placeholder: ex. 2.0.1
     validations:
       required: true
   - type: dropdown
@@ -40,14 +40,14 @@ body:
         - .ns5
         - .medd
         - .nsc
-        - Autre
+        - other
     validations:
       required: true
   - type: input
     id: fichier
     attributes:
       label: Test file name 
-      placeholder: ex. P110_DP002-sieste_micmac-ncs
+      placeholder: ex. Patient-folder-ncs
     validations:
       required: true
   - type: input
