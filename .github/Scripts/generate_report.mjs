@@ -34,18 +34,8 @@ async function main() {
     per_page: 100,
   });
 
-  const relevantIssues = issues.filter((issue) => {
-    const body = (issue.body || "").toLowerCase();
-    const title = (issue.title || "").toLowerCase();
-    const labels = issue.labels.map((l) => l.name.toLowerCase());
-    const hasVersion = body.includes(version.toLowerCase()) || title.includes(version.toLowerCase());
-    const isRelevant = labels.some((l) => ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l));
-    return hasVersion || isRelevant;
-  });
-
-  console.log(`✅ ${relevantIssues.length} issues trouvées`);
-
   const extractField = (body, ids) => {
+    if (!body) return "";
     for (const id of ids) {
       const regex = new RegExp(`### ${id}\\s*([\\s\\S]*?)(?=\\n###|$|$)`, "i");
       const match = body.match(regex);
@@ -72,16 +62,37 @@ async function main() {
     return Array.from(urls);
   };
 
+  // ==================== FILTRAGE STRICT PAR VERSION ET LABEL ====================
+  const relevantIssues = issues.filter((issue) => {
+    const body = (issue.body || "").toLowerCase();
+    const title = (issue.title || "").toLowerCase();
+    const labels = issue.labels.map((l) => l.name.toLowerCase());
+    
+    // 1. Doit avoir un label pertinent
+    const isRelevantLabel = labels.some((l) => 
+      ["backlog", "test", "utilisateur", "bug", "issue test"].includes(l)
+    );
+    
+    // 2. Doit correspondre à la version cible (vérification du champ spécifique, puis du texte global)
+    const exactVersionField = extractField(issue.body || "", ["version", "Version concernée", "Halyzia's version"]).toLowerCase();
+    const hasVersionInText = body.includes(version.toLowerCase()) || title.includes(version.toLowerCase());
+    
+    const matchesVersion = exactVersionField ? exactVersionField.includes(version.toLowerCase()) : hasVersionInText;
+
+    // Condition ET (Stricte)
+    return isRelevantLabel && matchesVersion;
+  });
+
+  console.log(`✅ ${relevantIssues.length} issues trouvées pour la version ${version}`);
+
   // ==================== REGROUPEMENT DES ISSUES PAR SESSION ====================
   const groupedIssues = {};
   const standaloneIssues = [];
 
   relevantIssues.forEach((issue) => {
     const body = issue.body || "";
-    // On extrait la valeur de la session liée (par exemple : "test_messaouda_2026-05-04_v6.md")
-    let sessionLinked = extractField(body, ["sessiontest", "La session test en cours quand l'annomalie est apparue"]);
+    let sessionLinked = extractField(body, ["sessiontest", "The current test session when the anomaly occurred"]);
     
-    // Nettoyage des guillemets éventuels autour du nom de fichier
     if (sessionLinked) {
       sessionLinked = sessionLinked.replace(/^"|"$/g, '').trim();
     }
@@ -144,7 +155,7 @@ async function main() {
             new TableCell({ children: [new Paragraph(new Date(issue.created_at).toLocaleDateString("fr-FR"))] }),
             new TableCell({ children: [new Paragraph(issue.state === "closed" ? "Fix / Closed" : "Open")] }),
             new TableCell({ children: [new Paragraph("")] }),
-            new TableCell({ children: [new Paragraph(extractField(body, ["severite", "Severite"]) || "Mineur")] }),
+            new TableCell({ children: [new Paragraph(extractField(body, ["severite", "Severity"]) || "Mineur")] }),
           ],
         }),
       ],
@@ -159,18 +170,18 @@ async function main() {
       { label: "Milestone", value: extractField(body, ["Milestone"]) },
       { label: "Commentaire", value: extractField(body, ["Commentaire"]) },
     ] : [
-      { label: "Version concernée", value: extractField(body, ["version"]) },
+      { label: "Version concernée", value: extractField(body, ["version", "Version concernée", "Halyzia's version"]) },
       { label: "Workflow", value: extractField(body, ["workflow"]) },
-      { label: "Format du fichier", value: extractField(body, ["format"]) },
-      { label: isUserIssue ? "Fichier testé" : "Lien test", value: extractField(body, ["fichier", "test_data"]) },
-      { label: "PC utilisé", value: extractField(body, ["pc"]) },
-      { label: "Testeur", value: extractField(body, ["testeur"]) },
-      { label: "Système d’exploitation", value: extractField(body, ["os"]) },
-      { label: "Description", value: extractField(body, ["description", "Description du bug"]) },
-      { label: "Étapes pour reproduire", value: extractField(body, ["steps", "Etapes pour reproduire"]) },
-      { label: "Résultat attendu", value: extractField(body, ["expected"]) },
-      { label: "Résultat obtenu", value: extractField(body, ["actual"]) },
-      { label: "Logs / Erreurs", value: extractField(body, ["logs", "Lignes d'erreur"]) },
+      { label: "Format du fichier", value: extractField(body, ["format", "EEG format", "EEG file format"]) },
+      { label: isUserIssue ? "Fichier testé" : "Lien test", value: extractField(body, ["fichier", "test_data", "Test file name", "Link to test folder/file"]) },
+      { label: "PC utilisé", value: extractField(body, ["pc", "Used laptop"]) },
+      { label: "Testeur", value: extractField(body, ["testeur", "Tester"]) },
+      { label: "Système d’exploitation", value: extractField(body, ["os", "OS"]) },
+      { label: "Description", value: extractField(body, ["description", "Description du bug", "Deficiency description"]) },
+      { label: "Étapes pour reproduire", value: extractField(body, ["steps", "Etapes pour reproduire", "Steps to reproduce"]) },
+      { label: "Résultat attendu", value: extractField(body, ["expected", "Expected results"]) },
+      { label: "Résultat obtenu", value: extractField(body, ["actual", "Actual results"]) },
+      { label: "Logs / Erreurs", value: extractField(body, ["logs", "Lignes d'erreur", "Error lines (if any)"]) },
     ];
 
     fields.forEach((f) => {
@@ -213,7 +224,6 @@ async function main() {
       })
     );
 
-    // Injection de toutes les issues liées à cette session spécifique
     groupedIssues[sessionName].forEach((issue) => {
       appendIssueBlock(issue);
     });
