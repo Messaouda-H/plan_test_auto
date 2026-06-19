@@ -48,7 +48,7 @@ body:
         - .ns5
         - .medd
         - .nsc
-        - Autre
+        - other
     validations:
       required: true
   - type: textarea
